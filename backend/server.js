@@ -1,9 +1,10 @@
+
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 
 const connectMongoDB = require('./config/DB')
-const productRoute = require('./routes/productRoute')
+//const productRoute = require('./routes/productRoute')
 // init app
 const app = express()
 
@@ -13,7 +14,13 @@ app.use(morgan('dev'))
 require('dotenv').config()
 
 // routes
-app.use('/api', productRoute);
+app.use(express.json({extended:false}));
+app.use('/user',require('./routes/user.js'));
+app.use('/book',require('./routes/book.js'));
+app.use('/genre',require('./routes/genre.js'));
+app.use('/author',require('./routes/author.js'));
+app.use('/order',require('./routes/order.js'));
+app.use(cors());
 
 //connect database
 connectMongoDB();
