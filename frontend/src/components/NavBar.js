@@ -39,7 +39,11 @@ const NavBar = (props) => {
               <NavLink href="/components">Products</NavLink>
             </NavItem>
             <NavItem>
+<<<<<<< HEAD
               <NavLink href="">Contact:123-456-789</NavLink>
+=======
+              <NavLink  href="">Contact:123-456-789</NavLink>
+>>>>>>> main
             </NavItem>
             <UncontrolledDropdown nav inNavbar>
             </UncontrolledDropdown>
