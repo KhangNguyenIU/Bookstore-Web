@@ -31,10 +31,10 @@ const NavBar = (props) => {
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto mr-auto" navbar>
             <NavItem>
-              <NavLink href="/components/">Products</NavLink>
+              <NavLink href="/components">Products</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="">Contact</NavLink>
+              <NavLink  href="">Contact:123-456-789</NavLink>
             </NavItem>
             <UncontrolledDropdown nav inNavbar>
               
