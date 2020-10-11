@@ -1,19 +1,32 @@
+
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 
 const connectMongoDB = require('./config/DB')
-const productRoute = require('./routes/productRoute')
+//const productRoute = require('./routes/productRoute')
 // init app
 const app = express()
 
-app.use(morgan('dev'))
 
 //config environment variables path to './'
 require('dotenv').config()
+//cors
+if (process.env.NODE_ENV === 'development') {
+    app.use(cors({ origin: `${process.env.CLIENT_URL}` }))
+}
+
+app.use(morgan('dev'))
+
 
 // routes
-app.use('/api', productRoute);
+app.use(express.json({extended:false}));
+app.use('/user',require('./routes/user.js'));
+app.use('/book',require('./routes/book.js'));
+app.use('/genre',require('./routes/genre.js'));
+app.use('/author',require('./routes/author.js'));
+app.use('/order',require('./routes/order.js'));
+app.use(cors());
 
 //connect database
 connectMongoDB();
