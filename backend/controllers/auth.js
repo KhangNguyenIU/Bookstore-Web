@@ -50,4 +50,13 @@ exports.requiredLogin=(req,res,next)=>{
           })
     
      })
+<<<<<<< HEAD
 }
+
+exports.signout = (req, res) => {
+  res.clearCookie('token')
+  res.json({ msg: "Sign out success" })
+};
+=======
+}
+>>>>>>> main
