@@ -1,13 +1,14 @@
 import React from 'react'
 import Banner from '../components/home/Banner'
 import Layout from '../components/Layout'
-import { ToastContainer} from 'react-toastify'
+import { toast, ToastContainer} from 'react-toastify'
 /**
 * @author
 * @function Home
 **/
 
 const Home = (props) => {
+    
     return (
         <Layout>
             <ToastContainer

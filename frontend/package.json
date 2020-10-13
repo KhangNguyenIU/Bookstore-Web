@@ -10,16 +10,11 @@
     "axios": "^0.20.0",
     "bootstrap": "^4.5.2",
     "cors": "^2.8.5",
-<<<<<<< HEAD
     "history": "^5.0.0",
     "isomorphic-fetch": "^3.0.0",
     "js-cookie": "^2.2.1",
     "materialize-css": "^1.0.0-rc.2",
     "nprogress": "^0.2.0",
-=======
-    "isomorphic-fetch": "^3.0.0",
-    "materialize-css": "^1.0.0-rc.2",
->>>>>>> main
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-icons": "^3.11.0",
