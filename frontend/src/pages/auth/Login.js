@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { FcGoogle } from 'react-icons/fc'
 import { Router } from 'react-router-dom';
 import { login, isAuth, authenticate } from '../../actions/auth'
-import { toast, ToastContainer} from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+
+
 /**
 * @author
 * @function Login
 **/
 
 const Login = (props) => {
-    
+
     const [values, setValues] = useState({
         email: 'khang@gmail.com',
         password: '123456',
@@ -22,10 +24,12 @@ const Login = (props) => {
 
     const { email, password, error, loading, message, showForm } = values;
 
+  
     useEffect(() => {
         if (isAuth()) {
             props.history.push('/')
         }
+       
     }, [])
 
     const handleChange = name => e => {
@@ -46,11 +50,12 @@ const Login = (props) => {
                 // save user token to cookie
                 // save user info to localstorage
                 // authenticate user
-                toast.info('Login sucessfully');  
+                toast.info('Login sucessfully');
                 authenticate(data, () => {
-                    
                     if (isAuth()) {
+
                         props.history.push('/')
+
                     }
                 })
             }
@@ -60,7 +65,7 @@ const Login = (props) => {
     const showError = () => (
         error ?
             <div>
-                <p style={{ color: 'red', fontSize:'0.8rem' }}> * {error}</p>
+                <p style={{ color: 'red', fontSize: '0.8rem' }}> * {error}</p>
             </div>
             :
             ''
@@ -103,7 +108,7 @@ const Login = (props) => {
                                         style={{ border: 'none', borderBottom: '1px solid #000', outline: 'none' }} />
                                 </div>
                                 <div className='text-center'>
-                                    <div style={{height:'16px'}}>
+                                    <div style={{ height: '16px' }}>
                                         {showError()}
                                     </div>
 
@@ -134,7 +139,7 @@ const Login = (props) => {
     return (
         <React.Fragment>
             <ToastContainer
-            autoClose={2000}
+                autoClose={2000}
             />;
             {loginForm()}
         </React.Fragment>
