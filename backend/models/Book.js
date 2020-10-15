@@ -6,14 +6,14 @@ const book=mongoose.Schema(
             required: true,
             unique:true 
         },
-        writtenby:[{
+        writtenBy:[{
             type:mongoose.Schema.Types.ObjectId,
-            ref:"author" 
+            ref:"Author" 
         }],
-        genre:{
+        genre:[{
             type:mongoose.Schema.Types.ObjectId,
-            ref:"genre",
-        },
+            ref:"Genre",
+        }],
         year:{
             type:Number,
             default:2018, 
@@ -65,7 +65,7 @@ const book=mongoose.Schema(
             default:"pro"
         }
             
-    }, 
+    }
 );
 
 book.virtual('realprice').get(function() {

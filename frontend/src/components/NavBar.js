@@ -12,10 +12,10 @@ import {
 	UncontrolledDropdown,
 	NavbarText
 } from 'reactstrap';
+import { IoMdLogOut } from 'react-icons/io'
 import { isAuth, signout } from '../actions/auth';
 import nprogress from 'nprogress'
 import 'nprogress/nprogress.css';
-
 /**
 * @author
 * @function NavBar
@@ -28,46 +28,67 @@ const NavBar = (props) => {
 	React.useEffect(() => {
 		nprogress.done();
 		return () => nprogress.start();
-	  });
+	});
 	const toggle = () => setIsOpen(!isOpen);
 	return (
-		<div>
-			<Navbar color="light" light expand="md">
-				<NavbarBrand href="/">
-					Bookstore
+		<React.Fragment>
+			<div>
+				<Navbar color="white" light expand="md">
+					<NavbarBrand href="/">
+						<img
+						height="50px"
+						style={{marginLeft:'2rem'}}
+						src="https://chapterone.qodeinteractive.com/wp-content/uploads/2019/08/logo.png"/>
         </NavbarBrand>
-				<NavbarToggler onClick={toggle} />
-				<Collapse isOpen={isOpen} navbar>
-					<Nav className="ml-auto mr-auto" navbar>
-						<NavItem>
-							<NavLink href="/components">Products</NavLink>
-						</NavItem>
-						<NavItem>
-							<NavLink href="">Contact:123-456-789</NavLink>
-						</NavItem>
-						<UncontrolledDropdown nav inNavbar>
-						</UncontrolledDropdown>
-					</Nav>
+					<NavbarToggler onClick={toggle} />
+					<Collapse isOpen={isOpen} navbar>
+						<Nav className="ml-auto mr-auto" navbar>
+							<NavItem>
+								<NavLink href="/books">Products</NavLink>
+							</NavItem>
+							<NavItem>
+								<NavLink href="">Contact</NavLink>
+							</NavItem>
+							<UncontrolledDropdown nav inNavbar>
+							</UncontrolledDropdown>
+						</Nav>
 
-					{!isAuth() ?
-						(
-							<Nav>
-								<NavLink href="/signin">Sign in</NavLink>
-								<NavLink href="/signup">Sign up </NavLink>
-							</Nav>
-						) :
-						(
-							<Nav>
-								<NavLink href="/profile">User</NavLink>
-								<NavLink
-									onClick={() => signout(() => history.push('/signin'))}
-								>Sign Out </NavLink>
-							</Nav>
-						)
-					}
-				</Collapse>
-			</Navbar>
-		</div>
+						{!isAuth() ?
+							(
+								<Nav >
+									<NavItem>
+										<NavLink style={{color:'black'}} href="/signin">Sign in</NavLink>
+									</NavItem>
+
+									<NavItem>
+										<NavLink style={{color:'black'}} href="/signup">Sign up </NavLink>
+									</NavItem>
+								</Nav>
+							) :
+							(
+								<Nav>
+									{
+										isAuth().role ===1 && (<NavLink style={{color:'black',alignItems:'center'}} href="/profile">Admin Dashboard</NavLink>)
+									}
+									{
+										isAuth().role ===0 &&
+										 (<NavLink href="/profile">
+											 <img 
+											 height="36px"
+											 src="https://www.pavilionweb.com/wp-content/uploads/2017/03/man-300x300.png"/></NavLink>)
+									}
+									
+									<NavLink
+										onClick={() => signout(() => history.push('/signin'))}
+									><IoMdLogOut size="2rem" color="black" cursor="pointer" /></NavLink>
+								</Nav>
+							)
+						}
+					</Collapse>
+				</Navbar>
+			</div>
+		</React.Fragment>
+
 	)
 
 }

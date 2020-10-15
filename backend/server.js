@@ -20,7 +20,7 @@ app.use(morgan('dev'))
 
 
 // routes
-app.use(express.json({extended:false}));
+app.use(express.json());
 app.use('/user',require('./routes/user.js'));
 app.use('/book',require('./routes/book.js'));
 app.use('/genre',require('./routes/genre.js'));

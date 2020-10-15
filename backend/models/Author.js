@@ -6,8 +6,7 @@ const author=mongoose.Schema(
             required:true,
             unique:true
         },
-        work:[{type:mongoose.Schema.Types.ObjectId,ref:'book'}]
-      
+        work:[{type:mongoose.Schema.Types.ObjectId,ref:'book'}]  
     }
 );
 module.exports=Author=mongoose.model('author',author);
