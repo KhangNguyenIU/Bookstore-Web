@@ -53,9 +53,7 @@ const Login = (props) => {
                 toast.info('Login sucessfully');
                 authenticate(data, () => {
                     if (isAuth()) {
-
                         props.history.push('/')
-
                     }
                 })
             }

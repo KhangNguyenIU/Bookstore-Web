@@ -20,6 +20,8 @@ const order=mongoose.Schema(
         }
        
             
-    },
+    },{
+        timestamps: true
+    }
 );
 module.exports=Order=mongoose.model('order',order);

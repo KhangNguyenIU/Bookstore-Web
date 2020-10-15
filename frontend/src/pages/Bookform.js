@@ -1,6 +1,7 @@
 import React, { Component,useState } from 'react';
 import M from 'materialize-css';
 import { BrowserRouter as Router, Route, Link,useHistory } from 'react-router-dom';
+import { getCookie } from '../actions/auth'
 var cors = require('cors');
 const axios = require('axios');
 function Bookform() {
@@ -27,14 +28,14 @@ function Bookform() {
       .then(res=>res.json())
       .then(obj=>{
           console.log(obj.url);
-        axios({
+        fetch({
             method:"post",
             mode:"no cors",
-            url:"/book/addbook",
+            url:"/book/addBook",
             headers:{
               "Access-Control-Allow-Origin":"*",
               "Content-Type":"application/json",
-              "Authorization":"kiet "+localStorage.getItem("jwt")
+              "Authorization":"kiet "+ getCookie('token')
             },
             data:{
                 title:title,
@@ -45,14 +46,12 @@ function Bookform() {
                 amount:amount,
                 description:description,
                 photo:obj.url
-
             }
           })
           .then(res=>{
             if(!res.error)
              {
                M.toast({html:"Add Success",classes:"#b71c1c red darken-4"});
-              
              }
           })
           .catch(err=>M.toast({html:"Invalid infor try again",classes:"#b71c1c red darken-4"})); 

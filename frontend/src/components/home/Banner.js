@@ -9,12 +9,13 @@ import {
 
 const items = [
   {
-    src: 'https://images.unsplash.com/photo-1551029506-0807df4e2031?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1191&q=80',
-    altText: 'Slide 1',
-    caption: 'Slide 1'
+    //src: 'https://images.unsplash.com/photo-1551029506-0807df4e2031?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1191&q=80',
+    src:"/img/banner1.jpg",
+    altText: 'Your world of words',
+    caption: 'Your world of words'
   },
   {
-    src: 'https://images.pexels.com/photos/3309954/pexels-photo-3309954.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=250&w=940',
+    src: 'https://images.unsplash.com/photo-1580715911476-8f1fefcebc4b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1135&q=80',
     altText: 'Slide 2',
     caption: 'Slide 2'
   },
@@ -53,7 +54,8 @@ const Banner = (props) => {
         onExited={() => setAnimating(false)}
         key={item.src}
       >
-        <img src={item.src} alt={item.altText} style={{width:'100%', maxHeight:'500px'}} />
+        <img src={item.src} alt={item.altText} style={{ width: '100%', height: '25rem' }} />
+       
         <CarouselCaption captionText={item.caption} captionHeader={item.caption} />
       </CarouselItem>
     );
@@ -67,7 +69,7 @@ const Banner = (props) => {
     >
       <CarouselIndicators items={items} activeIndex={activeIndex} onClickHandler={goToIndex} />
       {slides}
-      <CarouselControl direction="prev" directionText="Previous" onClickHandler={previous} style={{color:'black'}} />
+      <CarouselControl direction="prev" directionText="Previous" onClickHandler={previous} style={{ color: 'black' }} />
       <CarouselControl direction="next" directionText="Next" onClickHandler={next} />
     </Carousel>
   );
