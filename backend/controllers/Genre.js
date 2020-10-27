@@ -1,12 +1,11 @@
 const express=require('express');
 const mongoose=require('mongoose');
 const Genre=require('../models/Genre.js');
-const slugify = require('slugify')
 var bodyParser = require('body-parser');
 exports.addGenre= async (req, res)=> {
     let genre={};
-    genre.name=req.body.genre;
-    genre.slug=slugify(req.body.genre).toLowerCase()
+    genre.name=req.body.name;
+    genre.slug=req.body.slug;
     let genreModel=new Genre(genre);
     await genreModel.save(function (err,data){
       if(err)
@@ -21,7 +20,7 @@ exports.addGenre= async (req, res)=> {
     
   };
 exports.getGenre=async(req,res)=>{
-    await Genre.find({} ).exec().then(genres=>res.json({data:genres}));
+    await Genre.find({},"name").exec().then(genres=>res.json({data:genres}));
   
 };
 

@@ -1,18 +1,17 @@
 const mongoose=require('mongoose');
-const book=mongoose.Schema(
+var book=mongoose.Schema(
     {
         title:{
             type:String,
             required: true,
             unique:true 
         },
-        writtenBy:[{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"Author" 
+        writtenby:[{author_id:
+            {type:mongoose.Schema.Types.ObjectId,
+            ref:"author" }
         }],
         genre:[{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"Genre",
+            genre_id:{type:mongoose.Schema.Types.ObjectId,ref:'genre'}
         }],
         year:{
             type:Number,
@@ -32,10 +31,16 @@ const book=mongoose.Schema(
             max:100,
             default:0
         },
+        finalprice:{
+            type:Number,
+            min:0,
+            max:this.price,
+            default:0
+        },
         amount:{
             type:Number,
             min:0,
-            default:100 
+            default:100
         },
         sold:{
             type:Number,
@@ -47,7 +52,7 @@ const book=mongoose.Schema(
             default:"No description",
         },
         comments:[{
-            type:String,
+            comment:String,
             postby:{type:mongoose.Schema.Types.ObjectId,ref:'user'}
         }],
         likes:[{
@@ -65,11 +70,7 @@ const book=mongoose.Schema(
             default:"pro"
         }
             
-    }
-);
+    });
 
-book.virtual('realprice').get(function() {
-    return this.price*(1-this.discount/100);
-  });
 
 module.exports=Book=mongoose.model('book',book);

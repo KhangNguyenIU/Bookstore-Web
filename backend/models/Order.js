@@ -2,8 +2,8 @@ const mongoose=require('mongoose');
 const order=mongoose.Schema(
     {
         items:[{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"book" 
+            book_id:{type:mongoose.Schema.Types.ObjectId,ref:'book'} ,
+            amount:{type:Number,min:0}
         }],
         owner:{
             type:mongoose.Schema.Types.ObjectId,
@@ -20,8 +20,6 @@ const order=mongoose.Schema(
         }
        
             
-    },{
-        timestamps: true
-    }
+    },
 );
 module.exports=Order=mongoose.model('order',order);
