@@ -1,5 +1,5 @@
-import React from 'react'
-import { useState } from 'react'
+import React,{ useState,useContext,useEffect } from 'react'
+import {CartContext} from '../App.js';
 import { Link, useHistory, Router } from 'react-router-dom'
 import {
 	Collapse,
@@ -23,8 +23,9 @@ import 'nprogress/nprogress.css';
 
 const NavBar = (props) => {
 	const [isOpen, setIsOpen] = useState(false);
-	const history = useHistory()
+	const history = useHistory();
 	React.useState(nprogress.start());
+	const {statecart,dispatchcart}=useContext(CartContext);
 	React.useEffect(() => {
 		nprogress.done();
 		return () => nprogress.start();
@@ -44,10 +45,10 @@ const NavBar = (props) => {
 					<Collapse isOpen={isOpen} navbar>
 						<Nav className="ml-auto mr-auto" navbar>
 							<NavItem>
-								<NavLink href="/books">Products</NavLink>
+							<NavLink><Link to="/books">Product</Link></NavLink>
 							</NavItem>
 							<NavItem>
-								<NavLink href="">Contact</NavLink>
+							 <NavLink><Link to="">Contact:123-456-789</Link></NavLink>
 							</NavItem>
 							<UncontrolledDropdown nav inNavbar>
 							</UncontrolledDropdown>
@@ -68,18 +69,20 @@ const NavBar = (props) => {
 							(
 								<Nav>
 									{
-										isAuth().role ===1 && (<NavLink style={{color:'black',alignItems:'center'}} href="/profile">Admin Dashboard</NavLink>)
+										isAuth().role ===1 && 
+										(<NavLink style={{color:'black',alignItems:'center'}} href="/profile">Admin Dashboard</NavLink>)
 									}
 									{
 										isAuth().role ===0 &&
 										 (<NavLink href="/profile">
 											 <img 
 											 height="36px"
-											 src="https://www.pavilionweb.com/wp-content/uploads/2017/03/man-300x300.png"/></NavLink>)
+											 src="https://www.pavilionweb.com/wp-content/uploads/2017/03/man-300x300.png"/></NavLink>
+											 )&&(<Link to="/cartDetail">Cart({statecart.items.length})</Link>)
 									}
 									
 									<NavLink
-										onClick={() => signout(() => history.push('/signin'))}
+										onClick={() => signout(() => {localStorage.setItem("user","");localStorage.setItem("role",-1); dispatchcart({type:"CANCEL",payload:null});history.push('/signin')})}
 									><IoMdLogOut size="2rem" color="black" cursor="pointer" /></NavLink>
 								</Nav>
 							)

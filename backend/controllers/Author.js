@@ -13,7 +13,7 @@ exports.addAuthor=async (req, res)=> {
     {
         author.work=[];
         for (i = 0; i < temp.length; i++) {
-            await Book.find({title:temp} ).exec().then(book=>author.work.push(book[i]._id));
+            author.work=author.work.concat(req.body.list[i]);
           }
     }
     let authorModel=new Author(author);

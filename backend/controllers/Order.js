@@ -8,9 +8,13 @@ exports.addOrder= async (req, res)=> {
     let order={};
     order.items=[];
     for (i = 0; i < req.body.items.length; i++) {
-        await Book.find({title:req.body.items} ).exec().then(book=>order.items.push(book[i]._id));
+       // await Book.find({title:req.body.items} ).exec().then(book=>order.items.push(book[i]._id));
+        var obj={"book_id":req.body.items[i].book_id,"amount":req.body.items[i].amount};
+        Book.findByIdAndUpdate(req.body.items[i].book_id,{$inc:{sold:req.body.items[i].amount,amount:-req.body.items[i].amount}},{new:true}).exec();
+        order.items=order.items.concat(obj);
       }
       order.owner=req.user._id;
+      order.total=req.body.total;
     let orderModel=new Order(order);
     await orderModel.save(function (err,data){
       if(err)
@@ -41,5 +45,15 @@ exports.checkOrder=async(req,respond)=>{
            respond.status(200).json({msg:"Update completed"});
 
 
-      });
+      })
+    };
+exports.userCheckOrder=async(req,respond)=>{
+  await Order.find({owner:req.user._id}).populate("items.book_id","title price discount").exec().then(data=>respond.json(data));  
 };
+exports.showAllOrder=async(req,res)=>{
+  await Order.find({}).populate("items.book_id","title price discount").exec().then(data=>res.json(data));  
+};
+exports.showAllOrderNotComplete=async(req,res)=>{
+  await Order.find({delivered:false}).populate("items.book_id","title price discount").exec().then(data=>res.json(data));  
+}
+

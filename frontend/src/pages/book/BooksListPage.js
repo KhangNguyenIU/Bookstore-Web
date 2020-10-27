@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useContext } from 'react'
 import { showAllBook } from '../../actions/book'
 import Layout from '../../components/Layout'
 import {
@@ -6,17 +6,18 @@ import {
     CardTitle, CardSubtitle, Button
 } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import {CartContext} from '../../App.js';
 /**
 * @author
 * @function BookListPage
 **/
 
 const BookListPage = (props) => {
-
-    const [books, setBooks] = useState([])
-
+    const {statecart,dispatchcart}=useContext(CartContext);
+    const [infor,setInfor]=useState("");
+    const [books, setBooks] = useState([]);
     useEffect(() => {
-        initShowBook()
+        initShowBook();
     }, [])
 
     //load book first time load page
@@ -49,10 +50,30 @@ const BookListPage = (props) => {
                                     textDecoration: 'none',
                                     marginTop: '1rem',
                                     fontFamily: 'Josefin Sans',
+                                    fontSize: '15px',
+                                    letterSpacing: '0.35rem',
+                                    color: 'black'
+                                }}>By:{book.writtenby.map((author,index)=>{
+                                    return(
+                                         <Link>
+                                          {author.author_id.name}{" "}
+                                         </Link>
+                                    )
+                                })}</Link>
+                                <Link style={{
+                                    textDecoration: 'none',
+                                    marginTop: '1rem',
+                                    fontFamily: 'Josefin Sans',
                                     fontSize: '17px',
                                     letterSpacing: '0.35rem',
                                     color: 'black'
-                                }}>Author</Link>
+                                }}>Genre:{book.genre.map((genre,index)=>{
+                                    return(
+                                         <Link>
+                                          {genre.genre_id.name}{"_"}
+                                         </Link>
+                                    )
+                                })}</Link>
 
                                 <Link style={{
                                     textDecoration: 'none',
@@ -98,6 +119,10 @@ const BookListPage = (props) => {
                 <div className="container mt-5">
 
                     <div className="row">
+                    <div style={{marginLeft:'20rem'}}>
+                     <input type="text" onChange={(e)=>setInfor(e.target.value)} placeholder="Enter book infor" size={20} />
+                     <i class="material-icons" onClick={()=>{}}>search</i>
+                    </div>
                         <div className="col-md-9">
                             <div style={{ display: 'inline-block' }}>
                                 <p style={{ float: 'left' }}>
