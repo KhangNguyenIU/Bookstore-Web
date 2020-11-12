@@ -6,7 +6,15 @@ const author=mongoose.Schema(
             required:true,
             unique:true
         },
-        work:[{book_id:{type:mongoose.Schema.Types.ObjectId,ref:'book'}}]
+        work:[
+            {
+                type:mongoose.Schema.Types.ObjectId,
+                ref:'book'
+            }
+        ],
+        slug: {
+            type: String
+        }
     }
 );
 module.exports=Author=mongoose.model('author',author);

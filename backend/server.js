@@ -12,9 +12,9 @@ const app = express()
 //config environment variables path to './'
 require('dotenv').config()
 //cors
-if (process.env.NODE_ENV === 'development') {
-    app.use(cors({ origin: `${process.env.CLIENT_URL}` }))
-}
+// if (process.env.NODE_ENV === 'development') {
+//     app.use(cors({ origin: `${process.env.CLIENT_URL}` }))
+// }
 
 app.use(morgan('dev'))
 

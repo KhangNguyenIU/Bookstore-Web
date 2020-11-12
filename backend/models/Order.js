@@ -17,9 +17,11 @@ const order=mongoose.Schema(
             type:Number,
             min:0,
             require:true
-        }
-       
-            
+        }          
     },
+    {
+        timestamps:true
+    }
 );
+
 module.exports=Order=mongoose.model('order',order);

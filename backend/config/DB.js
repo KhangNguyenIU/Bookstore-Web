@@ -6,7 +6,7 @@ const connectMongoDB = async () => {
         useNewUrlParser: true,
         useCreateIndex: true,
         useUnifiedTopology: true,
-        useFindAndModify: true
+        useFindAndModify: false
     }).then(()=>{
         console.log('Connect to Mongo database success.');
     })

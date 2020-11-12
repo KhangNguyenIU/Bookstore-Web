@@ -1,95 +1,212 @@
-import React, { useEffect, useState,useContext,Component} from 'react'
-import {isAuth} from '../../actions/auth'
-import {CartContext} from '../../App.js'
+import React, { useEffect, useState, useContext, Component } from 'react'
+import { getCookie, isAuth, removeLocalStorage, setCookie, setLocalStorage } from '../../actions/auth'
+import { CartContext, UserContext } from '../../App.js'
 import { Link } from 'react-router-dom'
-import { getDetailBook,getAllGenre,updateBook } from '../../actions/book'
+import { getDetailBook, likeBook, unlikeBook, listRelatedBook } from '../../actions/book'
 import Layout from '../../components/Layout'
-
-/**
+import Comment from '../../components/book/Comment'
+import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import FavoriteIcon from '@material-ui/icons/Favorite';
+import FavoriteBorderOutlinedIcon from '@material-ui/icons/FavoriteBorderOutlined';
+import IconButton from '@material-ui/core/IconButton';
+import { makeStyles } from '@material-ui/core/styles';
+import { stringTrim } from '../../helpers/StringTrim'
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from "@material-ui/lab/Alert";
+import { makeComment } from '../../actions/user'/**
 * @author
 * @function DetailBook
 **/
+import BookCard from '../../components/book/BookCard'
+
+const useStyles = makeStyles((theme) => ({
+    root: {
+        '& .MuiTextField-root': {
+            margin: theme.spacing(1)
+        },
+    },
+    button: {
+        borderRadius: 0
+    }
+}));
 
 const BookDetailPage = (props) => {
-    const {statecart,dispatchcart}=useContext(CartContext);
-    const [book, setBook] = useState({})
-    const [title,setTitle]=useState('');
-    const [price,setPrice]=useState('');
-    const [newAmount,setNewAmount]=useState(0);
-    const [discount,setDiscount]=useState(0);
-    const [error, setError] = useState('')
-    const [writtenby,setWrittenBy]=useState([]);
-    const [newGenre,setNewGenre]=useState([]);
-    const [genre,setGenre]=useState([]);
-    const [amount,setAmount]=useState(0);
-    const [genreList,setGenreList]=useState([]);
-    const [remove,setRemove]=useState(false);
-    const [array,setArray]=useState([]);
-    // get the slug from the url
-    const slug = props.match.params.slug;
+    const slug = props.match.params.slug
+    const token = getCookie('token')
+    const classes = useStyles()
+    const { statecart, dispatchcart } = useContext(CartContext);
+    const { stateUser, dispatchUser } = useContext(UserContext)
+    const [amount, setAmount] = useState(1);
+    const [book, setBook] = useState('')
+    const [relatedBooks, setRelatedBooks] = useState([])
+    const [values, setValues] = useState({
+        success: '',
+        error: '',
+        loading: false,
+        isOpenSuccess: false,
+        isOpenError: false
+    })
 
+    const { success, error, isOpenError, isOpenSuccess } = values
+    useEffect(() => {
+        console.log("inital...", statecart.items);
+
+        if (statecart.items.length > 0) {
+            localStorage.setItem("cart", JSON.stringify(statecart.items))
+        }
+        initBook()
+
+    }, [statecart.items.length])
 
     const initBook = () => {
         getDetailBook(slug).then(response => {
             if (response.error) {
-                setError(response.error)
+                setValues({
+                    ...values,
+                    error: response.error
+                })
+                console.log(response.error);
             } else {
-                setBook(response.book);
-                setPrice(response.book.price);
-                setDiscount(response.book.discount);
-                setTitle(response.book.title);
-                setNewAmount(response.book.amount);
-                setWrittenBy(response.book.writtenby);
-                setGenre(response.book.genre);
-                setNewGenre(response.book.genre.map(genre=>genre.genre_id._id))
-                setArray(response.book.genre.map(genre=>genre.genre_id._id))
+                setBook(response);
+                console.log(response._id, response.genre);
+                getRelatedBooks(response._id, response.genre)
             }
         });
-        fetch('/genre/getGenre',{
-            headers:{
-          
-            }
-        }).then(res=>res.json())
-        .then(result=>{
-            
-            let allGenre=[];
-            for (var i=0;i<result.data.length;i++)
-            {
-              allGenre=allGenre.concat({_id:result.data[i]._id,name:result.data[i].name})
-            }
-            setGenreList(allGenre)
-        });
+
     };
-    useEffect(() => {
-        initBook();
-    }, [])
-    const addtocart=(id,title,realprice,slug)=>{
-        if(isAuth()==false)
-        {
-            alert("you must be login");
+
+    const getRelatedBooks = (id, genre) => {
+        listRelatedBook(id, genre).then(response => {
+            if (response.error) {
+                setValues({
+                    ...values, error: response.error
+                })
+            } else {
+                setRelatedBooks(response)
+            }
+        })
+    }
+    // check if the user has already liked this book
+    const checkLikedBook = () => {
+        // console.log(book._id);
+        if (stateUser) {
+            if (stateUser.likes.includes(book._id)) {
+                return true
+            }
+
+            return false
         }
-        else if(amount<=0)
-        {
-            alert("not valid");
-        }
-        else
-        {
-          if(amount>book.amount)
-          {
-            //alert(newGenre.length);
-            alert("Sorry , we not enough");
-          }
-          else{
-         // alert(newGenre.length);
-          dispatchcart({type:"ADD",payload:JSON.parse(JSON.stringify({book_id:id,amount:amount,title:title,realprice:parseFloat(realprice),slug:slug})),priceitem:(realprice*amount).toFixed(2)});
-          }
-        }
-       
+        return false
     }
 
-    const bookInfor = (book) => {
-        if(isAuth().role==0){
-            return(
+    const handleLikeButton = () => {
+        if (!checkLikedBook()) {
+            likeBook(slug, token).then(data => {
+                setValues({
+                    ...values, success: "You have liked this book", isOpenSuccess: true
+                })
+                setBook(data.book)
+                dispatchUser({ type: "UPDATE", payload: data.user })
+                localStorage.setItem("user", JSON.stringify(data.user))
+            }).catch(err => {
+                setValues({
+                    ...values, error: "Something wrong. try again", isOpenError: true
+                })
+            })
+        }
+        else {
+            unlikeBook(slug, token).then(data => {
+                setValues({
+                    ...values, success: "You have disliked this book", isOpenSuccess: true
+                })
+                setBook(data.book)
+                dispatchUser({ type: "UPDATE", payload: data.user })
+                localStorage.setItem("user", JSON.stringify(data.user))
+            }).catch(err => {
+                setValues({
+                    ...values, error: "Something wrong. try again", isOpenError: true
+                })
+            })
+
+        }
+    }
+
+    const addtocart = async (id, title, realprice, slug, photo) => {
+        if (isAuth(stateUser) == false) {
+            setValues({ ...values, error: "You have to login to use shopping cart.", success: '' })
+        }
+        else if (amount <= 0) {
+            setValues({ ...values, error: "Invalid amount", isOpenError: true, success: '' })
+        }
+        else {
+            if (amount > book.amount) {
+                setValues({
+                    ...values, error: `Shop can not supply enough ${amount} this book for you`,
+                    isOpenError: true,
+                    success: ''
+                })
+            }
+            else {
+                if (statecart.items.length == 0) {
+                    localStorage.setItem("cart", JSON.stringify({
+                        book_id: id, amount: amount,
+                        title: title, realprice: parseFloat(realprice),
+                        slug: slug, priceitem: (realprice * amount).toFixed(2), photo
+                    }))
+                    dispatchcart({
+                        type: "ADD",
+                        payload: JSON.parse(JSON.stringify({
+                            book_id: id, amount: amount,
+                            title: title, realprice: parseFloat(realprice), slug: slug, photo
+                        })), priceitem: (realprice * amount).toFixed(2)
+                    });
+                } else {
+                    await dispatchcart({
+                        type: "ADD",
+                        payload: JSON.parse(JSON.stringify({
+                            book_id: id, amount: amount, title: title,
+                            realprice: parseFloat(realprice), slug: slug, photo
+                        })), priceitem: (realprice * amount).toFixed(2)
+                    });
+                    console.log(statecart);
+
+                }
+
+                console.log(statecart);
+                setValues({
+                    ...values,
+                    isOpenSuccess: true,
+                    success: `Add ${amount} ${book.title} to shopping cart sucessfully`
+                })
+            }
+        }
+
+    }
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setValues({
+            ...values,
+            error: '',
+            success: '',
+            isOpenSuccess: false,
+            isOpenError: false
+        })
+    };
+
+    const handleComment = () => {
+        makeComment().then(response => {
+
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    const userBookPage = (book) => (
         <div>
             <div className="container mt-5">
                 <div className="row">
@@ -101,130 +218,248 @@ const BookDetailPage = (props) => {
 
                     <div className="col-md-8">
                         <p style={{ fontFamily: 'Josefin Sans' }}>
-                         By: {writtenby.map((author,index)=>{
-                                return(
-                                     <Link to="" key={index}>
-                                      {author.author_id.name}{" "}
-                                     </Link>
-                                )
-                            })}
+                            By: {book.writtenby.map((author, index) => {
+                            return (
+                                <Link to={`/author/${author.slug}`} className="custom-link" key={index}>
+                                    {author.name}{", "}
+                                </Link>
+                            )
+                        })}
                         </p>
-                        <p style={{ fontFamily: 'Josefin Sans' }}>
-                         Genre: {genre.map((genre,index)=>{
-                                return(
-                                     <Link key={index}>
-                                      {genre.genre_id.name}{"  "}
-                                     </Link>
-                                )
-                            })}
-                        </p>
+
+
                         <h2 style={{ fontFamily: 'Cormorant Garamond', fontWeight: '500' }}>{book.title}</h2>
-                        <p style={{ fontFamily: 'Cormorant Garamond', fontSize: '1.5rem' }}>Price:{book.price}</p>
-                        <p style={{ fontFamily: 'Cormorant Garamond', fontSize: '1.5rem' }}>Discount:{book.discount}</p>
-                        <p style={{ fontFamily: 'Cormorant Garamond', color: '#555',fontSize: '1.2rem' }}>Description :{book.description}
-                </p>
+                        <p style={{ display: 'flex', }}>
+                            <p style={{ fontFamily: 'Cormorant Garamond', fontSize: '1.5rem ', margin: '0px' }}>${book.finalprice.toFixed(2)}</p>
+                            <p style={{ textDecoration: 'line-through', marginLeft: '2rem', fontSize: '1rem', color: '#555' }}>${book.price}</p>
+                        </p>
+
+                        <p style={{ fontFamily: 'Cormorant Garamond', margin: '0px', fontSize: '1.5rem' }}>Discount: {book.discount}</p>
+                        <p style={{ fontFamily: 'Cormorant Garamond', color: '#555', fontSize: '1.2rem' }}>{stringTrim(book.description)}
+                            <br />
+                            <p style={{ fontFamily: 'Cormorant Garamond', color: 'black', fontSize: '1.5rem' }}>
+                                Genre: {book.genre.map((genre, index) => {
+                                return (
+                                    <Link className="custom-link" key={index}>
+                                        {genre.name}{"  "}
+                                    </Link>
+                                )
+                            })}
+
+                            </p>
+                        </p>
                         <p>
                             Quality: {book.amount}
-                </p>
-              <button type="button" className="btn btn-primary" onClick={()=>{addtocart(book._id,book.title,book.finalprice.toFixed(2),book.slug);setAmount(1)}}>Add to Cart</button>
-              <input type="Number" placeholder="Enter Amount" size={6} onChange={(e)=>setAmount(e.target.value)}/>
-                    </div>
-                </div>
-            </div>
-        </div>)
-          }
-        else if(isAuth().role==1)
-        {
-            return(
-                <div>
-            <div className="container mt-5">
-                <div className="row">
-                    <div className="col-md-4">
-                        <img
-                            style={{ width: '100%' }}
-                            src={book.photo} />
-                    </div>
-
-                    <div className="col-md-8">
-                        <p style={{ fontFamily: 'Josefin Sans' }}>
-                         By: {writtenby.map((author,index)=>{
-                                return(
-                                     <Link to="" key={index}>
-                                      {author.author_id.name}{" "}
-                                     </Link>
-                                )
-                            })}
                         </p>
-                        <div style={{ fontFamily: 'Josefin Sans' }}>
-                         {genreList.map((item,index)=>{
-                             if(genre.filter(genre=>(genre.genre_id.name==item.name)).length>0){
-                                    if(remove==true&&!array.includes(item._id)){
-                                return(
-                                  <label style={{color:"green"}}> {item.name}: <input type="checkbox"  value={item._id} onChange={(e)=>{if(e.target.checked){if(!newGenre.includes(item._id))setNewGenre(newGenre=>newGenre.concat(item._id))}else{setNewGenre(newGenre.filter(genre=>genre!=item._id))}}} /></label>
-                                )}
-                                else if(remove==false||array.includes(item._id))
-                                {
-                                    return(
-                                   <p style={{color:'green'}} onClick={(e)=>{setNewGenre(newGenre.filter(genre=>genre!=item._id));setRemove(true);setArray(array.filter(arr=>arr!=item._id))}}>{item.name}</p>
-                                    )
+                        <TextField
+                            type="number"
+                            onChange={e => { setAmount(e.target.value) }}
+                            defaultValue={amount}
+                            placeholder="Amount"
+                            inputProps={{
+                                style: {
+                                    width: '70px'
                                 }
-                            }
-                            else
+                            }} />
+                        <br />
+
+                        <p style={{ display: 'flex', alignItems: 'center', padding: '0px', margin: '0px' }}>
                             {
-                                return(<label> {item.name}: <input  type="checkbox"  onChange={(e)=>{if(e.target.checked){if(!newGenre.includes(item._id))setNewGenre(newGenre=>newGenre.concat(item._id))}else if(e.target.checked==false){setNewGenre(newGenre.filter(genre=>genre!=item._id))}}} /></label>)
+                                !isAuth(stateUser) ? (
+                                    <FavoriteIcon
+                                        color="secondary" />
+
+                                ) : (
+                                        !checkLikedBook() ? (
+                                            <IconButton
+                                                onClick={handleLikeButton}
+                                                style={{ outline: 'none' }}
+                                            //color="secondary"
+                                            >
+                                                <FavoriteBorderOutlinedIcon />
+                                            </IconButton>
+                                        ) : (
+                                                <IconButton
+                                                    onClick={handleLikeButton}
+                                                    style={{ outline: 'none' }}
+                                                    color="secondary"
+                                                >
+                                                    <FavoriteIcon />
+                                                </IconButton>
+                                            )
+                                    )
+
                             }
-                            })}
-                        </div>
-                        <input type="text" className="form-control"  onChange={(e)=>setTitle(e.target.value)} placeholder="Enter new title" defaultValue={book.title} />
-                        <input type="Number" className="form-control"  onChange={(e)=>setPrice(e.target.value)} placeholder="Enter new price" defaultValue={book.price} />
-                        <input type="Number" className="form-control"  onChange={(e)=>setDiscount(e.target.value)} placeholder="Enter new discount" defaultValue={book.discount} />
-                        <p style={{ fontFamily: 'Cormorant Garamond', color: '#555',fontSize: '1.2rem' }}>Description :{book.description}
-                </p>
-                        <p>
-                        <input type="Number" className="form-control"  onChange={(e)=>setNewAmount(e.target.value)} placeholder="Enter new amount" defaultValue={book.amount} />
-                </p>
-              <button type="button" className="btn btn-primary" onClick={()=>{updateBook(book._id,title,price,newGenre,discount,newAmount)}}>Update</button>
-           
+
+                            <p style={{ marginTop: '15px' }}>
+                                {book.likes.length} people like this book.</p>
+                        </p>
+
+
+                        <p style={{ marginTop: '0px' }}>
+                            <Button
+                                variant="contained"
+                                //color="primary"
+                                style={{ backgroundColor: "#ec524b", color: 'white', padding: "15px", marginTop:'2rem' }}
+                                className={classes.button}
+                                startIcon={<AddShoppingCartIcon />}
+                                onClick={() => {
+                                    addtocart(book._id, book.title, book.finalprice.toFixed(2), book.slug, book.photo);
+                                }}
+                            >
+                                Add To Cart</Button>
+                        </p>
+
                     </div>
                 </div>
             </div>
         </div>
 
-            )
-        }
-        }
+    )
 
-    return (
-        <Layout>
-            <React.Fragment>
-                <div className="head-banner"
-                    style={{
-                        backgroundImage: 'url("https://images.unsplash.com/photo-1453671424686-dfef17039343?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=976&q=80")',
-                        height: '300px',
-                        opacity: '1',
-                        position: 'relative',
-                        textAlign: 'center'
-                    }}
-                    className="container-fluid">
-
-                    <div className="centered" style={{ color: '#fff' }}>
-                    <h6>Product detail</h6>
-                        <h2>A book a story</h2>
-                    </div>
-
-                </div>
-                {book ? bookInfor(book) : (<p>Book not Found</p>)}
-                <hr />
-                <p>Comments</p>
-                <hr />
-                <p>Related books</p>
-            </React.Fragment>
-        </Layout>
-
+    const showSuccessMessage = () => (
+        (
+            <Snackbar
+                open={isOpenSuccess}
+                autoHideDuration={2000}
+                onClose={handleClose} >
+                <Alert
+                    elevation={6}
+                    variant="filled"
+                    severity="success"
+                    onClose={handleClose}
+                //color={snackbarType}
+                >
+                    {success}</Alert>
+            </Snackbar>
+        )
 
 
     )
 
+    const showErrorMessage = () => (
+        (
+            <Snackbar
+                open={error ? true : false}
+                autoHideDuration={2000}
+                onClose={handleClose}>
+                <Alert
+                    elevation={6}
+                    variant="filled"
+                    severity="error"
+                    onClose={handleClose}
+                //color={snackbarType}
+                >
+                    {error}</Alert>
+            </Snackbar>
+        )
+
+
+    )
+
+    const relatedBookPart = () => {
+        return (
+            <React.Fragment >
+                <div style={{ marginTop: '50px' }}>
+                    <p className="header-text" style={{fontSize:'2rem'}}>
+                        May be you like this.
+                </p>
+                    <hr />
+                    <div className="row mt-5">
+                        {
+                            relatedBooks && relatedBooks.map((book, i) => (
+                                <div className="col-sm-6 col-md-3">
+                                    <BookCard book={book} />
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+
+            </React.Fragment>
+        )
+    }
+    const belowInfo = () => (
+        <React.Fragment>
+            <div className="container">
+                <div style={{ display: "flex", justifyContent: 'center', marginTop: '30px' }}>
+                    <button className="custom-button">
+                        description
+                </button>
+
+                    <button className="custom-button">
+                        additional information
+                </button>
+
+                    <button className="custom-button">
+                        review
+                </button>
+                </div>
+
+                {description()}
+                {comment()}
+                {relatedBookPart()}
+            </div>
+
+
+        </React.Fragment>
+    )
+
+    const description = () => (
+        <p className="custom-text" style={{ marginBottom: '30px' }}>
+            {book.description}
+        </p>
+    )
+    const header = () => (
+        <div className="head-banner"
+            style={{
+                backgroundImage: 'url("https://images.unsplash.com/photo-1453671424686-dfef17039343?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=976&q=80")',
+                height: '300px',
+                opacity: '1',
+                position: 'relative',
+                textAlign: 'center'
+            }} F
+            className="container-fluid">
+
+            <div className="centered" style={{ color: '#fff' }}>
+                <h6>Product detail</h6>
+                <h2>A book a story</h2>
+            </div>
+
+        </div>
+    )
+
+    const comment = () => (
+        <React.Fragment>
+            {
+                book.comments ? (book.comments.map((c, i) => (
+                    <Comment comment={c} />
+
+                ))) : (
+                        <p>This book has no comment</p>
+                    )
+            }
+
+        </React.Fragment>
+    )
+
+
+    return (
+        <Layout>
+            <React.Fragment>
+                {header()}
+                {showSuccessMessage()}
+                {showErrorMessage()}
+                {book ? userBookPage(book) : (<p>Book not Found</p>)}
+                <br />
+                {belowInfo()}
+
+
+            </React.Fragment>
+        </Layout>
+    )
+
 }
 
-export default BookDetailPage
+export default BookDetailPage;
