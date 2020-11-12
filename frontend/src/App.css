@@ -4,10 +4,11 @@
   margin: 0;
   box-sizing: border-box;
   font-family: 'Noto Serif' ;
+
 }
 
 .container{
-  max-width: 1200px;
+  max-width: 1300px;
 }
 
 .a{
@@ -55,9 +56,84 @@
 }
 
 #nprogress .bar{
-  height: 3px !important;
+  height: 4px !important;
   background: #835858 !important;
 }
 #nprogress . peg{
   box-shadow: 0 0 10px #835858, 0 0 5px #835858 !important;
+}
+
+.custom-link {
+  font-size: 1.2rem;
+  color: black;
+  text-decoration: none;
+  list-style-type: none;
+}
+
+.custom-link:hover {
+  color: #835858;
+  text-decoration: none;
+}
+
+.custom-link:active{
+  color: #835858;
+  text-decoration: none;
+}
+
+.scroll-bar{
+max-height: 200px;
+overflow-y: scroll;
+}
+
+.custom-input{
+  width: 100%;
+  border: none;
+  border-bottom: 1px black solid;
+  outline: none;
+           fontFamily: Cormorant Garamond;
+                                 color: #555;
+                                 fontSize: 1.2rem;
+}
+
+.custom-input-number{
+  width: 30%;
+  text-align: center;
+  border: none;
+  border-bottom: 1px black solid;
+  outline: none;
+           fontFamily: Cormorant Garamond;
+                                 color: #555;
+                                 fontSize: 1.2rem;
+}
+
+.custom-text{
+  font-family: 'Cormorant Garamond';
+  color: '#555';
+  font-size: 18px;
+  text-align: center;
+}
+
+.custom-button{
+  margin: 2rem 1rem;
+  padding: 10px 20px;
+  border: 1px #ccc solid;
+   background-color: white;
+}
+
+.custom-button:hover{
+  color: white;
+  background-color: #555;
+  transition: 0.6s;
+}
+
+.active{
+  color: white;
+  background-color: #555;
+}
+
+.header-text{
+  font-family: 'Cormorant Garamond';
+  color: '#555';
+  font-size: 40px;
+  
 }

@@ -20,8 +20,8 @@ exports.addGenre= async (req, res)=> {
     
   };
 exports.getGenre=async(req,res)=>{
-    await Genre.find({},"name").exec().then(genres=>res.json({data:genres}));
-  
+    await Genre.find({},"name")
+    .exec().then(genres=>res.json({data:genres}));
 };
 
 

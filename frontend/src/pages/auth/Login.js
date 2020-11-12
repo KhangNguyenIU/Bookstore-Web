@@ -1,39 +1,41 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { FcGoogle } from 'react-icons/fc'
 import { Router } from 'react-router-dom';
 import { login, isAuth, authenticate } from '../../actions/auth'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-
-
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from "@material-ui/lab/Alert";
+import { UserContext } from '../../App'
 /**
 * @author
 * @function Login
 **/
 
 const Login = (props) => {
-
+    const {stateUser, dispatchUser} = useContext(UserContext)
     const [values, setValues] = useState({
         email: 'khang@gmail.com',
         password: '123456',
         error: '',
         loading: false,
         message: '',
-        showForm: true
+        showForm: true,
+        openSuccess: false,
+        openError: false
     });
 
-    const { email, password, error, loading, message, showForm } = values;
+    const { email, password, error, loading, message, showForm ,openError,openSuccess} = values;
 
   
     useEffect(() => {
         if (isAuth()) {
             props.history.push('/')
         }
-       
     }, [])
 
     const handleChange = name => e => {
-        setValues({ ...values, error: false, [name]: e.target.value });
+        setValues({ ...values, error: false, [name]: e.target.value,openError:false, openSuccess:false });
     };
 
     const handleSubmit = (e) => {
@@ -45,16 +47,18 @@ const Login = (props) => {
         login(user).then(data => {
             console.log(data);
             if (data.error) {
-                setValues({ ...values, error: data.error, loading: false });
+                setValues({ ...values, error: data.error, loading: false,openError:true});
             } else {
                 // save user token to cookie
                 // save user info to localstorage
                 // authenticate user
-                toast.info('Login sucessfully');
+                setValues({
+                    ...values,
+                    openSuccess: true
+                })
                 authenticate(data, () => {
-                    if (isAuth()) {
-                        props.history.push('/')
-                    }
+                    dispatchUser({type:"LOGIN", payload:data.user})
+                    props.history.push('/')          
                 })
             }
         });
@@ -134,11 +138,65 @@ const Login = (props) => {
         </div>
     )
 
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setValues({
+            ...values,
+            openError:false,
+            openSuccess:false
+        })
+    };
+    const showSuccessMessage = () => (
+        (
+            <Snackbar
+                open={openSuccess}
+                autoHideDuration={2000}
+                onClose={handleClose} >
+                <Alert
+                    elevation={6}
+                    variant="filled"
+                    severity="success"
+                    onClose={handleClose}
+                //color={snackbarType}
+                >
+                    Login success</Alert>
+            </Snackbar>
+        )
+
+
+    )
+  
+    const showErrorMessage = () => (
+        (
+            <Snackbar
+                open={openError}
+                key={
+                    'top'+'right'
+                }
+                autoHideDuration={2000} 
+                onClose={handleClose}>
+                <Alert
+                    elevation={6}
+                    variant="filled"
+                    severity="error"
+                    onClose={handleClose}
+                //color={snackbarType}
+                >
+                    {error}</Alert>
+            </Snackbar>
+        )
+
+
+    )
+  
     return (
         <React.Fragment>
-            <ToastContainer
-                autoClose={2000}
-            />;
+            {showErrorMessage()}
+            {showSuccessMessage()}
             {loginForm()}
         </React.Fragment>
 

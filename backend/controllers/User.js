@@ -1,11 +1,7 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require("cors");
+const Book = require('../models/Book')
 const User = require('../models/User.js');
-const route = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const e = require('express');
 
 exports.showAllUser = async (req, res) => {
 	await User.find({}).exec().then(user => res.json(user));
@@ -50,13 +46,60 @@ exports.login = async (req, res) => {
 	if (result && bcrypt.compareSync(req.body.password, result.password)) {
 		const token = jwt.sign({ _id: result._id }, "kiet2606070",{expiresIn:'1d'});
 		res.cookie('token', token,{expiresIn:'10d'})
-		const { _id, email, username, role } = result
+		const { _id, email, username, role,likes,photo } = result
 		return res.json({
 			token: token,
-			user: { _id, email, username, role }
+			user: { _id, email, username, role, likes ,photo}
 		});
 
 	}
 	else
 		res.status(404).send({ error: "Email address or password is incorrect!" })
 };
+
+exports.getLikedBook =(req, res)=>{
+
+	User.findById(req.user._id)
+	.populate("likes","_id title slug photo price amount description discount")
+	.exec((err, result)=>{
+		if(err){
+			return res.status(400).json({
+				error: err
+			})
+		}
+		res.json(result)
+	})
+}
+
+exports.makeComment =(req, res)=>{
+	const commentContain ={
+		comment : req.body.comment,
+		postedby :  req.user._id
+	}
+
+	Book.findOneAndUpdate(req.params.slug,{
+		$push:{comments: commentContain}
+	},{new: true}).exec((err, book)=>{
+		if(err){
+			return res.status(400).json({
+				error: err
+			})
+		}
+
+		User.findByIdAndUpdate(req.user._id,{
+			$push :{comments:{
+				comment: req.body.comment,
+				commentedBook: book._id
+			}}
+		},{new: true}).exec((err, user)=>{
+			if(err){
+				return res.status(400).json({
+					error: err
+				})
+			}
+			res.json({
+				book, user
+			})
+		})
+	})
+}

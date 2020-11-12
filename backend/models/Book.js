@@ -1,76 +1,84 @@
-const mongoose=require('mongoose');
-var book=mongoose.Schema(
+const mongoose = require('mongoose');
+var book = mongoose.Schema(
     {
-        title:{
-            type:String,
+        title: {
+            type: String,
             required: true,
-            unique:true 
+            unique: true
         },
-        writtenby:[{author_id:
-            {type:mongoose.Schema.Types.ObjectId,
-            ref:"author" }
-        }],
-        genre:[{
-            genre_id:{type:mongoose.Schema.Types.ObjectId,ref:'genre'}
-        }],
-        year:{
-            type:Number,
-            default:2018, 
-            min:1990 
+        writtenby: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "author"
+            }
+        ],
+        genre: [
+            { type: mongoose.Schema.Types.ObjectId, ref: 'genre' }
+        ],
+        year: {
+            type: Number,
+            default: 2018,
+            min: 1990
         },
-        price:{
-            type:Number,
-            min:0,
-            default:3.0,
+        price: {
+            type: Number,
+            min: 0,
+            default: 3.0,
             sparse: true,
-            require:true 
+            require: true
         },
-        discount:{
-            type:Number,
-            min:0,
-            max:100,
-            default:0
+        discount: {
+            type: Number,
+            min: 0,
+            max: 100,
+            default: 0
         },
-        finalprice:{
-            type:Number,
-            min:0,
-            max:this.price,
-            default:0
+        finalprice: {
+            type: Number,
+            min: 0,
+            max: this.price,
+            default: 0
         },
-        amount:{
-            type:Number,
-            min:0,
-            default:100
+        amount: {
+            type: Number,
+            min: 0,
+            default: 100
         },
-        sold:{
-            type:Number,
-            min:0,
-            default:0 
+        sold: {
+            type: Number,
+            min: 0,
+            default: 0
         },
-        description:{
-            type:String,
-            default:"No description",
+        description: {
+            type: String,
+            default: "No description",
         },
-        comments:[{
-            comment:String,
-            postby:{type:mongoose.Schema.Types.ObjectId,ref:'user'}
+        comments: [{
+            comment: String,
+            postedby: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+            date: {
+                type: Date,
+                default: Date.now()
+            }
         }],
-        likes:[{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:'user'
-    }],
-        photo:{
-            type:String,
-            default:"no image",
+        likes: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user'
+        }],
+        photo: {
+            type: String,
+            default: "no image",
             minlength: 0,
-            maxlength: 170 
+            maxlength: 170
         },
-        slug:{
-            type:String,
-            default:"pro"
+        slug: {
+            type: String,
+            default: "pro"
         }
-            
+
+    },{
+        timestamps:true
     });
 
 
-module.exports=Book=mongoose.model('book',book);
+module.exports = Book = mongoose.model('book', book);

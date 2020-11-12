@@ -79,14 +79,15 @@ export const authenticate = (data, next) => {
     next()
 }
 
-export const isAuth = () => {
+export const isAuth = (state) => {
     if (process.browser) {
         const checkedCookie = getCookie('token')
         if (checkedCookie) {
-            if (localStorage.getItem('user')) {
-                return JSON.parse(localStorage.getItem('user'))
-            } else {
-                return false;
+      
+            if(state){
+                return state;
+            }else{
+                return false
             }
         }
         return false;
