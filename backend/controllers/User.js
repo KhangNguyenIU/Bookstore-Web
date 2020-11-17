@@ -2,6 +2,8 @@ const Book = require('../models/Book')
 const User = require('../models/User.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const formidable = require('formidable');
+const _ = require('lodash');
 
 exports.showAllUser = async (req, res) => {
 	await User.find({}).exec().then(user => res.json(user));
@@ -60,7 +62,7 @@ exports.login = async (req, res) => {
 exports.getLikedBook =(req, res)=>{
 
 	User.findById(req.user._id)
-	.populate("likes","_id title slug photo price amount description discount")
+	.populate("likes","_id title slug photo price amount description discount writtenby")
 	.exec((err, result)=>{
 		if(err){
 			return res.status(400).json({
@@ -103,3 +105,65 @@ exports.makeComment =(req, res)=>{
 		})
 	})
 }
+exports.userUpdate = async (req, res) => {
+	const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    User.findById(req.user._id).exec((err, oldUser) => {
+        if (err) {
+            return res.status(400).json({
+                error: err
+            })
+        }
+        let user = {};
+        let form = new formidable.IncomingForm();
+        form.keepExtensions = true;
+
+        form.parse(req, (err, fields, files) => {
+            if (err) {
+                return res.status(400).json({ error: err })
+            }
+            //let bookSlugBeforeMerge = oldBook.slug
+		  //  oldUser = _.merge(oldUser, fields)
+		  //oldUser = _.merge(oldUser, fields)
+
+			var {email,username,oldpassword,newpassword,reenterpassword} = fields
+		   /* if(re.test(String(email).toLocaleLowerCase())==false||String(username).trim().length==0||String(newpassword).trim()!=String(reenterpassword).trim()||(String(oldpassword).trim().length>0&&String(newpassword).trim().length==0)||(String(oldpassword).trim().length==0&&String(newpassword).trim().length>0))
+			 return res.status(400).json({ error: "Something wrong while updating data, Please try again later" })*/
+			if(oldpassword!=null&&String(oldpassword).trim().length>0)
+			 {
+				let hash = bcrypt.hashSync((oldpassword), 10);
+				if (bcrypt.compareSync(oldpassword, oldUser.password)==false)
+				 return res.status(400).json({ error: "Password wrong" })
+				else
+				{
+					if(newpassword==null||String(newpassword).trim().length==0)
+					 return res.status(400).json({ error: "You should decleare new password" })
+					else if(reenterpassword==null||String(newpassword).trim()!=String(reenterpassword).trim())
+					 return res.status(400).json({ error: "Reenter password not correct" })
+					oldUser.password = bcrypt.hashSync(String(newpassword).trim(), 10);
+				}
+			 }
+			if(email!=null)
+			{
+				if(re.test(String(email).trim().toLowerCase())==false)
+				 return res.status(400).json({ error: "Email format failed" })
+			 oldUser.email =String(email).trim();
+			}
+			if(username!=null)
+			{
+				if(String(username).trim().length==0)
+				 return res.status(400).json({ error: "Please enter new username" })
+			 oldUser.username =String(username).trim();
+			}
+            oldUser.save((err, result) => {
+                if (err) {
+                    return res.status(400).json({
+                        error: err
+                    })
+                }
+                res.json({ msg: 'Update user information sucessfully',data:oldUser })
+            })
+
+        })
+    })
+
+};

@@ -31,22 +31,31 @@ const Cartdetail = (props) => {
     const { statecart, dispatchcart } = useContext(CartContext);
     const [flag, setFlag] = useState(false)
     useEffect(() => {
-        if (statecart.items.length > 0) {
-            localStorage.setItem("cart", JSON.stringify(statecart.items))
+        if (statecart.items.length > 0)  {
+            localStorage.setItem("cart", JSON.stringify(statecart.items));
+            //statecart.total=JSON.parse(localStorage.getItem("total"));
+            //statecart.total=localStorage.getItem("total");
+            //alert(statecart.total);
         }
+
+       // statecart.total=parseFloat(localStorage.getItem("total"));
         //localStorage.setItem("cart", JSON.stringify(statecart.items))
         // if(statecart.items.length ==1){
-        //     localStorage.setItem("cart",[])
-        // }
+          //   localStorage.setItem("cart",[])
+         //}
     }, [statecart.items.length])
 
 
-    const dropItem = (id, priceitem) => {
-        dispatchcart({ type: "DROP", payload: id, priceitem: priceitem });
+    const dropItem = async(id, priceitem) => {
+        await dispatchcart({ type: "DROP", payload: id, priceitem: parseFloat(priceitem.toFixed(2)) });
+       // localStorage.setItem("cart",JSON.stringify(statecart.items))
+        localStorage.setItem("total",JSON.stringify(statecart.total));
+        localStorage.setItem("cart",JSON.stringify(statecart.items));
         console.log("DROP...", statecart.items.length);
-        if (statecart.items.length == 1) {
-            setLocalStorage("cart", null)
-        }
+        /*if (statecart.items.length == 1) {
+            setLocalStorage("cart",null)
+            localStorage.setItem("total",JSON.stringify(0))
+        }*/
     }
 
     const emptyCart = () => (
@@ -77,19 +86,20 @@ const Cartdetail = (props) => {
                         {statecart.items.map((row, i) => (
                             <TableRow key={row, i}>
                                 <TableCell component="th" scope="row">
-                                    <img src={row.photo} height="80px" alt={i} /> {row.title}
+                                    <Link to={`/book/${row.slug}`}><img src={row.photo} height="80px" alt={i} /> {row.title}</Link>
                                 </TableCell>
                                 <TableCell align="right">{row.realprice}</TableCell>
                                 <TableCell align="right"> <input
                                     className="custom-input-number"
-                                    value={row.amount} type="number"
+                                    type="number"
+                                    Value={row.amount}
                                     defaultValue={row.amount}
                                    // onChange={handleChange('discount')}
                                 /></TableCell>
                                 <TableCell align="right">{row.amount * row.realprice}</TableCell>
 
                                 <TableCell align="center">
-                                    <IconButton onClick={() => dropItem(row.book_id, row.realprice * row.amount)}>
+                                    <IconButton onClick={() => dropItem(row.book_id, parseFloat((row.realprice * row.amount).toFixed(2)))}>
                                         <ClearIcon />
                                     </IconButton>
                                 </TableCell>
@@ -97,7 +107,7 @@ const Cartdetail = (props) => {
 
                         ))}
                         <TableRow>
-                            <TableCell align="left">Total :  {statecart.total}</TableCell>
+                            <TableCell align="left">Total :  {statecart.total.toFixed(2)}</TableCell>
                         </TableRow>
 
                     </TableBody>
@@ -107,7 +117,7 @@ const Cartdetail = (props) => {
                 <Button
                     variant="outlined"
                     style={{ marginLeft: '45rem' }}
-                    onClick={() => { addOrder(statecart.items, statecart.total); dispatchcart({ type: "CANCEL", payload: null }) }}>
+                    onClick={() => { addOrder(statecart.items, statecart.total); dispatchcart({ type: "CANCEL", payload: null });localStorage.setItem("cart",[]) }}>
                     Confirm</Button>
             </span>
             <span>
@@ -117,7 +127,8 @@ const Cartdetail = (props) => {
                     style={{ marginLeft: '5rem' }}
                     onClick={() => {
                         dispatchcart({ type: "CANCEL", payload: null });
-                        setLocalStorage("cart", null)
+                        setLocalStorage("cart", [])
+                        localStorage.setItem("total",JSON.stringify(0))
                         history.push('/books')
                     }}>Cancel</Button>
             </span>
@@ -136,7 +147,7 @@ const Cartdetail = (props) => {
                 </TableRow>
                 <TableRow>
                     <TableCell>Total</TableCell>
-                    <TableCell>{statecart.total}</TableCell>
+                    <TableCell>{statecart.total.toFixed(2)}</TableCell>
                 </TableRow>
             </Table>
         </TableContainer>

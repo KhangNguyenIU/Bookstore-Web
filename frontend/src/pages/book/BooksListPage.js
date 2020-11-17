@@ -27,7 +27,7 @@ const BookListPage = (props) => {
     const history = useHistory()
     const params = new URLSearchParams(props.location.search);
     const tempPage = params.get('page') || 1
-    const limit = params.get('limit') || 8
+    const limit = params.get('limit') || 9
     const { statecart, dispatchcart } = useContext(CartContext);
     const [infor, setInfor] = useState("");
     const [books, setBooks] = useState([]);
@@ -37,6 +37,10 @@ const BookListPage = (props) => {
         sortDir: "1"
     })
     useEffect(() => {
+        if (statecart.items.length > 0)  {
+            localStorage.setItem("cart", JSON.stringify(statecart.items));
+        }
+
         history.push(`books?page=${page}&limit=${limit}`)
         initShowBook();
     }, [page])
@@ -103,7 +107,7 @@ const BookListPage = (props) => {
     const pagination = () => (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
             <Pagination
-                count={10}
+                count={Math.floor(books.length/limit)+1}
                 size="large"
                 page={page}
                 onChange={handleChangePage} />

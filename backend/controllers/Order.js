@@ -47,9 +47,32 @@ exports.checkOrder=async(req,respond)=>{
 
       })
     };
-exports.userCheckOrder=async(req,respond)=>{
-  await Order.find({owner:req.user._id}).populate("items.book_id","title price discount").exec().then(data=>respond.json(data));  
-};
+exports.userCheckOrder=async(req,res)=>{
+  let limit = parseInt(req.query.limit) || 5
+  let page = parseInt(req.query.page) || 1
+      await Order.find({owner:req.user._id}).limit(limit).skip((page - 1) * limit).populate('items.book_id').populate('owner').exec((err, order)=>{
+         if(err){
+            return res.status(401).json({
+               error: err
+            })
+         }
+         res.json({data:order})
+      })
+   };
+exports.getOrderDetail =async(req, res) => {
+    let _id = req.params._id;
+    Order.findOne({ _id })
+        .populate('items.book_id',"_id title photo finalprice slug")
+        .populate('owner',"_id email username")
+        .exec((err, order) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
+            return res.json(order)
+        })
+}
 exports.showAllOrder=async(req,res)=>{
   await Order.find({}).populate("items.book_id","title price discount").exec().then(data=>res.json(data));  
 };

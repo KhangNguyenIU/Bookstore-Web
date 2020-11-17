@@ -27,7 +27,7 @@ exports.addBook = async (req, res) => {
     book.discount = req.body.discount;
     book.amount = req.body.amount;
     book.sold = req.body.sold;
-    book.finalprice = book.price * (1 - book.discount / 100).toFixed(2);
+    book.finalprice = (book.price * (1 - book.discount / 100)).toFixed(2);
     book.description = req.body.description;
     book.photo = req.body.photo;
     book.slug = slugify(req.body.title).toLowerCase();
@@ -179,9 +179,9 @@ exports.likeBook = (req, res) => {
                     error: "Something went wrong, please try later."
                 })
             }
-            const { _id, username, likes, role, email } = result
+            const { _id, username, likes, role, email,photo } = result
 
-            res.json({ book, user: { _id, username, email, role, likes } })
+            res.json({ book, user: { _id, username, email, role, likes,photo } })
         })
     })
 }
@@ -205,9 +205,9 @@ exports.unlikeBook = (req, res) => {
                     error: "Something went wrong, please try later."
                 })
             }
-            const { _id, username, likes, role, email } = result
+            const { _id, username, likes, role, email,photo } = result
 
-            res.json({ book, user: { _id, username, email, role, likes } })
+            res.json({ book, user: { _id, username, email, role, likes,photo } })
         })
     })
 }

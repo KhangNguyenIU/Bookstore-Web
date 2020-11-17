@@ -1,5 +1,5 @@
 
-export const initialUser =null
+export const initialUser =localStorage.getItem("user")||null
 
 export const reducerUser = (state, action) => {
     if (action.type == "LOGIN") {
