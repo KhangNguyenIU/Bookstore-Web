@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, Component } from 'react'
 import { getCookie, isAuth, removeLocalStorage, setCookie, setLocalStorage } from '../../actions/auth'
 import { CartContext, UserContext } from '../../App.js'
-import { Link } from 'react-router-dom'
+import { Link,Redirect,useHistory } from 'react-router-dom'
 import { getDetailBook, likeBook, unlikeBook, listRelatedBook } from '../../actions/book'
 import Layout from '../../components/Layout'
 import Comment from '../../components/book/Comment'
@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
 
 const BookDetailPage = (props) => {
     const slug = props.match.params.slug
+    const history=useHistory();
     const token = getCookie('token')
     const classes = useStyles()
     const { statecart, dispatchcart } = useContext(CartContext);
@@ -50,15 +51,16 @@ const BookDetailPage = (props) => {
     })
 
     const { success, error, isOpenError, isOpenSuccess } = values
-    useEffect(() => {
+    const userEndPoint = isAuth(stateUser).role === 1 ? 'admin/' : '';
+    useEffect(() =>{
         console.log("inital...", statecart.items);
-
-        if (statecart.items.length > 0) {
-            localStorage.setItem("cart", JSON.stringify(statecart.items))
+        if(statecart.items.length>0){
+          localStorage.setItem("cart", JSON.stringify(statecart.items));
         }
+       // history.push(`/book/${book.slug}`)
+       // history.push(`book/${book.slug}`)
         initBook()
-
-    }, [statecart.items.length])
+    },[slug])
 
     const initBook = () => {
         getDetailBook(slug).then(response => {
@@ -137,7 +139,7 @@ const BookDetailPage = (props) => {
         if (isAuth(stateUser) == false) {
             setValues({ ...values, error: "You have to login to use shopping cart.", success: '' })
         }
-        else if (amount <= 0) {
+        else if (amount <= 0||Math.floor(amount) != amount) {
             setValues({ ...values, error: "Invalid amount", isOpenError: true, success: '' })
         }
         else {
@@ -155,23 +157,25 @@ const BookDetailPage = (props) => {
                         title: title, realprice: parseFloat(realprice),
                         slug: slug, priceitem: (realprice * amount).toFixed(2), photo
                     }))
-                    dispatchcart({
+                    await dispatchcart({
                         type: "ADD",
                         payload: JSON.parse(JSON.stringify({
                             book_id: id, amount: amount,
                             title: title, realprice: parseFloat(realprice), slug: slug, photo
-                        })), priceitem: (realprice * amount).toFixed(2)
+                        })), priceitem:parseFloat((realprice * amount).toFixed(2))
                     });
-                } else {
+                    localStorage.setItem("cart",JSON.stringify(statecart.items));
+                    localStorage.setItem("total",JSON.stringify(statecart.total));
+                } else  if (statecart.items.length > 0) {
                     await dispatchcart({
                         type: "ADD",
                         payload: JSON.parse(JSON.stringify({
                             book_id: id, amount: amount, title: title,
                             realprice: parseFloat(realprice), slug: slug, photo
-                        })), priceitem: (realprice * amount).toFixed(2)
+                        })), priceitem:parseFloat(((realprice * amount)).toFixed(2))
                     });
-                    console.log(statecart);
-
+                    localStorage.setItem("cart",JSON.stringify(statecart.items));
+                    localStorage.setItem("total",JSON.stringify(statecart.total));
                 }
 
                 console.log(statecart);

@@ -6,6 +6,18 @@ export const initialCart = {
 };
 export const reducerCart = (state, action) => {
     if (action.type == "ADD") {
+        if(Array.isArray(action.payload))
+        {
+            for (var x = 0; x < action.payload.length; x++)
+            {
+                state.items=state.items.concat(action.payload[x]);
+                state.total=parseFloat(state.total.toFixed(2))+parseFloat((action.payload[x].amount*action.payload[x].realprice).toFixed(2))
+            }
+            return {
+                total:state.total ,
+                items: state.items
+            }
+        }
         for (var x = 0; x < state.items.length; x++) {
             if (state.items[x].book_id === action.payload.book_id) {
                 var past = parseInt(state.items[x].amount);

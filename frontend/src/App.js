@@ -7,7 +7,10 @@ import Bookform from './pages/Bookform'
 import Login from './pages/auth/Login';
 import BooksListPage from './pages/book/BooksListPage'
 import cartDetail from './pages/cartDetail'
+import User from './pages/dashboard/User'
+import OrderDetail from './pages/Order/OrderDetail'
 import BookDetailPage from './pages/book/BookDetailPage'
+import UserUpdateInfor from './pages/UserUpdateInfor';
 import { reducerCart, initialCart } from './reducers/cartReducer'
 import { toast, ToastContainer } from 'react-toastify'
 import BookUpdate from './pages/book/BookUpdate';
@@ -21,6 +24,7 @@ const Routing = () => {
   useEffect(()=>{
     const user = JSON.parse(localStorage.getItem("user"))
     const cart = JSON.parse(localStorage.getItem("cart"))
+    const total=JSON.parse(localStorage.getItem("total"))
     if(cart){
       dispatchcart({type:"ADD", payload:cart})
     }
@@ -36,6 +40,9 @@ const Routing = () => {
       <Route path='/signup' exact component={Register} />
       <Route path='/books' exact component={BooksListPage} />
       <Route path='/cartDetail' exact component={cartDetail} />
+      <Route path='/userUpdate' exact component={UserUpdateInfor} />
+      <Route path='/profile/:name' exact component={User} />
+      <Route path='/orderDetail/:_id' exact component={OrderDetail} />
       <Route path='/book/:slug' exact component={BookDetailPage} />
       <Route path='/book/admin/:slug' exact component={BookUpdate} />
       <Route path='/components' exact component={Bookform} />
