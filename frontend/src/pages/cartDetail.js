@@ -11,7 +11,12 @@ import {
 } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import Button from '@material-ui/core/Button';
-const axios = require('axios');
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from '@material-ui/core/Dialog'
+import MailOutlineOutlinedIcon from '@material-ui/icons/MailOutlineOutlined';
+
 
 /**
 * @author
@@ -20,163 +25,227 @@ const axios = require('axios');
 
 const useStyles = makeStyles({
     table: {
-        minWidth: 400,
-        maxHeight: 100,
-        fontFamily:"Cormorant Garamond"
+        maxHeight: 50,
+        fontFamily: "Cormorant Garamond"
     },
 });
 const Cartdetail = (props) => {
     const classes = useStyles()
     const history = useHistory();
     const { statecart, dispatchcart } = useContext(CartContext);
+    const [open,setOpen] = useState(true);
+    const [values, setValues] = useState({
+        success: '',
+        error: '',
+        loading: false
+    })
     const [flag, setFlag] = useState(false)
+
+    const {success, error, loading} = values
     useEffect(() => {
-        if (statecart.items.length > 0)  {
+        if (statecart.items.length > 0) {
             localStorage.setItem("cart", JSON.stringify(statecart.items));
-            //statecart.total=JSON.parse(localStorage.getItem("total"));
-            //statecart.total=localStorage.getItem("total");
-            //alert(statecart.total);
         }
 
-       // statecart.total=parseFloat(localStorage.getItem("total"));
-        //localStorage.setItem("cart", JSON.stringify(statecart.items))
-        // if(statecart.items.length ==1){
-          //   localStorage.setItem("cart",[])
-         //}
     }, [statecart.items.length])
 
 
-    const dropItem = async(id, priceitem) => {
+    const handleClose = () => {
+        setOpen(false)
+      };
+    
+
+    const dropItem = async (id, priceitem) => {
         await dispatchcart({ type: "DROP", payload: id, priceitem: parseFloat(priceitem.toFixed(2)) });
-       // localStorage.setItem("cart",JSON.stringify(statecart.items))
-        localStorage.setItem("total",JSON.stringify(statecart.total));
-        localStorage.setItem("cart",JSON.stringify(statecart.items));
+
+        localStorage.setItem("total", JSON.stringify(statecart.total));
+        localStorage.setItem("cart", JSON.stringify(statecart.items));
         console.log("DROP...", statecart.items.length);
-        /*if (statecart.items.length == 1) {
-            setLocalStorage("cart",null)
-            localStorage.setItem("total",JSON.stringify(0))
-        }*/
+
     }
 
+    const submitOrder = () => {
+        addOrder(statecart.items, statecart.total).then(response => {
+            if (response.error) {
+                setValues({
+                    ...values,
+                    error: response.error
+                })
+            } else {
+                dispatchcart({ type: "CANCEL", payload: null });
+                localStorage.setItem("cart", null)
+                setValues({
+                    ...values,
+                    success: "We have sent an verification email to your mail address. Please check your email and following the instruction"
+                })
+                setOpen(true)
+            }
+        })
+
+    }
     const emptyCart = () => (
-        <div className="container text-center">
+        <div className="container text-center m-5">
 
             <div>
-                <img src="/img/emptyCart.svg" height="300px" alt="empty" />
+                <img src="/img/emptyCart.svg" height="250px" alt="empty" />
             </div>
-            <h1 style={{ fontFamily: 'Cormorant Garamond', margin: '0px', fontSize: '3rem' }}>Your cart is empty.</h1>
+            <p style={{ fontFamily: 'Cormorant Garamond', margin: '0px', fontSize: '3rem' }}>Your cart is empty.</p>
 
         </div>
     )
     const listBooks = () => (
         <React.Fragment>
-            <TableContainer>
-                <Table className={classes.table}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell >Product</TableCell>
-                            <TableCell align="right">Price</TableCell>
-                            <TableCell align="right">Quality</TableCell>
-                            <TableCell align="right">Total</TableCell>
+            <div className="row">
+                <div className="col-sm-12">
+                    <TableContainer>
+                        <Table className={classes.table}>
+                            <TableHead>
+                                <TableRow style={{ height: '3rem' }}>
+                                    <TableCell >Product</TableCell>
+                                    <TableCell align="right">Price</TableCell>
+                                    <TableCell align="right">Quality</TableCell>
+                                    <TableCell align="right">Total</TableCell>
 
-                        </TableRow>
-                    </TableHead>
+                                </TableRow>
+                            </TableHead>
 
-                    <TableBody>
-                        {statecart.items.map((row, i) => (
-                            <TableRow key={row, i}>
-                                <TableCell component="th" scope="row">
-                                    <Link to={`/book/${row.slug}`}><img src={row.photo} height="80px" alt={i} /> {row.title}</Link>
-                                </TableCell>
-                                <TableCell align="right">{row.realprice}</TableCell>
-                                <TableCell align="right"> <input
-                                    className="custom-input-number"
-                                    type="number"
-                                    Value={row.amount}
-                                    defaultValue={row.amount}
-                                   // onChange={handleChange('discount')}
-                                /></TableCell>
-                                <TableCell align="right">{row.amount * row.realprice}</TableCell>
+                            <TableBody>
+                                {statecart.items.map((row, i) => (
+                                    <TableRow key={row, i} style={{ height: '3rem' }}>
+                                        <TableCell component="th" scope="row">
+                                            <Link to={`/book/${row.slug}`}><img src={row.photo} height="60px" alt={i} /> {row.title}</Link>
+                                        </TableCell>
+                                        <TableCell align="right">{row.realprice}</TableCell>
+                                        <TableCell align="right"> <input
+                                            className="custom-input-number"
+                                            style={{ width: '30px' }}
+                                            type="number"
+                                            Value={row.amount}
+                                            defaultValue={row.amount}
+                                        // onChange={handleChange('discount')}
+                                        /></TableCell>
+                                        <TableCell align="right">{row.amount * row.realprice}</TableCell>
 
-                                <TableCell align="center">
-                                    <IconButton onClick={() => dropItem(row.book_id, parseFloat((row.realprice * row.amount).toFixed(2)))}>
-                                        <ClearIcon />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
+                                        <TableCell align="center">
+                                            <IconButton onClick={() => dropItem(row.book_id, parseFloat((row.realprice * row.amount).toFixed(2)))}>
+                                                <ClearIcon />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
 
-                        ))}
-                        <TableRow>
-                            <TableCell align="left">Total :  {statecart.total.toFixed(2)}</TableCell>
-                        </TableRow>
+                                ))}
+                                <TableRow>
+                                    <TableCell align="left">Total :  {statecart.total.toFixed(2)}</TableCell>
+                                </TableRow>
 
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <span>
-                <Button
-                    variant="outlined"
-                    style={{ marginLeft: '45rem' }}
-                    onClick={() => { addOrder(statecart.items, statecart.total); dispatchcart({ type: "CANCEL", payload: null });localStorage.setItem("cart",[]) }}>
-                    Confirm</Button>
-            </span>
-            <span>
-                <Button
-                    variant="outlined"
-                    color="secondary"
-                    style={{ marginLeft: '5rem' }}
-                    onClick={() => {
-                        dispatchcart({ type: "CANCEL", payload: null });
-                        setLocalStorage("cart", [])
-                        localStorage.setItem("total",JSON.stringify(0))
-                        history.push('/books')
-                    }}>Cancel</Button>
-            </span>
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </div>
+
+                <br />
+                <div className="row" >
+                    <div className='d-flex justify-content-between'>
+                        <div>
+                            <Button
+                                variant="outlined"
+                                //style={{ marginLeft: '45rem' }}
+                                onClick={submitOrder}>
+                                Confirm</Button>
+
+                        </div>
+
+                        <div>
+                            <Button
+                                variant="outlined"
+                                color="secondary"
+                                //style={{ marginLeft: '5rem' }}
+                                onClick={() => {
+                                    dispatchcart({ type: "CANCEL", payload: null });
+                                    setLocalStorage("cart", [])
+                                    localStorage.setItem("total", JSON.stringify(0))
+                                    history.push('/books')
+                                }}>Cancel</Button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
         </React.Fragment>
 
     )
-    
-    const basket =()=>(
+
+    const basket = () => (
         <React.Fragment>
-   <p className="header-text mt-4">Basket Total</p>
-        <TableContainer style={{fontFamily:"Cormorant Garamond"}}>
-            <Table >
-                <TableRow>
-                    <TableCell>Shippping</TableCell>
-                    <TableCell>Shipping from U.S.A to VietNam</TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell>Total</TableCell>
-                    <TableCell>{statecart.total.toFixed(2)}</TableCell>
-                </TableRow>
-            </Table>
-        </TableContainer>
+            <div className="row">
+                <div className="col-sm-12">
+                    <p className="header-text mt-4">Basket Total</p>
+                    <TableContainer style={{ fontFamily: "Cormorant Garamond" }}>
+                        <Table >
+                            <TableRow>
+                                <TableCell>Shippping</TableCell>
+                                <TableCell>Shipping from U.S.A to VietNam</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Total</TableCell>
+                                <TableCell>{statecart.total.toFixed(2)}</TableCell>
+                            </TableRow>
+                        </Table>
+                    </TableContainer>
+                </div>
+            </div>
+
         </React.Fragment>
-     
+
     )
 
+    const dialog = () => {
+        return (
+            <React.Fragment>
+                <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+                    <DialogTitle id="simple-dialog-title" style={{ margin: '5px auto', font:'50px' }} >One more step...</DialogTitle>
+                    <MailOutlineOutlinedIcon style={{ color: 'green', width: '100px', height: '100px', margin: '10px auto' }} />
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description" style={{font:'20px 200 #555 Cormorant Garamond'}}>
+                            {success}
+          </DialogContentText>
+                    </DialogContent>
+                </Dialog>
+            </React.Fragment>
+        )
+    }
 
     return (
         <Layout>
             <React.Fragment>
-                <h1 id='title' className="row justify-content-md-center header-text">Shopping Cart</h1>
-
                 <div className="container">
-                    {
-                        statecart.items.length === 0 ? (
-                            <div>  { emptyCart()}
-                            </div>
-                        )
-                            :
-                            (<div>{listBooks()}
-                            {basket()}
-                            </div>)
-                    }
+                <div className="row">
+                    <div className="col-sm-12">
+                        <h1 id='title' className="row justify-content-md-center header-text">Shopping Cart</h1>
 
+                    </div>
+
+                    <div className="container">
+                        {
+                            statecart.items.length === 0 ? (
+                                <div>  { emptyCart()}
+                                 {success && dialog()}
+                                </div>
+                            )
+                                :
+                                (
+                                    <div>{listBooks()}
+                                        {basket()}
+                                       
+                                    </div>)
+                        }
+
+                    </div>
                 </div>
-
-
-
+                </div>
+               
             </React.Fragment>
         </Layout>
 

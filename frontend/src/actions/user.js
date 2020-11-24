@@ -1,13 +1,15 @@
 import fetch from 'isomorphic-fetch'
 import cookie from 'js-cookie'
 export const makeComment =(contain, bookSlug, token)=>{
-    return fetch(`/user/makeComment/:${bookSlug}`,{
-        method: 'POST',
+    return fetch(`/user/makeComment/${bookSlug}`,{
+        method: 'PUT',
         headers:{
-            "Accept": "application/json",
+            "Content-Type": "application/json",
             "authorization": `kiet ${token}`,
         },
-        body: contain
+        body: JSON.stringify({
+            comment: contain
+        })
     }).then(response=>{
         return response.json()
     }).catch(err=>{

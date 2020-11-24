@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, Component } from 'react'
 import { getCookie, isAuth, removeLocalStorage, setCookie, setLocalStorage } from '../../actions/auth'
 import { CartContext, UserContext } from '../../App.js'
-import { Link,Redirect,useHistory } from 'react-router-dom'
+import { Link, Redirect, useHistory } from 'react-router-dom'
 import { getDetailBook, likeBook, unlikeBook, listRelatedBook } from '../../actions/book'
 import Layout from '../../components/Layout'
 import Comment from '../../components/book/Comment'
@@ -34,13 +34,14 @@ const useStyles = makeStyles((theme) => ({
 
 const BookDetailPage = (props) => {
     const slug = props.match.params.slug
-    const history=useHistory();
+    const history = useHistory();
     const token = getCookie('token')
     const classes = useStyles()
     const { statecart, dispatchcart } = useContext(CartContext);
     const { stateUser, dispatchUser } = useContext(UserContext)
     const [amount, setAmount] = useState(1);
     const [book, setBook] = useState('')
+    const [feedBack, setFeedBack] = useState('')
     const [relatedBooks, setRelatedBooks] = useState([])
     const [values, setValues] = useState({
         success: '',
@@ -52,15 +53,14 @@ const BookDetailPage = (props) => {
 
     const { success, error, isOpenError, isOpenSuccess } = values
     const userEndPoint = isAuth(stateUser).role === 1 ? 'admin/' : '';
-    useEffect(() =>{
+    useEffect(() => {
         console.log("inital...", statecart.items);
-        if(statecart.items.length>0){
-          localStorage.setItem("cart", JSON.stringify(statecart.items));
+        if (statecart.items.length > 0) {
+            localStorage.setItem("cart", JSON.stringify(statecart.items));
         }
-       // history.push(`/book/${book.slug}`)
-       // history.push(`book/${book.slug}`)
+
         initBook()
-    },[slug])
+    }, [slug,success])
 
     const initBook = () => {
         getDetailBook(slug).then(response => {
@@ -139,7 +139,7 @@ const BookDetailPage = (props) => {
         if (isAuth(stateUser) == false) {
             setValues({ ...values, error: "You have to login to use shopping cart.", success: '' })
         }
-        else if (amount <= 0||Math.floor(amount) != amount) {
+        else if (amount <= 0 || Math.floor(amount) != amount) {
             setValues({ ...values, error: "Invalid amount", isOpenError: true, success: '' })
         }
         else {
@@ -162,20 +162,20 @@ const BookDetailPage = (props) => {
                         payload: JSON.parse(JSON.stringify({
                             book_id: id, amount: amount,
                             title: title, realprice: parseFloat(realprice), slug: slug, photo
-                        })), priceitem:parseFloat((realprice * amount).toFixed(2))
+                        })), priceitem: parseFloat((realprice * amount).toFixed(2))
                     });
-                    localStorage.setItem("cart",JSON.stringify(statecart.items));
-                    localStorage.setItem("total",JSON.stringify(statecart.total));
-                } else  if (statecart.items.length > 0) {
+                    localStorage.setItem("cart", JSON.stringify(statecart.items));
+                    localStorage.setItem("total", JSON.stringify(statecart.total));
+                } else if (statecart.items.length > 0) {
                     await dispatchcart({
                         type: "ADD",
                         payload: JSON.parse(JSON.stringify({
                             book_id: id, amount: amount, title: title,
                             realprice: parseFloat(realprice), slug: slug, photo
-                        })), priceitem:parseFloat(((realprice * amount)).toFixed(2))
+                        })), priceitem: parseFloat(((realprice * amount)).toFixed(2))
                     });
-                    localStorage.setItem("cart",JSON.stringify(statecart.items));
-                    localStorage.setItem("total",JSON.stringify(statecart.total));
+                    localStorage.setItem("cart", JSON.stringify(statecart.items));
+                    localStorage.setItem("total", JSON.stringify(statecart.total));
                 }
 
                 console.log(statecart);
@@ -202,12 +202,29 @@ const BookDetailPage = (props) => {
         })
     };
 
-    const handleComment = () => {
-        makeComment().then(response => {
-
-        }).catch(err => {
-            console.log(err);
+    const handleComment = (e) => {
+        e.preventDefault()
+        makeComment(feedBack, book.slug, token).then(response => {
+            if (response.error) {
+                setValues({
+                    ...values,
+                    error: response.err
+                })
+                setFeedBack('')
+            } else {
+                setValues({
+                    ...values,
+                    isOpenSuccess: true,
+                    success: "Your feedback has been posteed."
+                })
+                setFeedBack("")
+            }
         })
+    }
+
+    const handleChangeComment = e => {
+        let feed = e.target.value
+        setFeedBack(feed)
     }
 
     const userBookPage = (book) => (
@@ -267,7 +284,7 @@ const BookDetailPage = (props) => {
                             }} />
                         <br />
 
-                        <p style={{ display: 'flex', alignItems: 'center', padding: '0px', margin: '0px' }}>
+                        <p style={{ display: 'flex', alignItems: 'center', padding: '0px', marginTop: '20px' }}>
                             {
                                 !isAuth(stateUser) ? (
                                     <FavoriteIcon
@@ -304,7 +321,7 @@ const BookDetailPage = (props) => {
                             <Button
                                 variant="contained"
                                 //color="primary"
-                                style={{ backgroundColor: "#ec524b", color: 'white', padding: "15px", marginTop:'2rem' }}
+                                style={{ backgroundColor: "#ec524b", color: 'white', padding: "15px", marginTop: '1rem' }}
                                 className={classes.button}
                                 startIcon={<AddShoppingCartIcon />}
                                 onClick={() => {
@@ -365,7 +382,7 @@ const BookDetailPage = (props) => {
         return (
             <React.Fragment >
                 <div style={{ marginTop: '50px' }}>
-                    <p className="header-text" style={{fontSize:'2rem'}}>
+                    <p className="header-text" style={{ fontSize: '2rem' }}>
                         May be you like this.
                 </p>
                     <hr />
@@ -403,6 +420,7 @@ const BookDetailPage = (props) => {
 
                 {description()}
                 {comment()}
+                {feedback()}
                 {relatedBookPart()}
             </div>
 
@@ -410,6 +428,32 @@ const BookDetailPage = (props) => {
         </React.Fragment>
     )
 
+
+    const feedback = () => (
+        <div>
+            <form>
+                <br/>
+                <textarea
+                    multiple
+                    //className="custom-input"
+                    style={{ minHeight: '100px',width:'100%' }}
+                    value={feedBack}
+                    onChange={handleChangeComment}
+                    placeholder="We hope to see your feedback"
+                />
+                <br/>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    type="submit"
+                    color="secondary"
+                    onClick={handleComment}>
+                    Post
+            </Button>
+            </form>
+        </div>
+    )
     const description = () => (
         <p className="custom-text" style={{ marginBottom: '30px' }}>
             {book.description}
@@ -436,14 +480,16 @@ const BookDetailPage = (props) => {
 
     const comment = () => (
         <React.Fragment>
-            {
-                book.comments ? (book.comments.map((c, i) => (
+            {/* <div style={{ height: '400px' }}> */}
+                {book.comments ? (book.comments.map((c, i) => (
                     <Comment comment={c} />
 
                 ))) : (
                         <p>This book has no comment</p>
                     )
-            }
+                }
+            {/* </div> */}
+
 
         </React.Fragment>
     )

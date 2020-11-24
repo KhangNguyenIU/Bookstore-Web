@@ -1,188 +1,217 @@
-import React, { useState, useEffect,useContext} from 'react'
-import { userCheckOrder,getLikedBook } from '../../actions/user'
+import React, { useState, useEffect, useContext } from 'react'
+import { userCheckOrder, getLikedBook } from '../../actions/user'
 import Layout from '../../components/Layout'
-import {BookCard} from '../../components/book/BookCard'
+import { BookCard } from '../../components/book/BookCard'
 import BookLiked from '../../components/book/BookLiked'
-import { Link,NavLink} from 'react-router-dom'
-import {UserContext} from '../../App.js'
+import { Link, NavLink, useHistory } from 'react-router-dom'
+import { UserContext } from '../../App.js'
 import {
-  TableCell, TableContainer, Table, TableHead, TableRow,
-  useScrollTrigger, TableBody, IconButton, TextField
+    TableCell, TableContainer, Table, TableHead, TableRow,
+    useScrollTrigger, TableBody, IconButton, TextField, Avatar
 } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles'
 import Pagination from '@material-ui/lab/Pagination';
 import 'react-toastify/dist/ReactToastify.css'
-
+import CreateOutlinedIcon from '@material-ui/icons/CreateOutlined';
 
 /**
 * @author
 * @function Login
 **/
 const useStyles = makeStyles({
-  table: {
-      minWidth: 400,
-      maxHeight: 100,
-      fontFamily:"Cormorant Garamond"
-  },
+    table: {
+   
+        maxHeight: 100,
+        fontFamily: "Cormorant Garamond"
+    },
 });
 const User = (props) => {
-  const classes = useStyles();
-  const [page, setPage] = React.useState(1);
-  const [order, setOrder] = useState([]);
-  const [likedBook,setLikedBook]=useState([]);
-  const [phase,setPhase]=useState(0);
-  const [error,setError]=useState("");
-  const { stateUser, dispatchUser } = useContext(UserContext);
-  const initUser = () => {
-    userCheckOrder(5,page).then(response => {
-      if (response.error) {
-        console.log(response.error);
-      } else {
-          setOrder(response.data);
-      }
-  });
-  getLikedBook().then(response => {
-    if (response.error) {
-      console.log(response.error);
-    } else {
-        setLikedBook(response.likes);
+    const history = useHistory()
+    const classes = useStyles();
+    const [page, setPage] = React.useState(1);
+    const [order, setOrder] = useState([]);
+    const [likedBook, setLikedBook] = useState([]);
+    const [phase, setPhase] = useState(1);
+    const [error, setError] = useState("");
+    const { stateUser, dispatchUser } = useContext(UserContext);
+    const initUser = () => {
+        userCheckOrder(5, page).then(response => {
+            if (response.error) {
+                console.log(response.error);
+            } else {
+                setOrder(response.data);
+            }
+        });
+        getLikedBook().then(response => {
+            if (response.error) {
+                console.log(response.error);
+            } else {
+                setLikedBook(response.likes);
+            }
+        });
+    };
+    const handleChangePage = (event, value) => {
+        setPage(value);
+    };
+    const pagination = () => (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+            <Pagination
+                count={Math.floor(order.length / 5) + 1}
+                size="large"
+                page={page}
+                onChange={handleChangePage} />
+        </div>
+
+    )
+    const gridBooks = () => {
+        return (
+            <div className="row">
+                    <p className="custom-heading col-sm-12">Your favourite books</p>
+           
+             {
+                    likedBook.map((book, index) => (
+                        <div className="col-md-3">
+                            <BookLiked book={book} />
+                        </div>
+                    ))
+                }
+        
+            </div>
+        )
     }
-});
-};
-const handleChangePage = (event, value) => {
-  setPage(value);
-};
-const pagination = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
-      <Pagination
-          count={Math.floor(order.length/5)+1}
-          size="large"
-          page={page}
-          onChange={handleChangePage} />
-  </div>
+    useEffect(() => {
+        initUser();
+    }, [page])
 
-)
-const gridBooks = () => {
-  return (
-      <div className="row">
-          {
-              likedBook.map((book, index) => (
-                  <div className="col-md-4">
-                      <BookLiked book={book} />
-                  </div>
-              ))
-          }
-      </div>
-  )
-}
-useEffect(() => {
-    initUser();
-}, [page])
-const mainUI=()=>{
-  if(phase==0)
-   return (
-     <div>
-     <div className="row content">
-        <div className="col-sm-4">
-          <img src={stateUser.photo} width="70%" height="70%" />
+    const UserInfo = () => (
+        <div>
+            <div className="row content">
+                <div className="col-sm-12">
+                    <div className="text-center">
+                        <Avatar src={stateUser.photo} style={{ width: "150px", height: "150px", margin: '20px auto' }} />
+                        <p className="custom-heading m-0">{stateUser.username}</p>
+                        <p className="custom-text m-0">{stateUser.email}</p>
+                        <div>
+                            <IconButton onClick={()=>{history.push('/userUpdate')}}>
+                                <CreateOutlinedIcon/>
+                            </IconButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div className="col-sm-5">
-        <p style={{'color':'green','font':'-moz-initial'}}>Email :{stateUser.email}</p>
-        <p>Role :Customer</p>
-        <p style={{'color':'green'}}>Username :{stateUser.username}</p>
-        <Link  to={"/userUpdate"} style={{'color':'red'}} >Reset Information</Link>
-
-        </div>
-     </div>
-     </div>
-   )
-  else if(phase==1)
-   return (
-    <React.Fragment>
-    <TableContainer>
-        <Table className={classes.table}>
-            <TableHead>
-                <TableRow>
-                    <TableCell >Order Id</TableCell>
-                    <TableCell align="right">Owner name</TableCell>
-                    <TableCell align="right">Total</TableCell>
-                    <TableCell align="right">Delivered</TableCell>
-                    <TableCell align="right">Address</TableCell>
-
-                </TableRow>
-            </TableHead>
-
-            <TableBody>
-                {order.map((row, i) => (
-                    <TableRow key={row, i}>
-                        <TableCell component="th" scope="row">
-                            <Link to={`/orderDetail/${row._id}`}>{row._id}</Link>
-                        </TableCell>
-                        <TableCell align="right">{row.owner.username}</TableCell>
-                        <TableCell align="right">{row.total.toFixed(2)}</TableCell>
-                        <TableCell align="right">{row.delivered.toString()}</TableCell>
-                    </TableRow>
-
-                ))}
-                <TableRow>
-                <TableCell align="left">Total :{order.length}</TableCell>
-                </TableRow>
-
-            </TableBody>
-        </Table>
-    </TableContainer>
-    {pagination()}
-</React.Fragment>
-   )
-  else if(phase==2)
-    return (
-       gridBooks()
     )
 
-}
-//onClick={()=>{addtocart(book._id,book.title,book.finalprice.toFixed(2),book.slug);setAmount(1)}}
+    const OrderHistory = () => (
+        <React.Fragment>
+           <div className="row">
+               <div className="col-sm-12">
+               <p className="custom-heading">Order History</p>
+            {
+                order.length > 0 ? (
+                    <div>
+                        <TableContainer>
+                            <Table className={classes.table}>
+                                <TableHead>
+                                    <TableRow style={{height:'3rem'}}>
+                                        <TableCell >Order Id</TableCell>
+                                   
+                                        <TableCell align="right">Total</TableCell>
+                                        <TableCell align="center">Status</TableCell>
+                                        <TableCell align="center">Delivered</TableCell>
+                          
+
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    {order.map((row, i) => (
+                                        <TableRow key={row, i}>
+                                            <TableCell >
+                                                <Link style={{maxWidth:'50px'}} to={`/orderDetail/${row._id}`}>{row.shortId}</Link>
+                                            </TableCell>
+                                      
+                                            <TableCell align="right">{row.total.toFixed(2)}</TableCell>
+                                            <TableCell align="center">{row.confirmed ? "Confirmed" : "Unconfirmed"}</TableCell>
+                                            <TableCell align="center">{row.delivered.toString()}</TableCell>
+                                        
+                                        </TableRow>
+
+                                    ))}
+                                    <TableRow>
+                                        <TableCell align="left">Total :{order.length}</TableCell>
+                                    </TableRow>
+
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+
+                        {pagination()}
+                    </div>
+                ) : (
+                        <h1>Your order history is empty</h1>
+                    )
+            }
+               </div>
+
+           </div>
+        </React.Fragment>
+    )
+    const mainUI = () => {
+        if (phase == 1)
+            return (
+                OrderHistory()
+            )
+        else if (phase == 2)
+            return (
+                gridBooks()
+            )
+
+    }
+    //onClick={()=>{addtocart(book._id,book.title,book.finalprice.toFixed(2),book.slug);setAmount(1)}}
     const userUI = () => (
         <div>
-        <div className="container-fluid">
-          <div className="row content">
-            <div className="col-sm-1 sidenav">
+            <div className="container">
+                <div className="row content">
+                    {/* <div className="col-sm-1 sidenav">
+                    </div> */}
+                    <div className="col-sm-12">
+                        {UserInfo()}
+
+                        <div className="text-center">
+                            <div style={{ display: "flex", justifyContent: 'center', marginTop: '20px' }}>
+                                <button 
+                                className={phase==1? "custom-button-active" :"custom-button"  }
+                                onClick={() => { setPhase(1) }}>
+                                    Order history</button>
+
+                                <button className={phase==2? "custom-button-active" :"custom-button" }
+                                onClick={() => { setPhase(2) }}>
+                                    Liked Books</button>
+
+                                <button className="custom-button">
+                                    review </button>
+                            </div>
+                    
+                        </div>
+
+                        {mainUI()}
+                    </div>
+                </div>
+                <hr />
+
             </div>
-            <div className="col-sm-11">
-              <h4><small>User Profile</small></h4>
-              {mainUI()}
-            </div>
-            </div>
-              <hr />
-              <div className="row content">
-              <div className="col-sm-3 sidenav">
-              <h4>User Option</h4>
-              <ul className="nav nav-pills flex-column">
-                <li><a href="#" onClick={()=>{setPhase(0)}}>User Profile</a></li>
-                <li><a href="#" onClick={()=>{setPhase(1)}}>Order History</a></li>
-                <li><a href="#" onClick={()=>{setPhase(2)}}>Liked Book</a></li>
-              </ul><br />
-              <div className="input-group">
-                <input type="text" className="form-control" placeholder="Search Blog.." />
-                <span className="input-group-btn">
-                  <button className="btn btn-default" type="button">
-                    <span className="glyphicon glyphicon-search" />
-                  </button>
-                </span>
-              </div>
-              </div>
-              </div>
-              </div>
-              <br /><br/>
-          </div>
+            <br /><br />
+        </div>
     )
 
     return (
         <Layout>
-          <React.Fragment>
-            {userUI()}
-          </React.Fragment>
+            <React.Fragment>
+                {userUI()}
+            </React.Fragment>
         </Layout>
     )
 

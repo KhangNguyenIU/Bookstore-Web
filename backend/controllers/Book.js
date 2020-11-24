@@ -1,5 +1,4 @@
-const express = require('express');
-const mongoose = require('mongoose');
+
 const Book = require('../models/Book.js');
 const Author = require('../models/Author.js');
 const Genre = require('../models/Genre.js');
@@ -65,28 +64,45 @@ exports.addBook = async (req, res) => {
 exports.showAllBook = async (req, res) => {
     let limit = parseInt(req.query.limit) || 8
     let page = parseInt(req.query.page) || 1
+    let maxPrice = parseInt(req.body.maxPrice) || 1000
+    let minPrice = parseInt(req.body.minPrice) || 0
     var sortObject = {};
-    const { sortType, sortDir } = req.body
+    const { sortType, sortDir } = req.body.sortMethod
     sortObject[sortType] = sortDir;
 
-    await Book.find({})
-        .limit(limit)
-        .sort(sortObject)
-        .skip((page - 1) * limit)
-        .populate('genre', "_id name slug")
-        .populate('writtenby', "_id name slug")
-       
-        .exec((err, books) => {
+    Book.find({})
+        .where("price")
+        .gte(minPrice)
+        .lte(maxPrice)
+        .exec(async (err, listBook) => {
             if (err) {
-                return res.status(400).json({
+                return res.status(401).json({
                     error: err
                 })
             }
-            res.json({ data: books,sir:sortDir,type: sortType })
-            //res.json({sort, side})
+
+            await Book.find({})
+                .limit(limit)
+                .sort(sortObject)
+                .skip((page - 1) * limit)
+                .populate('genre', "_id name slug")
+                .populate('writtenby', "_id name slug")
+                .where("price")
+                .gte(minPrice)
+                .lte(maxPrice)
+                .exec((err, books) => {
+                    if (err) {
+                        return res.status(400).json({
+                            error: err
+                        })
+                    }
+                    res.json({ data: books, sir: sortDir, type: sortType, booksNumber: listBook.length })
+                    //res.json({sort, side})
+                })
         })
 
 };
+
 
 exports.showGenreWithBook = async (req, res) => {
     await Book.find({})
@@ -106,7 +122,7 @@ exports.getBookDetail = (req, res) => {
         .populate('writtenby', "_id name slug")
         .populate('likes', '_id username ')
         .populate('comments', 'comment postedby date')
-        .populate('comments.postedby','_id username photo')
+        .populate('comments.postedby', '_id username photo')
         .exec((err, book) => {
             if (err) {
                 return res.status(401).json({
@@ -179,9 +195,9 @@ exports.likeBook = (req, res) => {
                     error: "Something went wrong, please try later."
                 })
             }
-            const { _id, username, likes, role, email,photo } = result
+            const { _id, username, likes, role, email, photo } = result
 
-            res.json({ book, user: { _id, username, email, role, likes,photo } })
+            res.json({ book, user: { _id, username, email, role, likes, photo } })
         })
     })
 }
@@ -205,22 +221,22 @@ exports.unlikeBook = (req, res) => {
                     error: "Something went wrong, please try later."
                 })
             }
-            const { _id, username, likes, role, email,photo } = result
+            const { _id, username, likes, role, email, photo } = result
 
-            res.json({ book, user: { _id, username, email, role, likes,photo } })
+            res.json({ book, user: { _id, username, email, role, likes, photo } })
         })
     })
 }
 
-exports.listRelatedBook =(req, res)=>{
-    const { _id, genre} = req.body
+exports.listRelatedBook = (req, res) => {
+    const { _id, genre } = req.body
 
-    Book.find({_id :{$ne:_id}, genre :{$in: genre}})
+    Book.find({ _id: { $ne: _id }, genre: { $in: genre } })
         .limit(4)
         .populate('genre', "_id name slug")
         .populate('writtenby', "_id name slug")
-        .exec((err, books)=>{
-            if(err){
+        .exec((err, books) => {
+            if (err) {
                 return res.status(400).json({
                     error: "Can not load related books"
                 })
@@ -228,4 +244,18 @@ exports.listRelatedBook =(req, res)=>{
 
             res.json(books)
         })
+}
+
+exports.getBestSellerBook =(req,res)=>{
+    Book.find({})
+    .sort({sold:1})
+    .limit(5)
+    .select("photo slug").exec((err,books)=>{
+        if(err){
+            return res.status(401).json({
+                error:err
+            })
+        }
+        res.json(books)
+    })
 }

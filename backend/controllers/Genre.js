@@ -2,6 +2,7 @@ const express=require('express');
 const mongoose=require('mongoose');
 const Genre=require('../models/Genre.js');
 var bodyParser = require('body-parser');
+
 exports.addGenre= async (req, res)=> {
     let genre={};
     genre.name=req.body.name;
@@ -24,4 +25,13 @@ exports.getGenre=async(req,res)=>{
     .exec().then(genres=>res.json({data:genres}));
 };
 
-
+// exports.getAllGenre =(req, res)=>{
+//   Genre.find({}).exec((err, genres)=>{
+//       if(err){
+//         return res.status(401).json({
+//           error: err
+//         })
+//       }
+//       res.json(genres)
+//   })
+// }
