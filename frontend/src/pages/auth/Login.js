@@ -7,27 +7,33 @@ import 'react-toastify/dist/ReactToastify.css'
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from "@material-ui/lab/Alert";
 import { UserContext } from '../../App'
+import LoginGoogle from '../../components/auth/LoginGoogle';
+import GoogleLogin from 'react-google-login'
+import { loginWithGoogle } from '../../actions/auth'
+import { GOOGLE } from '../../react.env'
+import { IconButton } from '@material-ui/core';
 /**
 * @author
 * @function Login
 **/
 
 const Login = (props) => {
-    const {stateUser, dispatchUser} = useContext(UserContext)
+    const { stateUser, dispatchUser } = useContext(UserContext)
     const [values, setValues] = useState({
         email: 'khang@gmail.com',
         password: '123456',
         error: '',
         loading: false,
         message: '',
+        success: '',
         showForm: true,
         openSuccess: false,
         openError: false
     });
 
-    const { email, password, error, loading, message, showForm ,openError,openSuccess} = values;
+    const { email, password, error, loading, message, success, showForm, openError, openSuccess } = values;
 
-  
+
     useEffect(() => {
         if (isAuth()) {
             props.history.push('/')
@@ -35,7 +41,7 @@ const Login = (props) => {
     }, [])
 
     const handleChange = name => e => {
-        setValues({ ...values, error: false, [name]: e.target.value,openError:false, openSuccess:false });
+        setValues({ ...values, error: false, success: '', [name]: e.target.value, openError: false, openSuccess: false });
     };
 
     const handleSubmit = (e) => {
@@ -47,18 +53,19 @@ const Login = (props) => {
         login(user).then(data => {
             console.log(data);
             if (data.error) {
-                setValues({ ...values, error: data.error, loading: false,openError:true});
+                setValues({ ...values, error: data.error, loading: false, openError: true });
             } else {
                 // save user token to cookie
                 // save user info to localstorage
                 // authenticate user
                 setValues({
                     ...values,
+                    success: 'Login Success',
                     openSuccess: true
                 })
                 authenticate(data, () => {
-                    dispatchUser({type:"LOGIN", payload:data.user})
-                    props.history.push('/')          
+                    dispatchUser({ type: "LOGIN", payload: data.user })
+                    props.history.push('/')
                 })
             }
         });
@@ -71,6 +78,43 @@ const Login = (props) => {
             </div>
             :
             ''
+    )
+
+    const responseGoogle = response => {
+        const tokenId = response.tokenId;
+        const user = { tokenId }
+        loginWithGoogle(user).then(data => {
+            if (data.error) {
+                setValues({ ...values, error: data.error, loading: false, openError: true });
+            } else {
+                setValues({
+                    ...values,
+                    success: "Login with Google account success",
+                    openSuccess: true
+                })
+                authenticate(data, () => {
+                    dispatchUser({ type: "LOGIN", payload: data.user })
+                    props.history.push('/')
+                })
+            }
+        })
+    }
+
+    const loginGoogle = () => (
+        <React.Fragment>
+            <div className="login-with-google-div">
+                <GoogleLogin
+                    clientId={GOOGLE}    
+                    buttonText="Google"   
+                    onSuccess={responseGoogle}
+                    onFailure={responseGoogle}
+                    theme="dark"
+                />
+
+            </div>
+
+            {/* <FcGoogle /> */}
+        </React.Fragment>
     )
     const loginForm = () => (
         <div className="container">
@@ -124,11 +168,8 @@ const Login = (props) => {
                                         style={{ borderRadius: '25px', padding: '0 20px', height: '40px' }}>Submit</button>
                                 </div>
                                 <p className="text-center">or</p>
-                                <div className="text-center">
-                                    <a href="/">
-                                        <FcGoogle size='2rem' />
-                                    </a>
-
+                                <div className="text-center">                     
+                                        {loginGoogle()}
                                 </div>
                             </form>
                         </div>
@@ -146,8 +187,8 @@ const Login = (props) => {
 
         setValues({
             ...values,
-            openError:false,
-            openSuccess:false
+            openError: false,
+            openSuccess: false
         })
     };
     const showSuccessMessage = () => (
@@ -169,15 +210,15 @@ const Login = (props) => {
 
 
     )
-  
+
     const showErrorMessage = () => (
         (
             <Snackbar
                 open={openError}
                 key={
-                    'top'+'right'
+                    'top' + 'right'
                 }
-                autoHideDuration={2000} 
+                autoHideDuration={2000}
                 onClose={handleClose}>
                 <Alert
                     elevation={6}
@@ -192,7 +233,7 @@ const Login = (props) => {
 
 
     )
-  
+
     return (
         <React.Fragment>
             {showErrorMessage()}

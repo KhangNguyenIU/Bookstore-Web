@@ -8,7 +8,7 @@ exports.adminLogin=(req,res,next)=>{
      return res.status(401).json({error:"you must be loggin "})
     }
      const token=authorization.replace("kiet ","")
-     jwt.verify(token,"kiet2606070",(err,payload)=>{
+     jwt.verify(token,process.env.JWT_SECRET,(err,payload)=>{
          if(err)
         { 
               return res.status(401).json({error:"you must be loggin"})
@@ -33,7 +33,7 @@ exports.requiredLogin=(req,res,next)=>{
      return res.status(401).json({error:"you must be loggin "})
     }
      const token=authorization.replace("kiet ","")
-     jwt.verify(token,"kiet2606070",(err,payload)=>{
+     jwt.verify(token,process.env.JWT_SECRET,(err,payload)=>{
          if(err)
         { 
               return res.status(401).json({error:"you must be loggin"})

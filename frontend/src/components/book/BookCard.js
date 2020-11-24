@@ -1,20 +1,24 @@
 import React, { useContext } from 'react'
-import { Link,NavLink,Redirect } from 'react-router-dom';
+import { Link, NavLink, Redirect } from 'react-router-dom';
 import { Card } from 'reactstrap'
 import { isAuth } from '../../actions/auth';
 import { UserContext } from '../../App';
-
+import { motion } from 'framer-motion'
 const BookCard = ({ book }) => {
     const { stateUser, dispatchUser } = useContext(UserContext)
     const userEndPoint = isAuth(stateUser).role === 1 ? 'admin/' : '';
     return (
         <Card style={{ border: 'none', marginBottom: '3rem' }}>
 
-            <Link to={`/book/${userEndPoint}${book.slug}`}><img
-                style={{ height: '400px' }}
+            <Link to={`/book/${userEndPoint}${book.slug}`}><motion.img
+                 initial={{ opacity: 0.8 }}
+                animate={{ opacity: 1 }}
+                
+                transition={{ delay: 0.5 }}
+                style={{ height: '400px',opacity:0.8 }}
                 width="100%"
                 src={book.photo}
-                alt="Card image cap"/>
+                alt="Card image cap" />
             </Link>
             <Link style={{
                 textDecoration: 'none',

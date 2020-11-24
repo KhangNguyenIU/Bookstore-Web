@@ -393,10 +393,7 @@ const BookUpdate = (props) => {
                 {header()}
 
                 {book ? adminBookPage(book) : (<p>Book not Found</p>)}
-                <hr />
-                <p>Comments</p>
-                <hr />
-                <p>Related books</p>
+               
             </React.Fragment>
         </Layout>
     )

@@ -8,7 +8,7 @@ const BookLiked = ({ book }) => {
     const { stateUser, dispatchUser } = useContext(UserContext)
     const userEndPoint = isAuth(stateUser).role === 1 ? 'admin/' : '';
     return (
-        <Card style={{ border: 'none', marginBottom: '3rem' }}>
+        <Card style={{ border: 'none', marginBottom:'2rem' }}>
 
             <Link to={`/book/${userEndPoint}${book.slug}`}><img
                 style={{ height: '280px' }}
