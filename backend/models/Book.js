@@ -27,6 +27,13 @@ var book = mongoose.Schema(
             sparse: true,
             require: true
         },
+        cost: {
+            type: Number,
+            min: 0,
+            default: 2.0,
+            sparse: true,
+            require: true
+        },
         discount: {
             type: Number,
             min: 0,

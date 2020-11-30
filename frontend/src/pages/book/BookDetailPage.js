@@ -14,12 +14,14 @@ import IconButton from '@material-ui/core/IconButton';
 import { makeStyles } from '@material-ui/core/styles';
 import { stringTrim } from '../../helpers/StringTrim'
 import Snackbar from '@material-ui/core/Snackbar';
+
 import Alert from "@material-ui/lab/Alert";
 import { makeComment } from '../../actions/user'/**
 * @author
 * @function DetailBook
 **/
 import BookCard from '../../components/book/BookCard'
+import BookDetailSkelton from '../../components/skeleton/BookDetailSkeleton'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -51,28 +53,32 @@ const BookDetailPage = (props) => {
         isOpenError: false
     })
 
-    const { success, error, isOpenError, isOpenSuccess } = values
+    const { success, error, isOpenError, isOpenSuccess, loading } = values
     const userEndPoint = isAuth(stateUser).role === 1 ? 'admin/' : '';
     useEffect(() => {
-        console.log("inital...", statecart.items);
+        setValues({ ...values, loading: true })
         if (statecart.items.length > 0) {
             localStorage.setItem("cart", JSON.stringify(statecart.items));
         }
 
         initBook()
-    }, [slug,success])
+    }, [slug, success])
 
     const initBook = () => {
         getDetailBook(slug).then(response => {
             if (response.error) {
                 setValues({
                     ...values,
-                    error: response.error
+                    error: response.error,
+                    loading: false
                 })
                 console.log(response.error);
             } else {
                 setBook(response);
-                console.log(response._id, response.genre);
+                setValues({
+                    ...values,
+                    loading: false
+                })
                 getRelatedBooks(response._id, response.genre)
             }
         });
@@ -94,8 +100,11 @@ const BookDetailPage = (props) => {
     const checkLikedBook = () => {
         // console.log(book._id);
         if (stateUser) {
-            if (stateUser.likes.includes(book._id)) {
-                return true
+            if (stateUser.likes) {
+                if (stateUser.likes.includes(book._id)) {
+                    return true
+                }
+                return false;
             }
 
             return false
@@ -432,16 +441,16 @@ const BookDetailPage = (props) => {
     const feedback = () => (
         <div>
             <form>
-                <br/>
+                <br />
                 <textarea
                     multiple
                     //className="custom-input"
-                    style={{ minHeight: '100px',width:'100%' }}
+                    style={{ minHeight: '100px', width: '100%' }}
                     value={feedBack}
                     onChange={handleChangeComment}
                     placeholder="We hope to see your feedback"
                 />
-                <br/>
+                <br />
                 <Button
                     variant="contained"
                     color="primary"
@@ -481,13 +490,13 @@ const BookDetailPage = (props) => {
     const comment = () => (
         <React.Fragment>
             {/* <div style={{ height: '400px' }}> */}
-                {book.comments ? (book.comments.map((c, i) => (
-                    <Comment comment={c} />
+            {book.comments ? (book.comments.map((c, i) => (
+                <Comment comment={c} />
 
-                ))) : (
-                        <p>This book has no comment</p>
-                    )
-                }
+            ))) : (
+                    <p>This book has no comment</p>
+                )
+            }
             {/* </div> */}
 
 
@@ -495,15 +504,28 @@ const BookDetailPage = (props) => {
     )
 
 
+
     return (
         <Layout>
             <React.Fragment>
+
+
                 {header()}
                 {showSuccessMessage()}
                 {showErrorMessage()}
-                {book ? userBookPage(book) : (<p>Book not Found</p>)}
+                {
+                    loading ? (<BookDetailSkelton />) :
+                       (
+                           <div>
+                                 {book ? userBookPage(book) : (<p>Book not Found</p>)}
+                           </div>
+                       )
+                }
                 <br />
-                {belowInfo()}
+                {belowInfo()})
+
+
+
 
 
             </React.Fragment>

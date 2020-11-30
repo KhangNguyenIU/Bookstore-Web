@@ -44,3 +44,16 @@ export const confirmOrder =(orderToken)=>{
     console.log(err);
   })
 }
+
+export const getAllOrder =()=>{
+  return fetch('/order/getAllOrder',{
+    method: 'GET',
+    headers:{
+      "Authorization": "kiet " + Cookies.get("token")
+    }
+  }).then(response=>{
+    return response.json()
+  }).catch(err=>{
+    console.log(err);
+  })
+}

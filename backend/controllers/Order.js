@@ -10,7 +10,7 @@ var bodyParser = require('body-parser');
 exports.addOrder = async (req, res) => {
     const { _id, email, username } = req.user;
     const items = req.body.items
-   
+
 
     let order = {};
     order.items = [];
@@ -25,16 +25,16 @@ exports.addOrder = async (req, res) => {
     order.owner = req.user._id;
     order.total = req.body.total;
     let orderModel = new Order(order);
-  
 
-    
+
+
     await orderModel.save(function (err, data) {
         if (err) {
             return res.status(404).json({ msg: "Have error,Can not add order" });
         }
         else {
             let orderId = data._id
-            let token = jwt.sign({ _id, email, username,orderId}, process.env.JWT_SECRET, { expiresIn: '1d' })
+            let token = jwt.sign({ _id, email, username, orderId }, process.env.JWT_SECRET, { expiresIn: '1d' })
             const emailData = {
                 to: email,
                 from: process.env.EMAIL_FROM,
@@ -42,7 +42,7 @@ exports.addOrder = async (req, res) => {
                 html: `
               <h4>Please use the following link to confirm your order</h4>
               ${items.map((o, i) => (
-                    `<p>Product :${o.title}</p> <p>${o.amount}<p> <p>${o.photo}</p>` 
+                    `<p>Product :${o.title}</p> <p>${o.amount}<p> <p>${o.photo}</p>`
                 ))}
               <span>Total: ${order.total} $</span>
               <p>${process.env.CLIENT_URL}/auth/order/confirm/${token}</p>
@@ -51,7 +51,7 @@ exports.addOrder = async (req, res) => {
               <p>http</p>
               `
             }
-            
+
             sgMail.send(emailData)
                 .then(sent => {
                     return res.json({
@@ -69,40 +69,40 @@ exports.addOrder = async (req, res) => {
 
 };
 
-exports.confirmMailOrder = (req, res)=>{
-    const token  = req.params.token;
+exports.confirmMailOrder = (req, res) => {
+    const token = req.params.token;
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, payload)=>{
-        if(!payload){ 
+    jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
+        if (!payload) {
             return res.status(401).json({
                 error: "Invalid token"
             })
-        }else{
-            const {_id,email, username, orderId } = payload
-            if(err || _id!= req.user._id){
+        } else {
+            const { _id, email, username, orderId } = payload
+            if (err || _id != req.user._id) {
                 return res.status(401).json({
                     error: "Verified link is expired."
                 })
             }
-           
-            Order.findByIdAndUpdate(orderId,{
-                $set :{confirmed: true}
-            },{new:true},(err,data)=>{
-                if(err){
+
+            Order.findByIdAndUpdate(orderId, {
+                $set: { confirmed: true }
+            }, { new: true }, (err, data) => {
+                if (err) {
                     return res.status(401).json({
                         error: "Something wrong. Please try again"
                     })
                 }
                 res.json({
-                    msg:"Your order has been confirmed, Please wait to the delivery day",
+                    msg: "Your order has been confirmed, Please wait to the delivery day",
                     data
                 })
             })
-        
+
         }
     })
-        
-       
+
+
 }
 
 
@@ -131,16 +131,17 @@ exports.userCheckOrder = async (req, res) => {
     let limit = parseInt(req.query.limit) || 5
     let page = parseInt(req.query.page) || 1
     await Order.find({ owner: req.user._id }).limit(limit).skip((page - 1) * limit)
-    .sort({"createdAt": -1})
-    .populate('items.book_id')
-    .populate('owner').exec((err, order) => {
-        if (err) {
-            return res.status(401).json({
-                error: err
-            })
-        }
-        res.json({ data: order })
-    })
+        .sort({ "createdAt": -1 })
+        .populate('items.book_id')
+        .sort({createdAt: 1})
+        .populate('owner').exec((err, order) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
+            res.json({ data: order })
+        })
 };
 exports.getOrderDetail = async (req, res) => {
     let _id = req.params._id;
@@ -157,9 +158,43 @@ exports.getOrderDetail = async (req, res) => {
         })
 }
 exports.showAllOrder = async (req, res) => {
-    await Order.find({}).populate("items.book_id", "title price discount").exec().then(data => res.json(data));
+    await Order.find({})
+    .populate("owner", '_id username email photo')
+    .populate("items.book_id","cost")
+    .populate("items","book_id")
+        .exec((err, data)=>{
+            if(err){
+                return res.status(401).json({
+                    error: err
+                })
+            }
+            res.json({data})
+        })
+       
 };
 exports.showAllOrderNotComplete = async (req, res) => {
     await Order.find({ delivered: false }).populate("items.book_id", "title price discount").exec().then(data => res.json(data));
 }
 
+exports.showAllOrderNotComplete = async (req, res) => {
+    await Order.find({ delivered: false })
+        .populate("items.book_id", "title price discount")
+        .exec()
+        .then(data => res.json(data));
+}
+
+exports.getOrderProfitStat =(req, res)=>{
+    Order.find({})
+    .populate("items.book_id","cost")
+    .populate("items","book_id")
+    .select("total items createdAt")
+    .exec((err, data)=>{
+        if(err){
+            return res.status(401).json({
+                error: err
+            })
+        }
+      res.json(data)
+
+    })
+}

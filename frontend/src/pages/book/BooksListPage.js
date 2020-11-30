@@ -11,6 +11,7 @@ import BookCard from '../../components/book/BookCard';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 import { Button, List, ListItem, ListItemText, Menu, MenuItem } from '@material-ui/core';
+import BookListSkeleton from '../../components/skeleton/BookListSkeleton';
 /**
 * @author
 * @function BookListPage
@@ -66,15 +67,12 @@ const BookListPage = (props) => {
     const [page, setPage] = React.useState(tempPage);
     const [totalBook, setTotalBook] = useState(0)
     const [flag, setFlag] = useState(false)
-    // const [sortMethod, setSortType] = useState({
-    //     sortType: "title",
-    //     sortDir: "1"
-    // })
     const [priceFilter, setPriceFilter] = React.useState([0, 100]);
     const [genres, setGenres] = useState([])
     const [bestSoldBook, setBestSoldBook] = useState([])
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [loading, setLoading] = useState(true)
     useEffect(() => {
         if (statecart.items.length > 0) {
             localStorage.setItem("cart", JSON.stringify(statecart.items));
@@ -87,8 +85,6 @@ const BookListPage = (props) => {
     }, [page, flag, selectedIndex])
 
 
-    //const { sortType, sortDir } = sortMethod
-    //load book first time load page
     const initShowBook = () => {
         let sortType = sortingType[selectedIndex]
         let sortDir = sortingDir[selectedIndex %2]
@@ -98,6 +94,7 @@ const BookListPage = (props) => {
             } else {
                 setBooks(response.data)
                 setTotalBook(response.booksNumber)
+                setLoading(false)
             }
         })
     }
@@ -323,7 +320,11 @@ const BookListPage = (props) => {
                                     {sorting()}
                                 </p>
                             </div>
-                            {gridBooks()}
+                            {
+                                loading ?<BookListSkeleton/> : (<div> {gridBooks()}</div>)
+                            }
+                            
+                           
                             {books && pagination()}
                         </div>
 

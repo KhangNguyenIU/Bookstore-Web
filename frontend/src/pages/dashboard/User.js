@@ -86,8 +86,8 @@ const User = (props) => {
     }, [page])
 
     const UserInfo = () => (
-        <div>
-            <div className="row content">
+        <div >
+            <div className="row content custom-background">
                 <div className="col-sm-12">
                     <div className="text-center">
                         <Avatar src={stateUser.photo} style={{ width: "150px", height: "150px", margin: '20px auto' }} />
@@ -197,7 +197,9 @@ const User = (props) => {
                     
                         </div>
 
-                        {mainUI()}
+                       <div className="custom-background-body">
+                       {mainUI()}
+                       </div>
                     </div>
                 </div>
                 <hr />

@@ -259,3 +259,16 @@ exports.getBestSellerBook =(req,res)=>{
         res.json(books)
     })
 }
+
+exports.updateCost =(req, res)=>{
+    Book.updateMany({},{
+        $set:{cost: 2.1}
+    }).exec((err, data)=>{
+        if(err){
+            return res.status(401).json({
+                error: err
+            })
+        }
+        res.json({data})
+    })
+}

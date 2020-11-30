@@ -124,7 +124,7 @@ const NavBar = (props) => {
 									{
 										isAuth(stateUser).role === 0 &&
 										(
-											<div>
+											<div >
 												<NavLink style={{ color: 'black' }} onMouseEnter={handlePopoverOpen}
 													onMouseLeave={handlePopoverClose}>
 													<Link to="/cartDetail">
