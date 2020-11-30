@@ -2,7 +2,7 @@
 const express = require('express')
 const { adminLogin, requiredLogin } = require('../controllers/auth.js')
 const { addBook, showAllBook, showGenreWithBook, getBookDetail, updateBook,
-    likeBook ,unlikeBook, listRelatedBook, showBookByPrice, getBestSellerBook} = require('../controllers/Book.js')
+    likeBook ,unlikeBook, listRelatedBook, showBookByPrice, getBestSellerBook,getSearchBook,showBookAboutGenre} = require('../controllers/Book.js')
 const router = express.Router()
 
 router.post('/addBook', adminLogin, addBook);
@@ -15,4 +15,6 @@ router.put('/likeBook/:slug',requiredLogin, likeBook)
 router.put('/unlikeBook/:slug',requiredLogin, unlikeBook)
 router.post('/relatedBook', listRelatedBook)
 router.get('/bestSold', getBestSellerBook)
+router.get('/getSearchBook/:infor', getSearchBook)
+router.post('/showBookAboutGenre', showBookAboutGenre)
 module.exports = router

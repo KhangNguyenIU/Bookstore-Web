@@ -1,17 +1,12 @@
 import React, { useEffect, useState, useContext, Component } from 'react'
-import { getCookie, isAuth } from '../actions/auth'
-
+import { getCookie} from '../actions/auth'
+import PhotoCamera from '@material-ui/icons/PhotoCamera';
 import { UserContext } from '../App.js'
-import { Link, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { updateUserInfor} from '../actions/user'
 import Layout from '../components/Layout'
-import FormGroup from '@material-ui/core/FormGroup';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { makeStyles } from '@material-ui/core/styles';
 import { toast, ToastContainer } from 'react-toastify'
 import Snackbar from '@material-ui/core/Snackbar';
@@ -45,15 +40,15 @@ const UserUpdateInfor = (props) => {
         error: '',
         loading: false,
         success: '',
-        email: '',
-        photo:'',
+        email: JSON.parse(localStorage.getItem("user")).email||'',
+        url:'',
         formData: '',
-        username: '',
+        username: JSON.parse(localStorage.getItem("user")).username||'',
         oldpassword:'',
         newpassword:'',
         reenterpassword:''
     })
-    const {photo, email, formData, username,oldpassword, newpassword,reenterpassword, success, error, loading } = values
+    const {url, email, formData, username,oldpassword, newpassword,reenterpassword, success, error, loading } = values
 
 
     useEffect(() => {
@@ -69,7 +64,7 @@ const UserUpdateInfor = (props) => {
                     formData: new FormData(),
                     email: stateUser.email,
                     username: stateUser.username,
-                    photo:stateUser.photo,
+                    url:stateUser.photo,
                     oldpassword:'',
                     newpassword:'',
                     reenterpassword:'',
@@ -98,6 +93,29 @@ const UserUpdateInfor = (props) => {
         })
         console.log(formData.name);
     }
+    const updatePhoto=(file)=>{
+        const data=new FormData();
+        data.append("upload_preset","bookstore");
+        data.append("file",file);
+        data.append("cloud_name","dhorn9l86");
+        fetch("https://api.cloudinary.com/v1_1/dhorn9l86/image/upload",{
+            method:"post",
+            body:data
+       })
+       .then(res=>res.json())
+       .then(obj=>{
+           formData.set('url', String(obj.url));
+           //setUrl(obj.url); 
+           setValues({
+            ...values,
+            formData,
+            success: '',
+            error: '',
+            ['url']: obj.url
+        })
+           console.log(formData.url);
+       })
+    }
 
     const hangdleSubmit = () => {
         let dataForm = new FormData();
@@ -115,7 +133,7 @@ const UserUpdateInfor = (props) => {
                     success: `User information has been updated sucessfully.`
                 })
                 dispatchUser({type:"LOGIN", payload:response.data})
-                localStorage.setItem("user",response.data);
+                localStorage.setItem("user",JSON.stringify(response.data));
                 setOpenSucess(true);
                 //toast.info(success)da
                 //history.go(0)
@@ -133,7 +151,15 @@ const UserUpdateInfor = (props) => {
                     <div className="col-md-4">
                         <img
                             style={{ width: '100%' }}
-                            src={stateUser.photo} />
+                            src={url||JSON.parse(localStorage.getItem('user')).photo} />
+                             <Button
+                                className="custom-button"
+                                variant="contained"
+                                size="medium"
+                                style={{float:'right'}}
+                                startIcon={<PhotoCamera/>}
+                             > <input className="custome-input-file" type="file" onChange={(e)=>{updatePhoto(e.target.files[0])}}/>
+                             </Button>
                     </div>
 
                     <div className="col-md-8">

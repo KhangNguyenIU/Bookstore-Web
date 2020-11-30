@@ -24,6 +24,18 @@ exports.getGenre=async(req,res)=>{
     await Genre.find({},"name")
     .exec().then(genres=>res.json({data:genres}));
 };
+exports.getGenreByName=async(req,res)=>{
+  let name = req.params.name;
+    Genre.findOne({ name })
+        .exec((err, genre) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
+            res.json(genre)
+        })
+};
 
 // exports.getAllGenre =(req, res)=>{
 //   Genre.find({}).exec((err, genres)=>{

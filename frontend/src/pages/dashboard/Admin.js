@@ -16,6 +16,7 @@ import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { Link } from 'react-router-dom';
 import BookDashboard from '../../components/dashboard/BookDashboard'
+import CustomerDashBoard from '../../components/dashboard/CustomerDashBoard'
 const useStyles = makeStyles((theme) => ({
     large: {
         width: theme.spacing(12),
@@ -273,7 +274,7 @@ const Admin = (props) => {
     )
     const customer = () => (
         <React.Fragment>
-            <p>customer</p>
+           <CustomerDashBoard/>
         </React.Fragment>
     )
     const books = () => (

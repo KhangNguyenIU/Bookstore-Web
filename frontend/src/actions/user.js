@@ -31,6 +31,24 @@ export const userCheckOrder =(limit,page)=>{
         console.log(err);
     })
 }
+export const adminCheckOrderUser =(id,limit,page)=>{
+    let endPoint = `?page=${page}&limit=${limit}`
+    return fetch(`/order/adminCheckOrderUser${endPoint}`,{
+        method:'POST',
+        headers:{
+            "Access-Control-Allow-Origin":"*",
+            "Content-Type":"application/json",
+            "Authorization":"kiet "+cookie.get("token")
+         },
+         body: JSON.stringify({
+            _id:id
+        })
+    }).then(response=>{
+        return response.json()
+    }).catch(err=>{
+        console.log(err);
+    })
+}
 export const getOrderDetail =_id => {
     return fetch(`/order/getOrderDetail/${_id}`, {
         method: 'GET',
@@ -58,7 +76,24 @@ export const getLikedBook =()=> {
     }).catch(err => {
         console.log(err);
     })
-}  
+} 
+export const getUserLikedBook =(id)=> {
+    return fetch('/user/getUserLikedBook', {
+        method: 'POST',
+        headers:{
+            "Access-Control-Allow-Origin":"*",
+            "Content-Type":"application/json",
+            "Authorization":"kiet "+cookie.get("token")
+         },
+         body: JSON.stringify({
+            _id:id
+         })
+    }).then(response => {
+      return response.json();
+    }).catch(err => {
+        console.log(err);
+    })
+} 
 export const updateUserInfor = (formData) => {
     return fetch(`/user/updateInfor`, {
         method: 'PUT',
@@ -73,3 +108,46 @@ export const updateUserInfor = (formData) => {
         console.log(err);
     })
 }
+export const showAllUser = (limit, page, sortType, sortDir) => {
+    const sortMethod = {
+        sortType: sortType,
+        sortDir: sortDir
+    };
+    let endPoint = `?page=${page}&limit=${limit}`
+    return fetch(`/user/showAllUser${endPoint}`, {
+        method: 'POST', headers: {
+            Accept: 'Application/json',
+            'Content-Type': 'Application/json',
+            "authorization": `kiet ${cookie.get("token")}`
+        },
+        body: JSON.stringify({
+            sortMethod: sortMethod
+        })
+
+    }).then(response => {
+        return response.json()
+
+    }).catch(err => {
+        console.log(err);
+    })
+}
+export const takeUserById = (id) => {
+    //let endPoint = `?page=${page}&limit=${limit}`
+    return fetch('/user/takeUserById', {
+        method: 'POST', headers: {
+            Accept: 'Application/json',
+            'Content-Type': 'Application/json',
+            "authorization": `kiet ${cookie.get("token")}`
+        },
+        body: JSON.stringify({
+           _id:id
+        })
+
+    }).then(response => {
+        return response.json()
+
+    }).catch(err => {
+        console.log(err);
+    })
+}
+

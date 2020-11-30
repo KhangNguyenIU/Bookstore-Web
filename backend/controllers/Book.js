@@ -69,7 +69,6 @@ exports.showAllBook = async (req, res) => {
     var sortObject = {};
     const { sortType, sortDir } = req.body.sortMethod
     sortObject[sortType] = sortDir;
-
     Book.find({})
         .where("price")
         .gte(minPrice)
@@ -100,20 +99,49 @@ exports.showAllBook = async (req, res) => {
                     //res.json({sort, side})
                 })
         })
+    
 
 };
+exports.showBookAboutGenre=(req,res)=>{
+    let limit = parseInt(req.query.limit) || 8
+    let page = parseInt(req.query.page) || 1
+    let maxPrice = parseInt(req.body.maxPrice) || 1000
+    let minPrice = parseInt(req.body.minPrice) || 0
+    let genre_id=req.body.genre_id||''
+    var sortObject = {};
+    const { sortType, sortDir } = req.body.sortMethod
+    sortObject[sortType] = sortDir;
+    Book.find({genre :{$in:genre_id}})
+        .where("price")
+        .gte(minPrice)
+        .lte(maxPrice)
+        .exec(async (err, listBook) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
 
-
-exports.showGenreWithBook = async (req, res) => {
-    await Book.find({})
-        .populate('genre')
-        .exec()
-        .then(data => {
-            res.json(data)
+            await Book.find({genre :{$in:genre_id}})
+                .limit(limit)
+                .sort(sortObject)
+                .skip((page - 1) * limit)
+                .populate('genre', "_id name slug")
+                .populate('writtenby', "_id name slug")
+                .where("price")
+                .gte(minPrice)
+                .lte(maxPrice)
+                .exec((err, books) => {
+                    if (err) {
+                        return res.status(400).json({
+                            error: err
+                        })
+                    }
+                    res.json({ data: books, sir: sortDir, type: sortType, booksNumber: listBook.length })
+                    //res.json({sort, side})
+                })
         })
-
-};
-
+}
 exports.getBookDetail = (req, res) => {
     let slug = req.params.slug;
     Book.findOne({ slug })
@@ -169,13 +197,6 @@ exports.updateBook = async (req, res) => {
     })
 
 };
-
-
-exports.showBookWithPrice = async (req, res) => {
-    Book.find({ "finalprice": { $lt: req.body.price } }).exec().then(books => res.json({ data: books }));
-
-};
-
 exports.likeBook = (req, res) => {
     const slug = req.params.slug
     Book.findOneAndUpdate({ slug }, {
@@ -258,4 +279,21 @@ exports.getBestSellerBook =(req,res)=>{
         }
         res.json(books)
     })
+}
+exports.getSearchBook=async(req,res)=>{
+    const infor = String(req.params.infor).trim();
+    Book.find(
+        {
+            $or: [{ title: { $regex: infor, $options: 'i' }}]
+        })
+        .populate('genre',"_id name slug")
+        .populate('writtenby',"_id name slug")
+        .exec((err, books) => {
+            if (err) {
+                return res.status(400).json({
+                    error: err
+                });
+            }
+            res.json({data:books});
+        })
 }

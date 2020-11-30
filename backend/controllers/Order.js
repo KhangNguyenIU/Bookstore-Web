@@ -162,4 +162,19 @@ exports.showAllOrder = async (req, res) => {
 exports.showAllOrderNotComplete = async (req, res) => {
     await Order.find({ delivered: false }).populate("items.book_id", "title price discount").exec().then(data => res.json(data));
 }
+exports.adminCheckOrderUser = async (req, res) => {
+    let limit = parseInt(req.query.limit) || 5
+    let page = parseInt(req.query.page) || 1
+    await Order.find({ owner: req.body._id }).limit(limit).skip((page - 1) * limit)
+    .sort({"createdAt": -1})
+    .populate('items.book_id')
+    .populate('owner').exec((err, order) => {
+        if (err) {
+            return res.status(401).json({
+                error: err
+            })
+        }
+        res.json({ data: order })
+    })
+}
 
