@@ -6,7 +6,36 @@ const formidable = require('formidable');
 const _ = require('lodash');
 const { OAuth2Client } = require('google-auth-library')
 exports.showAllUser = async (req, res) => {
-	await User.find({}).exec().then(user => res.json(user));
+    let limit = parseInt(req.query.limit) || 8
+    let page = parseInt(req.query.page) || 1
+    var sortObject = {};
+    const { sortType, sortDir } = req.body.sortMethod
+    sortObject[sortType] = sortDir;
+    User.find({role:0})
+        .exec(async (err, listUser) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
+
+            await User.find({role:0})
+                .limit(limit)
+                .sort(sortObject)
+                .skip((page - 1) * limit)
+                .populate('likes', "_id title slug price discount photo")
+                .exec((err,users) => {
+                    if (err) {
+                        return res.status(400).json({
+                            error: err
+                        })
+                    }
+                    res.json({ data: users, sir: sortDir, type: sortType, usersNumber: listUser.length })
+                    //res.json({sort, side})
+                })
+        })
+    
+
 };
 
 
@@ -68,6 +97,19 @@ exports.login = async (req, res) => {
 	else
 		res.status(404).send({ error: "Email address or password is incorrect!" })
 };
+exports.takeUserById = async (req, res) => {
+	User.findById(req.body._id)
+		.populate("likes", "_id title slug photo price amount description discount writtenby")
+		.exec((err, result) => {
+			if (err) {
+				return res.status(400).json({
+					error: err
+				})
+			}
+			res.json(result)
+		})
+};
+
 
 exports.getLikedBook = (req, res) => {
 
@@ -82,11 +124,25 @@ exports.getLikedBook = (req, res) => {
 			res.json(result)
 		})
 }
+exports.getUserLikedBook = (req, res) => {
+
+	User.findById(req.body._id)
+		.populate("likes", "_id title slug photo price amount description discount writtenby")
+		.exec((err, result) => {
+			if (err) {
+				return res.status(400).json({
+					error: err
+				})
+			}
+			res.json(result)
+		})
+}
 
 exports.makeComment = (req, res) => {
 	const commentContain = {
 		comment: req.body.comment,
-		postedby: req.user._id
+		postedby: req.user._id,
+		date:Date.now()
 	}
 
 	Book.findOneAndUpdate({ slug: req.params.slug }, {
@@ -102,7 +158,8 @@ exports.makeComment = (req, res) => {
 			$push: {
 				comments: {
 					comment: req.body.comment,
-					commentedBook: book._id
+					commentedBook: book._id,
+					date:Date.now()
 				}
 			}
 		}, { new: true }).exec((err, user) => {
@@ -137,7 +194,7 @@ exports.userUpdate = async (req, res) => {
 			//  oldUser = _.merge(oldUser, fields)
 			//oldUser = _.merge(oldUser, fields)
 
-			var { email, username, oldpassword, newpassword, reenterpassword } = fields
+			var {url, email, username, oldpassword, newpassword, reenterpassword } = fields
 			/* if(re.test(String(email).toLocaleLowerCase())==false||String(username).trim().length==0||String(newpassword).trim()!=String(reenterpassword).trim()||(String(oldpassword).trim().length>0&&String(newpassword).trim().length==0)||(String(oldpassword).trim().length==0&&String(newpassword).trim().length>0))
 			  return res.status(400).json({ error: "Something wrong while updating data, Please try again later" })*/
 			if (oldpassword != null && String(oldpassword).trim().length > 0) {
@@ -161,6 +218,13 @@ exports.userUpdate = async (req, res) => {
 				if (String(username).trim().length == 0)
 					return res.status(400).json({ error: "Please enter new username" })
 				oldUser.username = String(username).trim();
+			}
+			if(url!=null)
+			{
+				if(String(url).trim().length>0)
+				{
+					oldUser.photo=String(url);
+				}
 			}
 			oldUser.save((err, result) => {
 				if (err) {

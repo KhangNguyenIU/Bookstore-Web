@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { getAllGenre, showAllBook, getBestSoldBook } from '../../actions/book'
+import { getAllGenre, showAllBook, getBestSoldBook,showAllBookAboutGenre,getGenreByName } from '../../actions/book'
 import Layout from '../../components/Layout'
 import { makeStyles } from '@material-ui/core/styles';
 import { motion } from 'framer-motion'
@@ -60,10 +60,14 @@ const BookListPage = (props) => {
     const params = new URLSearchParams(props.location.search);
     const tempPage = params.get('page') || 1
     const limit = params.get('limit') || 9
+    const genre=props.match.params.genre
+    const bookSearch=props.match.params.bookSearch
     const { statecart, dispatchcart } = useContext(CartContext);
     const [infor, setInfor] = useState("");
+    const [regex,setRegex]=useState("");
+    const [searchData,setSearchData]=useState([]);
     const [books, setBooks] = useState([]);
-    const [page, setPage] = React.useState(tempPage);
+    const [page, setPage] = React.useState(parseInt(tempPage));
     const [totalBook, setTotalBook] = useState(0)
     const [flag, setFlag] = useState(false)
     // const [sortMethod, setSortType] = useState({
@@ -79,12 +83,22 @@ const BookListPage = (props) => {
         if (statecart.items.length > 0) {
             localStorage.setItem("cart", JSON.stringify(statecart.items));
         }
-
-        history.push(`books?page=${page}&limit=${limit}`)
+        if(bookSearch!=null)
+        {
+            history.push(`/books/search/${bookSearch}`)
+        }
+        else if(genre==null||genre.length==0)
+        {
+         history.push(`/books/?page=${page}&limit=${limit}`)
+        }
+        else
+        {
+            history.push(`/books/${genre}?page=${page}&limit=${limit}`)
+        }
         initShowBook();
         initGenre();
         initBestSoldBook()
-    }, [page, flag, selectedIndex])
+    }, [page, flag, selectedIndex,genre,bookSearch])
 
 
     //const { sortType, sortDir } = sortMethod
@@ -92,6 +106,16 @@ const BookListPage = (props) => {
     const initShowBook = () => {
         let sortType = sortingType[selectedIndex]
         let sortDir = sortingDir[selectedIndex %2]
+        if(bookSearch!=null&&bookSearch.length>0)
+        {
+          
+            var arr=[];
+            arr=arr.concat(JSON.parse(localStorage.getItem("searchBook")));
+            setBooks(arr);
+            setTotalBook(1);
+        }
+        else if(genre==null||genre.length==0)
+        {
         showAllBook(limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
             if (response.error) {
                 console.log(response.error);
@@ -100,7 +124,54 @@ const BookListPage = (props) => {
                 setTotalBook(response.booksNumber)
             }
         })
+       }
+       else
+       {
+        getGenreByName(String(genre)).then(response => {
+            if (response.error) {
+                console.log(response.error);
+            } else {
+                showAllBookAboutGenre(String(response._id),limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
+                    if (response.error) {
+                        console.log(response.error);
+                    } else {
+                        setBooks(response.data)
+                        setTotalBook(response.booksNumber)
+                    }
+                })
+            }
+        })
+       }  
     }
+    const getSearchBook =(regex)=> {
+        setRegex(regex);
+        const temp='kietititiu18070';
+          if(String(regex).trim().length>0)
+          {
+            return fetch(`/book/getSearchBook/${regex}`, {
+                method: 'GET'
+            }).then(response => {
+                return response.json();
+            })
+            .then(data=>{setSearchData(data.data);setTotalBook(1)})
+            .catch(err => {
+                console.log(err);
+            })
+           }
+           else if(regex==null||regex.length==0)
+           {
+               return fetch(`/book/getSearchBook/${temp}`, {
+                   method: 'GET'
+               }).then(response => {
+                return response.json();
+               })
+               .then(data=>setSearchData(data.data))
+               .catch(err => {
+                   console.log(err);
+               })
+           }
+          
+        }
 
     const initGenre = () => {
         fetch('/genre/getGenre', {
@@ -127,7 +198,7 @@ const BookListPage = (props) => {
     }
 
     const handleChangePage = (event, value) => {
-        setPage(value);
+        setPage(parseInt(value));
     };
     const handleChange = (event, newValue) => {
         setPriceFilter(newValue);
@@ -242,10 +313,23 @@ const BookListPage = (props) => {
                 <input type="text"
                     className="custom-input"
                     style={{width:'50%'}}
-                    onChange={(e) => setInfor(e.target.value)}
-                    placeholder="Search" size={10} />
-                <i class="material-icons" onClick={() => { }}>search</i>
+                    value={regex}
+                    placeholder="Enter book infor"
+                    onChange={e=>{getSearchBook(e.target.value)}}
+                    placeholder="Search" size={15} />
+                <i class="material-icons">search</i>
             </div>
+            <ul className="collection" style={{ marginLeft: '-5rem', marginBottom: '8px' }}>
+                             {
+                                 searchData.map((data, index) => (
+                                    <Link to={`/books/search/${data.slug}`}>
+                                    <li className="collection-item" onClick={()=>{/*var temp=[];temp=temp.concat(data);setBooks(temp);setTotalBook(1)*/localStorage.setItem("searchBook",JSON.stringify(data))}} style={{color:'green', marginLeft: '10rem', alignItems: "center", marginBottom: '5px' }}>
+                                      {data.title}
+                                    </li>
+                                    </Link>
+                                ))
+                             }
+            </ul>
 
             <div className="price-filter mt-4">
                 <p className="custom-heading">Filter by price </p>
@@ -272,7 +356,7 @@ const BookListPage = (props) => {
                 <p className="custom-heading">Categories</p>
                 {
                     genres && genres.map((g, i) => (
-                        <Link className="custom-link" to={`/genre/${g.slug}`}>
+                        <Link className="custom-link" to={`/books/${g.name}?page=${1}&limit=${limit}`} onClick={()=>{localStorage.setItem("genre_id",JSON.stringify(g._id));setPage(1)}}>
                             <p key={i} className="custom-text " style={{ marginLeft: '0px' }}>{g.name}</p>
                         </Link>
 

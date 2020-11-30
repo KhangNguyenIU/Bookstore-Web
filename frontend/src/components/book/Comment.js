@@ -18,7 +18,7 @@ const Comment = ({ comment }) => {
                 <div>
                     <div className="d-flex" style={{margin:'0', alignItems:'center'}}>
                         <p className="custom-text m-0 " style={{fontSize:'24px'}}>{comment.postedby.username}</p>
-                        <p className="ml-5 mb-0 custom-text">{moment(comment.date).fromNow()}</p>
+                        <p className="ml-5 mb-0 custom-text">{moment(comment.date).from(moment(Date.now()))}</p>
                     </div>
 
                     <p className="custom-text">{comment.comment} </p>

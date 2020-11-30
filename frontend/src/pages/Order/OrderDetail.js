@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react'
-//import { CartContext } from '../App';
+import React, { useContext, useEffect, useState} from 'react'
+import { CartContext,UserContext } from '../../App';
 import Layout from '../../components/Layout';
 import { useHistory, Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles'
-import { setLocalStorage } from '../../actions/auth';
+import { setLocalStorage,isAuth } from '../../actions/auth';
 import {
     TableCell, TableContainer, Table, TableHead, TableRow,
     useScrollTrigger, TableBody, IconButton, TextField
@@ -28,10 +28,12 @@ const useStyles = makeStyles({
 const OrderDetail = (props) => {
     const _id = props.match.params._id;
     const classes = useStyles();
+    const { stateUser, dispatchUser } = useContext(UserContext)
     const [order, setOrder] = useState('');
     const [items, setItems] = useState([]);
     const history = useHistory();
     //const { statecart, dispatchcart } = useContext(CartContext);
+    const userEndPoint = isAuth(stateUser).role === 1 ? 'admin/' : '';
     const [flag, setFlag] = useState(false)
     useEffect(() => {
        initOrder();
@@ -67,7 +69,7 @@ const OrderDetail = (props) => {
                     items.map((row, i) => (
                             <TableRow key={row, i}>
                                 <TableCell component="th" scope="row">
-                                    <Link to={`/book/${row.book_id.slug}`}><img src={row.book_id.photo} height="80px" alt={i} /> {row.book_id.title}</Link>
+                                    <Link to={`/book/${userEndPoint}${row.book_id.slug}`}><img src={row.book_id.photo} height="80px" alt={i} /> {row.book_id.title}</Link>
                                 </TableCell>
                                 <TableCell align="right">{row.book_id.finalprice.toFixed(2)}</TableCell>
                                 <TableCell align="right"> 

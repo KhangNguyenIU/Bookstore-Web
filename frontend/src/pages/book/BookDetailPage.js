@@ -261,7 +261,7 @@ const BookDetailPage = (props) => {
                             <p style={{ fontFamily: 'Cormorant Garamond', color: 'black', fontSize: '1.5rem' }}>
                                 Genre: {book.genre.map((genre, index) => {
                                 return (
-                                    <Link className="custom-link" key={index}>
+                                    <Link to={`/books/${genre.name}?page=${1}&limit=${9}`} className="custom-link" key={index} onClick={()=>localStorage.setItem("genre_id",JSON.stringify(genre._id))}>
                                         {genre.name}{"  "}
                                     </Link>
                                 )

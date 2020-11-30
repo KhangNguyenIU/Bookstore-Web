@@ -109,6 +109,11 @@ overflow-y: scroll;
                                  color: #555;
                                  fontSize: 1.2rem;
 }
+.custom-input-file:hover{
+  color: green;
+  background-color: rgb(100, 100, 85);
+  transition: 0.6s;
+}
 
 .custom-input-number{
   width: 30%;
@@ -150,8 +155,8 @@ overflow-y: scroll;
    color: white;
 }
 .custom-button:hover{
-  color: white;
-  background-color: #555;
+  color: green;
+  background-color: rgb(85, 85, 85);
   transition: 0.6s;
 }
 

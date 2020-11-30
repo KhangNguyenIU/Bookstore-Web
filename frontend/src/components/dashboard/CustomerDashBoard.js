@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { showAllBook, } from '../../actions/book'
+import { showAllUser } from '../../actions/user'
 import { CartContext } from '../../App.js';
 import {
     TableCell, TableContainer, Table, TableHead, TableRow,
@@ -20,21 +20,12 @@ BookDashboard
 const options = [
     "A - Z",
     "Z - A",
-    "Low Price",
-    "High Price",
-    "Old",
-    "New",
-    "Best seller",
+    "new"
 ]
 
 const sortingType = [
-    "title",
-    "title",
-    "price",
-    "price",
-    "createdAt",
-    "createdAt",
-    "Best Seller"
+    "email",
+    "username"
 ]
 
 const sortingDir = [
@@ -54,7 +45,7 @@ const useStyles = makeStyles({
     }
 });
 
-const BookDashboard = (props) => {
+const CustomerDashBoard = (props) => {
     // const history = useHistory()
     // const params = new URLSearchParams(props.location.search);
     //  const tempPage = params.get('page') || 1
@@ -62,39 +53,38 @@ const BookDashboard = (props) => {
     const history = useHistory()
     const classes = useStyles()
     const limit = 10
-    const { statecart, dispatchcart } = useContext(CartContext);
     const [infor, setInfor] = useState("");
-    const [books, setBooks] = useState([]);
+    const [users, setUsers] = useState([]);
     const [page, setPage] = React.useState(1);
-    const [totalBook, setTotalBook] = useState(0)
+    const [totalUser, setTotalUser] = useState(0)
     const [flag, setFlag] = useState(false)
 
-    const [priceFilter, setPriceFilter] = React.useState([0, 100]);
-    const [genres, setGenres] = useState([])
-    const [bestSoldBook, setBestSoldBook] = useState([])
+  //  const [priceFilter, setPriceFilter] = React.useState([0, 100]);
+  //  const [genres, setGenres] = useState([])
+   // const [bestSoldBook, setBestSoldBook] = useState([])
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [selectedIndex, setSelectedIndex] = React.useState(0);
 
     useEffect(() => {
-        initShowBook()
+        initShowUser()
     }, [page, selectedIndex])
 
 
-    const initShowBook = () => {
+    const initShowUser = () => {
         let sortType = sortingType[selectedIndex]
         let sortDir = sortingDir[selectedIndex % 2]
-        showAllBook(limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
+        showAllUser(limit, page, sortType, sortDir).then(response => {
             if (response.error) {
                 console.log(response.error);
             } else {
-                setBooks(response.data)
-                setTotalBook(response.booksNumber)
+                setUsers(response.data)
+                setTotalUser(response.usersNumber)
             }
         })
     }
 
     const handleChangePage = (event, value) => {
-        setPage(value);
+        setPage(parseInt(value));
     };
 
 
@@ -113,7 +103,7 @@ const BookDashboard = (props) => {
     const pagination = () => (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
             <Pagination
-                count={Math.floor(totalBook / 10) + 1}
+                count={Math.floor(totalUser / 10) + 1}
                 size="large"
                 page={page}
                 onChange={handleChangePage} />
@@ -166,34 +156,18 @@ const BookDashboard = (props) => {
             <div className="d-flex justify-content-between mb-1">
                 <div className="m-0 ">
                     <p style={{ fontSize: '1rem' ,margin:"0px"}}>
-                        Display {(page - 1) * 10 + 1} - {page * 10} results of {totalBook}
+                        Display {(page - 1) * 10 + 1} - {page * 10} results of {totalUser}
                     </p>
                 </div>
 
 
                 <div style={{margin:"0px"}}>
-                    <Tooltip title="Add a Book" placement="left">
+                    <Tooltip title="Add new customer" placement="left">
                     <Fab 
-                    onClick={()=>{history.push('/addBook')}}
+                    onClick={()=>{history.push('/signup')}}
                     style={{ outline: 'none' }} 
-                    color="secondary" size="large">
-                        <AddIcon style={{ color: 'black' }}  />
-                    </Fab>
-                    </Tooltip>
-                    <Tooltip title="Add new genre" placement="left">
-                    <Fab 
-                    onClick={()=>{history.push('/addBook')}}
-                    style={{ outline: 'none' }} 
-                    color="primary" size="medium">
-                        <AddIcon style={{ color: 'black' }} size="medium" />
-                    </Fab>
-                    </Tooltip>
-                    <Tooltip title="Add new author" placement="left">
-                    <Fab 
-                    onClick={()=>{history.push('/addBook')}}
-                    style={{ outline: 'none' }} 
-                    color="inherit" size="small">
-                        <AddIcon style={{ color: 'black' }} size="small" />
+                    color="secondary">
+                        <AddIcon style={{ color: 'black' }} size="large" />
                     </Fab>
                     </Tooltip>
                   
@@ -204,40 +178,30 @@ const BookDashboard = (props) => {
         </React.Fragment >
     )
 
-    const bookGrid = () => (
+    const customerGrid = () => (
         <React.Fragment>
             <TableContainer className={classes.container}>
                 <Table className={classes.table}>
                     <TableHead>
                         <TableRow>
-                            <TableCell >Product</TableCell>
-                            <TableCell align="right">Price</TableCell>
-                            <TableCell algin="center">Discount</TableCell>
-                            <TableCell algin="center">Final Price</TableCell>
-                            <TableCell align="right">Quality</TableCell>
-                            <TableCell align="right">Sold</TableCell>
+                            <TableCell >Customer</TableCell>
+                            <TableCell align="center">Username</TableCell>
+                            <TableCell algin="center">No.Orders</TableCell>
+    
 
 
                         </TableRow>
                     </TableHead>
 
                     <TableBody>
-                        {books.map((row, i) => (
+                        {users.map((row, i) => (
                             <TableRow key={row, i}>
                                 <TableCell component="th" scope="row">
-                                    <Link to={`/book/admin/${row.slug}`}><img src={row.photo} height="50px" alt={i} /> {row.title}</Link>
+                                    <Link to={`/user/${row._id}`}><img src={row.photo} height="60px"  alt={i} /> {row.email}</Link>
                                 </TableCell>
-                                <TableCell align="right">{row.price} ($)</TableCell>
-                                <TableCell align="center">{row.discount} </TableCell>
-                                <TableCell align="center">{row.finalprice.toFixed(2)} </TableCell>
+                                <TableCell align="center">{row.username} </TableCell>
+                                <TableCell align="center">{row.createAt} </TableCell>
                                 <TableCell align="right">
-
-                                    {row.amount}
-                                </TableCell>
-                                <TableCell align="right">{row.sold}</TableCell>
-
-
-                                <TableCell align="center">
                                     <IconButton >
                                         <ClearIcon />
                                     </IconButton>
@@ -254,13 +218,13 @@ const BookDashboard = (props) => {
     )
     return (
         <div className="container">
-            <p className="custom-heading m-3">Book Stock</p>
+            <p className="custom-heading m-3">Customer List</p>
             {sorting()}
-            {bookGrid()}
+            {customerGrid()}
             {pagination()}
         </div>
     )
 
 }
 
-export default BookDashboard
+export default CustomerDashBoard
