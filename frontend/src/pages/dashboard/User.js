@@ -22,7 +22,7 @@ import CreateOutlinedIcon from '@material-ui/icons/CreateOutlined';
 **/
 const useStyles = makeStyles({
     table: {
-   
+
         maxHeight: 100,
         fontFamily: "Cormorant Garamond"
     },
@@ -68,16 +68,16 @@ const User = (props) => {
     const gridBooks = () => {
         return (
             <div className="row">
-                    <p className="custom-heading col-sm-12">Your favourite books</p>
-           
-             {
+                <p className="custom-heading col-sm-12">Your favourite books</p>
+
+                {
                     likedBook.map((book, index) => (
                         <div className="col-md-3">
                             <BookLiked book={book} />
                         </div>
                     ))
                 }
-        
+
             </div>
         )
     }
@@ -87,15 +87,15 @@ const User = (props) => {
 
     const UserInfo = () => (
         <div>
-            <div className="row content">
+            <div className="row content custom-background">
                 <div className="col-sm-12">
                     <div className="text-center">
                         <Avatar src={stateUser.photo} style={{ width: "150px", height: "150px", margin: '20px auto' }} />
                         <p className="custom-heading m-0">{stateUser.username}</p>
                         <p className="custom-text m-0">{stateUser.email}</p>
                         <div>
-                            <IconButton onClick={()=>{history.push('/userUpdate')}}>
-                                <CreateOutlinedIcon/>
+                            <IconButton onClick={() => { history.push('/userUpdate') }}>
+                                <CreateOutlinedIcon />
                             </IconButton>
                         </div>
                     </div>
@@ -106,57 +106,57 @@ const User = (props) => {
 
     const OrderHistory = () => (
         <React.Fragment>
-           <div className="row">
-               <div className="col-sm-12">
-               <p className="custom-heading">Order History</p>
-            {
-                order.length > 0 ? (
-                    <div>
-                        <TableContainer>
-                            <Table className={classes.table}>
-                                <TableHead>
-                                    <TableRow style={{height:'3rem'}}>
-                                        <TableCell >Order Id</TableCell>
-                                   
-                                        <TableCell align="right">Total</TableCell>
-                                        <TableCell align="center">Status</TableCell>
-                                        <TableCell align="center">Delivered</TableCell>
-                          
+            <div className="row">
+                <div className="col-sm-12">
+                    <p className="custom-heading">Order History</p>
+                    {
+                        order.length > 0 ? (
+                            <div>
+                                <TableContainer>
+                                    <Table className={classes.table}>
+                                        <TableHead>
+                                            <TableRow style={{ height: '3rem' }}>
+                                                <TableCell >Order Id</TableCell>
 
-                                    </TableRow>
-                                </TableHead>
+                                                <TableCell align="right">Total</TableCell>
+                                                <TableCell align="center">Status</TableCell>
+                                                <TableCell align="center">Delivered</TableCell>
 
-                                <TableBody>
-                                    {order.map((row, i) => (
-                                        <TableRow key={row, i}>
-                                            <TableCell >
-                                                <Link style={{maxWidth:'50px'}} to={`/orderDetail/${row._id}`}>{row.shortId}</Link>
-                                            </TableCell>
-                                      
-                                            <TableCell align="right">{row.total.toFixed(2)}</TableCell>
-                                            <TableCell align="center">{row.confirmed ? "Confirmed" : "Unconfirmed"}</TableCell>
-                                            <TableCell align="center">{row.delivered.toString()}</TableCell>
-                                        
-                                        </TableRow>
 
-                                    ))}
-                                    <TableRow>
-                                        <TableCell align="left">Total :{order.length}</TableCell>
-                                    </TableRow>
+                                            </TableRow>
+                                        </TableHead>
 
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                                        <TableBody>
+                                            {order.map((row, i) => (
+                                                <TableRow key={row, i}>
+                                                    <TableCell >
+                                                        <Link style={{ maxWidth: '50px' }} to={`/orderDetail/${row._id}`}>{row.shortId}</Link>
+                                                    </TableCell>
 
-                        {pagination()}
-                    </div>
-                ) : (
-                        <h1>Your order history is empty</h1>
-                    )
-            }
-               </div>
+                                                    <TableCell align="right">{row.total.toFixed(2)}</TableCell>
+                                                    <TableCell align="center">{row.confirmed ? "Confirmed" : "Unconfirmed"}</TableCell>
+                                                    <TableCell align="center">{row.delivered.toString()}</TableCell>
 
-           </div>
+                                                </TableRow>
+
+                                            ))}
+                                            <TableRow>
+                                                <TableCell align="left">Total :{order.length}</TableCell>
+                                            </TableRow>
+
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+
+                                {pagination()}
+                            </div>
+                        ) : (
+                                <h1>Your order history is empty</h1>
+                            )
+                    }
+                </div>
+
+            </div>
         </React.Fragment>
     )
     const mainUI = () => {
@@ -182,22 +182,25 @@ const User = (props) => {
 
                         <div className="text-center">
                             <div style={{ display: "flex", justifyContent: 'center', marginTop: '20px' }}>
-                                <button 
-                                className={phase==1? "custom-button-active" :"custom-button"  }
-                                onClick={() => { setPhase(1) }}>
+                                <button
+                                    className={phase == 1 ? "custom-button-active" : "custom-button"}
+                                    onClick={() => { setPhase(1) }}>
                                     Order history</button>
 
-                                <button className={phase==2? "custom-button-active" :"custom-button" }
-                                onClick={() => { setPhase(2) }}>
-                                    Liked Books</button>
+                                <button className={phase == 2 ? "custom-button-active" : "custom-button"}
+                                    onClick={() => { setPhase(2) }}>
+                                    Favourites</button>
 
                                 <button className="custom-button">
                                     review </button>
                             </div>
-                    
+
                         </div>
 
-                        {mainUI()}
+                        <div className="custom-background-body">
+                            {mainUI()}
+                        </div>
+
                     </div>
                 </div>
                 <hr />

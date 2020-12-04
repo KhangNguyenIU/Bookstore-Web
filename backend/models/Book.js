@@ -69,7 +69,7 @@ var book = mongoose.Schema(
             type: String,
             default: "no image",
             minlength: 0,
-            maxlength: 170
+            maxlength: 500
         },
         slug: {
             type: String,

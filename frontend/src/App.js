@@ -18,6 +18,7 @@ import { initialUser, reducerUser } from './reducers/userReducer';
 import Admin from './pages/dashboard/Admin';
 import UserPageAdmin from './pages/dashboard/UserPageAdmin';
 import ConfirmOrder from './pages/Order/ConfirmOrder';
+import AdminDashBoard from './pages/dashboard/AdminDashboard';
 export const CartContext = createContext();
 export const UserContext = createContext();
 const Routing = () => {
@@ -53,6 +54,7 @@ const Routing = () => {
       <Route path='/book/admin/:slug' exact component={BookUpdate} />
       <Route path='/addBook' exact component={Bookform} />
       <Route path='/admin' exact component={Admin}/>
+      <Route path='/dashboard' exact component={AdminDashBoard}/>
       <Route path='/auth/order/confirm/:token' exact component={ConfirmOrder}/>
     </Switch>
   )

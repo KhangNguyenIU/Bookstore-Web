@@ -20,7 +20,7 @@ import { makeComment } from '../../actions/user'/**
 * @function DetailBook
 **/
 import BookCard from '../../components/book/BookCard'
-
+import BookDetailSkelton from '../../components/skeleton/BookDetailSkeleton'
 const useStyles = makeStyles((theme) => ({
     root: {
         '& .MuiTextField-root': {
@@ -46,33 +46,37 @@ const BookDetailPage = (props) => {
     const [values, setValues] = useState({
         success: '',
         error: '',
-        loading: false,
+        loading: true,
         isOpenSuccess: false,
         isOpenError: false
     })
 
-    const { success, error, isOpenError, isOpenSuccess } = values
+    const { success, error, isOpenError, isOpenSuccess ,loading} = values
     const userEndPoint = isAuth(stateUser).role === 1 ? 'admin/' : '';
     useEffect(() => {
-        console.log("inital...", statecart.items);
+       
         if (statecart.items.length > 0) {
             localStorage.setItem("cart", JSON.stringify(statecart.items));
+            localStorage.setItem("total", JSON.stringify(statecart.total));
         }
 
         initBook()
-    }, [slug,success])
+    }, [slug, success])
 
     const initBook = () => {
         getDetailBook(slug).then(response => {
             if (response.error) {
                 setValues({
                     ...values,
-                    error: response.error
+                    error: response.error,
+                    loading:false
                 })
                 console.log(response.error);
             } else {
                 setBook(response);
-                console.log(response._id, response.genre);
+                setValues({
+                    ...values,loading: false
+                })
                 getRelatedBooks(response._id, response.genre)
             }
         });
@@ -157,6 +161,8 @@ const BookDetailPage = (props) => {
                         title: title, realprice: parseFloat(realprice),
                         slug: slug, priceitem: (realprice * amount).toFixed(2), photo
                     }))
+                    let temp =(realprice * amount).toFixed(2)
+                    localStorage.setItem("total", JSON.stringify(5));
                     await dispatchcart({
                         type: "ADD",
                         payload: JSON.parse(JSON.stringify({
@@ -175,10 +181,11 @@ const BookDetailPage = (props) => {
                         })), priceitem: parseFloat(((realprice * amount)).toFixed(2))
                     });
                     localStorage.setItem("cart", JSON.stringify(statecart.items));
+                    console.log(statecart);
                     localStorage.setItem("total", JSON.stringify(statecart.total));
                 }
 
-                console.log(statecart);
+                
                 setValues({
                     ...values,
                     isOpenSuccess: true,
@@ -261,7 +268,7 @@ const BookDetailPage = (props) => {
                             <p style={{ fontFamily: 'Cormorant Garamond', color: 'black', fontSize: '1.5rem' }}>
                                 Genre: {book.genre.map((genre, index) => {
                                 return (
-                                    <Link to={`/books/${genre.name}?page=${1}&limit=${9}`} className="custom-link" key={index} onClick={()=>localStorage.setItem("genre_id",JSON.stringify(genre._id))}>
+                                    <Link to={`/books/${genre.name}?page=${1}&limit=${9}`} className="custom-link" key={index} onClick={() => localStorage.setItem("genre_id", JSON.stringify(genre._id))}>
                                         {genre.name}{"  "}
                                     </Link>
                                 )
@@ -432,16 +439,16 @@ const BookDetailPage = (props) => {
     const feedback = () => (
         <div>
             <form>
-                <br/>
+                <br />
                 <textarea
                     multiple
                     //className="custom-input"
-                    style={{ minHeight: '100px',width:'100%' }}
+                    style={{ minHeight: '100px', width: '100%' }}
                     value={feedBack}
                     onChange={handleChangeComment}
                     placeholder="We hope to see your feedback"
                 />
-                <br/>
+                <br />
                 <Button
                     variant="contained"
                     color="primary"
@@ -481,13 +488,13 @@ const BookDetailPage = (props) => {
     const comment = () => (
         <React.Fragment>
             {/* <div style={{ height: '400px' }}> */}
-                {book.comments ? (book.comments.map((c, i) => (
-                    <Comment comment={c} />
+            {book.comments ? (book.comments.map((c, i) => (
+                <Comment comment={c} />
 
-                ))) : (
-                        <p>This book has no comment</p>
-                    )
-                }
+            ))) : (
+                    <p>This book has no comment</p>
+                )
+            }
             {/* </div> */}
 
 
@@ -498,12 +505,22 @@ const BookDetailPage = (props) => {
     return (
         <Layout>
             <React.Fragment>
+
                 {header()}
                 {showSuccessMessage()}
                 {showErrorMessage()}
-                {book ? userBookPage(book) : (<p>Book not Found</p>)}
+                {
+                    loading ? (<BookDetailSkelton />) :
+                        (
+                            <div>
+                                {book ? userBookPage(book) : (<p>Book not Found</p>)}
+                            </div>
+                        )
+                }
                 <br />
                 {belowInfo()}
+
+
 
 
             </React.Fragment>

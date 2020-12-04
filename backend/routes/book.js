@@ -2,10 +2,11 @@
 const express = require('express')
 const { adminLogin, requiredLogin } = require('../controllers/auth.js')
 const { addBook, showAllBook, showGenreWithBook, getBookDetail, updateBook,
-    likeBook ,unlikeBook, listRelatedBook, showBookByPrice, getBestSellerBook,getSearchBook,showBookAboutGenre} = require('../controllers/Book.js')
+    likeBook ,unlikeBook, listRelatedBook, showBookByPrice, getBestSellerBook,getSearchBook,showBookAboutGenre} = require('../controllers/Book.js');
+const { bookValidator } = require('../validator/bookValidator.js');
 const router = express.Router()
 
-router.post('/addBook', adminLogin, addBook);
+router.post('/addBook', adminLogin,bookValidator, addBook);
 router.post('/showAllBook', showAllBook);
 // router.post('/showBookByPrice', showBookByPrice);
 

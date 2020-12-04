@@ -197,7 +197,7 @@ const CustomerDashBoard = (props) => {
                         {users.map((row, i) => (
                             <TableRow key={row, i}>
                                 <TableCell component="th" scope="row">
-                                    <Link to={`/user/${row._id}`}><img src={row.photo} height="60px"  alt={i} /> {row.email}</Link>
+                                    <Link className="custom-link" to={`/user/${row._id}`}><img src={row.photo} height="70px" width="70px"  alt={i} /> {row.email}</Link>
                                 </TableCell>
                                 <TableCell align="center">{row.username} </TableCell>
                                 <TableCell align="center">{row.createAt} </TableCell>

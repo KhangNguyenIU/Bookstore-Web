@@ -1,5 +1,5 @@
 import { Avatar } from '@material-ui/core'
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import TwitterIcon from '@material-ui/icons/Twitter';
@@ -16,7 +16,12 @@ import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { Link } from 'react-router-dom';
 import BookDashboard from '../../components/dashboard/BookDashboard'
+import { getAllOrder } from '../../actions/order';
 import CustomerDashBoard from '../../components/dashboard/CustomerDashBoard'
+import OrderProfitStat from '../../components/dashboard/OrderProfitStat';
+import OrderTotalStat from '../../components/dashboard/OrderTotalStat';
+
+
 const useStyles = makeStyles((theme) => ({
     large: {
         width: theme.spacing(12),
@@ -42,8 +47,37 @@ const BorderLinearProgress = withStyles((theme) => ({
 
 const Admin = (props) => {
     const classes = useStyles()
-    const [phase, setPhase] = useState(2);
-   
+    const [phase, setPhase] = useState(0);
+    const [orders, setOrders] = useState([])
+    const [values, setValues] = useState({
+        success: '',
+        error: ''
+    })
+
+    const [orderData, setOrderData] = useState([])
+    // const { bestsellerModal, emptyModal, nearEmptyModal } = openModal
+    var unconfirmedOrder = orders.filter(order => order.confirmed == false)
+    var undeliveriedOrder = orders.filter(order => order.delivered == false)
+
+    useEffect(() => {
+        getOrderStat()
+    }, [])
+
+
+    const getOrderStat = () => {
+        getAllOrder().then(response => {
+            if (response.error) {
+                setValues({
+                    ...values,
+                    error: response.error
+                })
+            } else
+                setOrders(response.data)
+        })
+    }
+
+
+
     const leftSide = () => {
         return (
             <React.Fragment>
@@ -57,14 +91,14 @@ const Admin = (props) => {
                 <div className="left-side-dashboard" >
                     <Avatar
                         style={{ width: '7rem', height: '7rem', margin: '5rem  auto 0rem' }}
-                        src="https://image.sggp.org.vn/w580/Uploaded/2020/kvovhun/2018_10_06/khabib02_wiaf.jpg" />
+                        src="https://chapterone.qodeinteractive.com/wp-content/uploads/2019/08/logo.png" />
 
                     <div className="text-center">
                         <p style={{ marginTop: '30px', marginBottom: '0px' }}>
                             Welcome Back!
           </p>
                         <h2 className="mt-1">
-                            Khabib
+                            Admin
           </h2>
                     </div>
 
@@ -122,40 +156,21 @@ const Admin = (props) => {
     const firstRow = () => (
         <div className="first-row">
             <div className="d-flex w-100 mb-5">
-                <div style={{ width: '50%', padding: '40px 70px' }}>
+                <div style={{ width: '40%', padding: '40px 70px' }}>
                     <p className="header-admin">Order Statistic</p>
-                    <div className="d-flex space-between">
-                        <div>
-
-                            <h3 className="text-number">89</h3>
-                            <p className="text-admin">Total order</p>
-                        </div>
-
-                        <div style={{ margin: '0px 60px' }}>
-
-                            <h3 className="text-number">39</h3>
-                            <p className="text-admin">
-                                Pending order
-        </p>
-                        </div>
-
-                        <div>
-
-                            <h3 className="text-number">50</h3>
-                            <p className="text-admin">
-                                Confirmed Order
-        </p>
-                        </div>
-                    </div>
+                    <OrderTotalStat
+                            total={orders.length}
+                            unconfirm={unconfirmedOrder.length > 0 ? unconfirmedOrder.length : 0}
+                            undelivery={undeliveriedOrder.length > 0 ? undeliveriedOrder.length : 0}
+                        />
+                  
 
                 </div>
 
 
-                <div style={{ width: '50%', padding: '40px 70px' }}>
-
-                    <p className="header-admin">Target order</p>
-                    <br />
-                    <BorderLinearProgress variant="determinate" value={50} />
+                <div style={{ width: '50%', padding: '0px 20px' }}>
+                <OrderProfitStat data={orders} />
+                    {/* <BorderLinearProgress variant="determinate" value={50} /> */}
                 </div>
 
             </div>

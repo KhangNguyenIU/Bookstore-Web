@@ -14,6 +14,7 @@ export const reducerCart = (state, action) => {
                 state.total=parseFloat(state.total.toFixed(2))+parseFloat((action.payload[x].amount*action.payload[x].realprice).toFixed(2))
             }
             return {
+                ...state,
                 total:state.total ,
                 items: state.items
             }
@@ -35,6 +36,20 @@ export const reducerCart = (state, action) => {
             items: state.items.concat(action.payload)
         }
 
+
+    } else if (action.type == "UPDATE") {
+        let temp=0;
+        state.items.map((book, i) => {
+            if (book.book_id == action.payload._id) {
+                book.amount = parseInt(action.payload.amount)
+            }
+            temp += book.amount*book.realprice
+        })
+     
+      return{
+          ...state,
+          total:temp
+      }
     }
     else if (action.type == "CANCEL") {
 
@@ -44,11 +59,12 @@ export const reducerCart = (state, action) => {
         };
     }
     else if (action.type == "DROP") {
-        return { 
+        return {
             ...state,
-            items: state.items.filter(item => item.book_id !== action.payload), 
-            total: parseFloat(state.total) - parseFloat(action.priceitem) }
-    
+            items: state.items.filter(item => item.book_id !== action.payload),
+            total: parseFloat(state.total) - parseFloat(action.priceitem)
+        }
+
     }
     else {
         return state;

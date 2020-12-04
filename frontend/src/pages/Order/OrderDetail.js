@@ -83,6 +83,9 @@ const OrderDetail = (props) => {
                         <TableRow>
                             <TableCell align="left">Total :  {order.total}</TableCell>
                         </TableRow>
+                        <TableRow>
+                            <TableCell align="left">Date :  {Date(order.createdAt)}</TableCell>
+                        </TableRow>
 
                     </TableBody>
                 </Table>
