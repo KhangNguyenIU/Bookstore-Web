@@ -118,7 +118,8 @@ const Login = (props) => {
     )
     const loginForm = () => (
         <div className="container">
-            <div className="box" style={{ padding: '2rem' }}>
+        <div className="col-md-8 offset-md-2">
+            <div className="box">
                 <div className="row" >
                     <div className="col-md-6 ">
                         <div className="leftPart">
@@ -168,16 +169,18 @@ const Login = (props) => {
                                         style={{ borderRadius: '25px', padding: '0 20px', height: '40px' }}>Submit</button>
                                 </div>
                                 <p className="text-center">or</p>
-                                <div className="text-center">                     
-                                        {loginGoogle()}
+                                <div className="text-center">
+                                    {loginGoogle()}
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
-    )
+    </div>
+   )
 
 
     const handleClose = (event, reason) => {

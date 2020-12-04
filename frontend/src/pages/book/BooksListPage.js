@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { getAllGenre, showAllBook, getBestSoldBook,showAllBookAboutGenre,getGenreByName } from '../../actions/book'
+import { getAllGenre, showAllBook, getBestSoldBook, showAllBookAboutGenre, getGenreByName } from '../../actions/book'
 import Layout from '../../components/Layout'
 import { makeStyles } from '@material-ui/core/styles';
 import { motion } from 'framer-motion'
@@ -11,6 +11,7 @@ import BookCard from '../../components/book/BookCard';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 import { Button, List, ListItem, ListItemText, Menu, MenuItem } from '@material-ui/core';
+import BookListSkeleton from '../../components/skeleton/BookListSkeleton';
 /**
 * @author
 * @function BookListPage
@@ -60,12 +61,12 @@ const BookListPage = (props) => {
     const params = new URLSearchParams(props.location.search);
     const tempPage = params.get('page') || 1
     const limit = params.get('limit') || 9
-    const genre=props.match.params.genre
-    const bookSearch=props.match.params.bookSearch
+    const genre = props.match.params.genre
+    const bookSearch = props.match.params.bookSearch
     const { statecart, dispatchcart } = useContext(CartContext);
     const [infor, setInfor] = useState("");
-    const [regex,setRegex]=useState("");
-    const [searchData,setSearchData]=useState([]);
+    const [regex, setRegex] = useState("");
+    const [searchData, setSearchData] = useState([]);
     const [books, setBooks] = useState([]);
     const [page, setPage] = React.useState(parseInt(tempPage));
     const [totalBook, setTotalBook] = useState(0)
@@ -79,99 +80,97 @@ const BookListPage = (props) => {
     const [bestSoldBook, setBestSoldBook] = useState([])
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [loading, setLoading] = useState(true)
+
+
     useEffect(() => {
         if (statecart.items.length > 0) {
             localStorage.setItem("cart", JSON.stringify(statecart.items));
         }
-        if(bookSearch!=null)
-        {
+        if (bookSearch != null) {
             history.push(`/books/search/${bookSearch}`)
         }
-        else if(genre==null||genre.length==0)
-        {
-         history.push(`/books/?page=${page}&limit=${limit}`)
+        else if (genre == null || genre.length == 0) {
+            history.push(`/books/?page=${page}&limit=${limit}`)
         }
-        else
-        {
+        else {
             history.push(`/books/${genre}?page=${page}&limit=${limit}`)
         }
         initShowBook();
         initGenre();
         initBestSoldBook()
-    }, [page, flag, selectedIndex,genre,bookSearch])
+    }, [page, flag, selectedIndex, genre, bookSearch])
 
 
     //const { sortType, sortDir } = sortMethod
     //load book first time load page
     const initShowBook = () => {
+        setLoading(true);
         let sortType = sortingType[selectedIndex]
-        let sortDir = sortingDir[selectedIndex %2]
-        if(bookSearch!=null&&bookSearch.length>0)
-        {
-          
-            var arr=[];
-            arr=arr.concat(JSON.parse(localStorage.getItem("searchBook")));
+        let sortDir = sortingDir[selectedIndex % 2]
+        if (bookSearch != null && bookSearch.length > 0) {
+
+            var arr = [];
+            arr = arr.concat(JSON.parse(localStorage.getItem("searchBook")));
             setBooks(arr);
             setTotalBook(1);
         }
-        else if(genre==null||genre.length==0)
-        {
-        showAllBook(limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
-            if (response.error) {
-                console.log(response.error);
-            } else {
-                setBooks(response.data)
-                setTotalBook(response.booksNumber)
-            }
-        })
-       }
-       else
-       {
-        getGenreByName(String(genre)).then(response => {
-            if (response.error) {
-                console.log(response.error);
-            } else {
-                showAllBookAboutGenre(String(response._id),limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
-                    if (response.error) {
-                        console.log(response.error);
-                    } else {
-                        setBooks(response.data)
-                        setTotalBook(response.booksNumber)
-                    }
-                })
-            }
-        })
-       }  
+        else if (genre == null || genre.length == 0) {
+            showAllBook(limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
+                if (response.error) {
+                    console.log(response.error);
+                } else {
+                    setBooks(response.data)
+                    setTotalBook(response.booksNumber)
+                    setLoading(false)
+                }
+            })
+        }
+        else {
+            getGenreByName(String(genre)).then(response => {
+                if (response.error) {
+                    console.log(response.error);
+                } else {
+                    showAllBookAboutGenre(String(response._id), limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
+                        if (response.error) {
+                            console.log(response.error);
+                        } else {
+                            setBooks(response.data)
+                            setLoading(false)
+                            setTotalBook(response.booksNumber)
+                        }
+                    })
+                }
+            })
+        }
     }
-    const getSearchBook =(regex)=> {
+    const getSearchBook = (regex) => {
         setRegex(regex);
-        const temp='kietititiu18070';
-          if(String(regex).trim().length>0)
-          {
+        const temp = 'kietititiu18070';
+        if (String(regex).trim().length > 0) {
             return fetch(`/book/getSearchBook/${regex}`, {
                 method: 'GET'
             }).then(response => {
                 return response.json();
             })
-            .then(data=>{setSearchData(data.data);setTotalBook(1)})
-            .catch(err => {
-                console.log(err);
-            })
-           }
-           else if(regex==null||regex.length==0)
-           {
-               return fetch(`/book/getSearchBook/${temp}`, {
-                   method: 'GET'
-               }).then(response => {
-                return response.json();
-               })
-               .then(data=>setSearchData(data.data))
-               .catch(err => {
-                   console.log(err);
-               })
-           }
-          
+                .then(data => { setSearchData(data.data); setTotalBook(1) })
+                .catch(err => {
+                    console.log(err);
+                })
         }
+        else if (regex == null || regex.length == 0) {
+            return fetch(`/book/getSearchBook/${temp}`, {
+                method: 'GET'
+            }).then(response => {
+                return response.json();
+            })
+                .then(data => setSearchData(data.data))
+                .catch(err => {
+                    console.log(err);
+                })
+        }
+
+    }
 
     const initGenre = () => {
         fetch('/genre/getGenre', {
@@ -236,43 +235,43 @@ const BookListPage = (props) => {
 
     const sorting = () => (
         <React.Fragment>
-           <div className="d-flex align-item-center justify-content-center">
+            <div className="d-flex align-item-center justify-content-center">
                 <div>
                     <p className="custom-heading mt-2">Sort by</p>
                 </div>
-                <div style={{width: "100px"}}>
-                <List component="nav" aria-label="Device settings">
-                <ListItem
-                    button
-                    aria-haspopup="true"
-                    aria-controls="lock-menu"
-                    aria-label="when device is locked"
-                    onClick={handleClickListItem}
-                >
-                    <ListItemText secondary={options[selectedIndex]} />
-                </ListItem>
-            </List>
+                <div style={{ width: "100px" }}>
+                    <List component="nav" aria-label="Device settings">
+                        <ListItem
+                            button
+                            aria-haspopup="true"
+                            aria-controls="lock-menu"
+                            aria-label="when device is locked"
+                            onClick={handleClickListItem}
+                        >
+                            <ListItemText secondary={options[selectedIndex]} />
+                        </ListItem>
+                    </List>
 
-            <Menu
-                id="lock-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-            >
-                {options.map((option, index) => (
-                    <MenuItem
-                        key={option}
-                        //disabled={index === 0}
-                        selected={index === selectedIndex}
-                        onClick={(event) => handleMenuItemClick(event, index)}
+                    <Menu
+                        id="lock-menu"
+                        anchorEl={anchorEl}
+                        keepMounted
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}
                     >
-                        {option}
-                    </MenuItem>
-                ))}
-            </Menu>
+                        {options.map((option, index) => (
+                            <MenuItem
+                                key={option}
+                                //disabled={index === 0}
+                                selected={index === selectedIndex}
+                                onClick={(event) => handleMenuItemClick(event, index)}
+                            >
+                                {option}
+                            </MenuItem>
+                        ))}
+                    </Menu>
                 </div>
-           </div>
+            </div>
 
         </React.Fragment >
     )
@@ -299,7 +298,7 @@ const BookListPage = (props) => {
     const pagination = () => (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
             <Pagination
-                count={Math.floor(totalBook / limit +1)}
+                count={Math.floor(totalBook / limit + 1)}
                 size="large"
                 page={page}
                 onChange={handleChangePage} />
@@ -309,26 +308,36 @@ const BookListPage = (props) => {
 
     const rightSide = () => (
         <React.Fragment>
-            <div style={{ display: 'flex', alignItems: "center", marginBottom: '5px',justifyContent:'center' }}>
+            <div style={{ display: 'flex', alignItems: "center", marginBottom: '5px', justifyContent: 'center' }}>
                 <input type="text"
                     className="custom-input"
-                    style={{width:'50%'}}
+                    style={{ width: '50%' }}
                     value={regex}
                     placeholder="Enter book infor"
-                    onChange={e=>{getSearchBook(e.target.value)}}
+                    onChange={e => { getSearchBook(e.target.value) }}
                     placeholder="Search" size={15} />
                 <i class="material-icons">search</i>
             </div>
-            <ul className="collection" style={{ marginLeft: '-5rem', marginBottom: '8px' }}>
-                             {
-                                 searchData.map((data, index) => (
-                                    <Link to={`/books/search/${data.slug}`}>
-                                    <li className="collection-item" onClick={()=>{/*var temp=[];temp=temp.concat(data);setBooks(temp);setTotalBook(1)*/localStorage.setItem("searchBook",JSON.stringify(data))}} style={{color:'green', marginLeft: '10rem', alignItems: "center", marginBottom: '5px' }}>
-                                      {data.title}
-                                    </li>
-                                    </Link>
-                                ))
-                             }
+            <ul className="collection" style={{
+                marginBottom: '8px',
+                width:'100%',
+                listStyle:'none'
+            }}>
+                {
+                    searchData.map((data, index) => (
+                    
+
+                        <Link  to={`/books/search/${data.slug}`}>
+                            <li className="collection-item" onClick={() => { /*var temp=[];temp=temp.concat(data);setBooks(temp);setTotalBook(1)*/localStorage.setItem("searchBook",JSON.stringify(data))}}
+                                style={{ color: 'green', 
+                                marginLeft: '2rem', 
+                                alignItems: "center",
+                                 marginBottom: '5px' }}>
+                               <img src={data.photo} width="50px"/> {data.title}
+                            </li>
+                        </Link>
+                    ))
+                }
             </ul>
 
             <div className="price-filter mt-4">
@@ -356,7 +365,7 @@ const BookListPage = (props) => {
                 <p className="custom-heading">Categories</p>
                 {
                     genres && genres.map((g, i) => (
-                        <Link className="custom-link" to={`/books/${g.name}?page=${1}&limit=${limit}`} onClick={()=>{localStorage.setItem("genre_id",JSON.stringify(g._id));setPage(1)}}>
+                        <Link className="custom-link" to={`/books/${g.name}?page=${1}&limit=${limit}`} onClick={() => { localStorage.setItem("genre_id", JSON.stringify(g._id)); setPage(1) }}>
                             <p key={i} className="custom-text " style={{ marginLeft: '0px' }}>{g.name}</p>
                         </Link>
 
@@ -398,7 +407,7 @@ const BookListPage = (props) => {
 
                         <div className="col-md-9">
                             <div style={{ display: 'flex', justifyContent: "space-between", marginBottom: '10px', alignItems: 'center' }}>
-                                <p style={{ float: 'left',fontSize:'1rem' }}>
+                                <p style={{ float: 'left', fontSize: '1rem' }}>
                                     Display {page} - {page * limit} results of {totalBook}
                                 </p>
 
@@ -407,7 +416,9 @@ const BookListPage = (props) => {
                                     {sorting()}
                                 </p>
                             </div>
-                            {gridBooks()}
+                            {
+                                loading ? <BookListSkeleton /> : (<div> {gridBooks()}</div>)
+                            }
                             {books && pagination()}
                         </div>
 

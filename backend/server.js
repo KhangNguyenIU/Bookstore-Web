@@ -8,7 +8,6 @@ const connectMongoDB = require('./config/DB')
 // init app
 const app = express()
 
-
 //config environment variables path to './'
 require('dotenv').config()
 //cors
@@ -18,7 +17,6 @@ require('dotenv').config()
 
 app.use(morgan('dev'))
 
-
 // routes
 app.use(express.json());
 app.use('/user',require('./routes/user.js'));
@@ -26,6 +24,7 @@ app.use('/book',require('./routes/book.js'));
 app.use('/genre',require('./routes/genre.js'));
 app.use('/author',require('./routes/author.js'));
 app.use('/order',require('./routes/order.js'));
+app.use('/shipping',require('./routes/shipping.js'));
 app.use(cors());
 
 //connect database

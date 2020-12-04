@@ -21,7 +21,7 @@ const Comment = ({ comment }) => {
                         <p className="ml-5 mb-0 custom-text">{moment(comment.date).from(moment(Date.now()))}</p>
                     </div>
 
-                    <p className="custom-text">{comment.comment} </p>
+                    <p className="custom-text m-2 text-left">{comment.comment} </p>
                 </div>
             </div>
             <hr style={{margin:'5px'}}/>

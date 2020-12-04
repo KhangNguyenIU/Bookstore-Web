@@ -170,3 +170,19 @@ export const getGenreByName =(name)=>{
         console.log(err);
     })
 }
+
+export const addNewBooks =(form)=>{
+    return fetch('/book/addBook',{
+        method:'POST',
+        headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json",
+            "Authorization": "kiet " + getCookie('token')
+          },
+          body:JSON.stringify(form)
+    }).then(response=>{
+        return response.json()
+    }).catch(err=>{
+        console.log(err);
+    })
+}

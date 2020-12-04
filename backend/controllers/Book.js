@@ -6,8 +6,16 @@ const formidable = require('formidable')
 const _ = require('lodash')
 const slugify = require('slugify');
 const User = require('../models/User.js');
+const {validationResult} =require('express-validator')
 exports.addBook = async (req, res) => {
 
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        const firstError = errors.array().map(error => error.msg)[0];
+        return res.status(401).json({
+            error: firstError
+        })
+    }
     let book = new Book();
     //handle genre array
     var genres = req.body.genre;
@@ -24,8 +32,9 @@ exports.addBook = async (req, res) => {
     book.year = req.body.year;
     if (req.body.price.length > 0) { book.price = req.body.price; }
     book.discount = req.body.discount;
+    book.cost =req.body.cost || 3.0
     book.amount = req.body.amount;
-    book.sold = req.body.sold;
+    book.sold = req.body.sold || 0;
     book.finalprice = (book.price * (1 - book.discount / 100)).toFixed(2);
     book.description = req.body.description;
     book.photo = req.body.photo;
@@ -44,14 +53,15 @@ exports.addBook = async (req, res) => {
                         work: data._id
                     }
                 },
-                    { new: true }).then(result => {
-                        return res.status(201).json({
-                            msg: "Add new book successfully"
-                        });
-                    }).catch(err => {
-                        return res.status(404).json({
-                            error: err
-                        });
+                    { new: true }).exec((err, result)=>{
+                        if(err){
+                            return res.status(404).json({
+                                error: "Something went wrong while adding new book! Please try again"
+                            })
+                        }
+                        res.json({
+                            msg: "Add new Book successfully"
+                        })
                     })
             })
 

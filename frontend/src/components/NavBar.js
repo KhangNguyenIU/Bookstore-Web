@@ -156,32 +156,32 @@ const NavBar = (props) => {
 														horizontal: 'left',
 													}}
 													onClose={handlePopoverClose}
-													//disableRestoreFocus
+												//disableRestoreFocus
 												>
 													<List className={classes.root}>
 														{
 															statecart && statecart.items.map((book, i) => (
-																<div>
+																book && <div>
 																	<ListItem>
-																	<div className='d-flex'>
-																		<div>
-																			<img src={book.photo} width="40px" height="50px" />
-																		</div>
-																		<div className="ml-3">
-																			<p className="custom-text">{book.title}</p>
-																			<div className="d-flex justify-content-between" >
-																				<p className="custom-text m-0">amount: {book.amount}</p>
-																				<p className="custom-text m-0">$ ${book.realprice}</p>
+																		<div className='d-flex'>
+																			<div>
+																				<img src={book.photo} width="40px" height="50px" />
 																			</div>
-																		</div>															
-																	</div>
-																</ListItem>
-																<Divider/>
+																			<div className="ml-3">
+																				<p className="custom-text">{book.title}</p>
+																				<div className="d-flex justify-content-between" >
+																					<p className="custom-text m-0">amount: {book.amount}</p>
+																					<p className="custom-text m-0">$ ${book.realprice}</p>
+																				</div>
+																			</div>
+																		</div>
+																	</ListItem>
+																	<Divider />
 																</div>
 															))
 														}
 
-														<ListItem style={{margin:'0px'}}>
+														<ListItem style={{ margin: '0px' }}>
 															<div className="d-flex m-1 text-center">
 																<p>Total: </p>
 																<p> ${statecart.total}</p>

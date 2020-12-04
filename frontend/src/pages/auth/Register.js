@@ -63,11 +63,12 @@ const Register = (props) => {
 
     const registerForm = () => (
         <div className="container">
-            <div className="box" style={{ padding: '2rem' }}>
+            <div className="col-md-8 offset-md-2">
+            <div className="box" >
                 <div className="row" >
                     <div className="col-md-6 col-sm-12">
                         <div className="leftPart">
-                            <img src="/img/signup.svg" width="100%" />
+                            <img src="/img/signup.svg" width="300px" />
                         </div>
                     </div>
 
@@ -125,7 +126,9 @@ const Register = (props) => {
                     </div>
                 </div>
             </div>
-        </div>
+       
+            </div>
+       </div>
     )
 
     return (
