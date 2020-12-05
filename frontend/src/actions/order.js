@@ -12,7 +12,7 @@ export const addOrder = (items, total,distance, shipping,address) => {
     return "Cart is empty,Please order";
   }
   else {
-    return fetch("/order/addOrder", {
+    return fetch("/api/order/addOrder", {
       method: "POST",
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -36,7 +36,7 @@ export const addOrder = (items, total,distance, shipping,address) => {
 
 
 export const confirmOrder =(orderToken)=>{
-  return fetch(`/order/verified/${orderToken}`,{
+  return fetch(`/api/order/verified/${orderToken}`,{
     method: 'PUT',
     headers:{
       "Access-Control-Allow-Origin": "*",
@@ -51,7 +51,7 @@ export const confirmOrder =(orderToken)=>{
 }
 
 export const getAllOrder =()=>{
-  return fetch('/order/getAllOrder',{
+  return fetch('/api/order/getAllOrder',{
     method: 'GET',
     headers:{
       "Authorization": "kiet " + Cookies.get("token")

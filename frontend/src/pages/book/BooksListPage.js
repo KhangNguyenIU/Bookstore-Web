@@ -148,7 +148,7 @@ const BookListPage = (props) => {
         setRegex(regex);
         const temp = 'kietititiu18070';
         if (String(regex).trim().length > 0) {
-            return fetch(`/book/getSearchBook/${regex}`, {
+            return fetch(`/api/book/getSearchBook/${regex}`, {
                 method: 'GET'
             }).then(response => {
                 return response.json();
@@ -159,7 +159,7 @@ const BookListPage = (props) => {
                 })
         }
         else if (regex == null || regex.length == 0) {
-            return fetch(`/book/getSearchBook/${temp}`, {
+            return fetch(`/api/book/getSearchBook/${temp}`, {
                 method: 'GET'
             }).then(response => {
                 return response.json();
@@ -173,7 +173,7 @@ const BookListPage = (props) => {
     }
 
     const initGenre = () => {
-        fetch('/genre/getGenre', {
+        fetch('/api/genre/getGenre', {
             headers: {
             }
         }).then(res => res.json())

@@ -106,7 +106,7 @@ function Bookform() {
     }
 
     const initGenre = () => {
-        fetch('/genre/getGenre', {
+        fetch('/api/genre/getGenre', {
             headers: {
             }
         }).then(res => res.json())

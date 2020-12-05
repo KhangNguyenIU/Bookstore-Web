@@ -1,7 +1,7 @@
 import fetch from 'isomorphic-fetch'
 import cookie from 'js-cookie'
 export const makeComment =(contain, bookSlug, token)=>{
-    return fetch(`/user/makeComment/${bookSlug}`,{
+    return fetch(`/api/user/makeComment/${bookSlug}`,{
         method: 'PUT',
         headers:{
             "Content-Type": "application/json",
@@ -18,7 +18,7 @@ export const makeComment =(contain, bookSlug, token)=>{
 }
 export const userCheckOrder =(limit,page)=>{
     let endPoint = `?page=${page}&limit=${limit}`
-    return fetch(`/order/userCheckOrder${endPoint}`,{
+    return fetch(`/api/order/userCheckOrder${endPoint}`,{
         method:'GET',
         headers:{
             "Access-Control-Allow-Origin":"*",
@@ -33,7 +33,7 @@ export const userCheckOrder =(limit,page)=>{
 }
 export const adminCheckOrderUser =(id,limit,page)=>{
     let endPoint = `?page=${page}&limit=${limit}`
-    return fetch(`/order/adminCheckOrderUser${endPoint}`,{
+    return fetch(`/api/order/adminCheckOrderUser${endPoint}`,{
         method:'POST',
         headers:{
             "Access-Control-Allow-Origin":"*",
@@ -50,7 +50,7 @@ export const adminCheckOrderUser =(id,limit,page)=>{
     })
 }
 export const getOrderDetail =_id => {
-    return fetch(`/order/getOrderDetail/${_id}`, {
+    return fetch(`/api/order/getOrderDetail/${_id}`, {
         method: 'GET',
         headers:{
             "Access-Control-Allow-Origin":"*",
@@ -64,7 +64,7 @@ export const getOrderDetail =_id => {
     })
 }
 export const getLikedBook =()=> {
-    return fetch('/user/likedBook', {
+    return fetch('/api/user/likedBook', {
         method: 'GET',
         headers:{
             "Access-Control-Allow-Origin":"*",
@@ -78,7 +78,7 @@ export const getLikedBook =()=> {
     })
 } 
 export const getUserLikedBook =(id)=> {
-    return fetch('/user/getUserLikedBook', {
+    return fetch('/api/user/getUserLikedBook', {
         method: 'POST',
         headers:{
             "Access-Control-Allow-Origin":"*",
@@ -95,7 +95,7 @@ export const getUserLikedBook =(id)=> {
     })
 } 
 export const updateUserInfor = (formData) => {
-    return fetch(`/user/updateInfor`, {
+    return fetch(`/api/user/updateInfor`, {
         method: 'PUT',
         headers: {
             "Accept": "application/json",
@@ -114,7 +114,7 @@ export const showAllUser = (limit, page, sortType, sortDir) => {
         sortDir: sortDir
     };
     let endPoint = `?page=${page}&limit=${limit}`
-    return fetch(`/user/showAllUser${endPoint}`, {
+    return fetch(`/api/user/showAllUser${endPoint}`, {
         method: 'POST', headers: {
             Accept: 'Application/json',
             'Content-Type': 'Application/json',
@@ -133,7 +133,7 @@ export const showAllUser = (limit, page, sortType, sortDir) => {
 }
 export const takeUserById = (id) => {
     //let endPoint = `?page=${page}&limit=${limit}`
-    return fetch('/user/takeUserById', {
+    return fetch('/api/user/takeUserById', {
         method: 'POST', headers: {
             Accept: 'Application/json',
             'Content-Type': 'Application/json',

@@ -11,7 +11,7 @@ export const showAllBook = (limit, page, sortType, sortDir, min, max) => {
         sortDir: sortDir
     };
     let endPoint = `?page=${page}&limit=${limit}`
-    return fetch(`/book/showAllBook${endPoint}`, {
+    return fetch(`/api/book/showAllBook${endPoint}`, {
         method: 'POST', headers: {
             Accept: 'Application/json',
             'Content-Type': 'Application/json'
@@ -37,7 +37,7 @@ export const showAllBookAboutGenre = (genre_id,limit, page, sortType, sortDir, m
         sortDir: sortDir
     };
     let endPoint = `?page=${page}&limit=${limit}`
-    return fetch(`/book/showBookAboutGenre${endPoint}`, {
+    return fetch(`/api/book/showBookAboutGenre${endPoint}`, {
         method: 'POST', headers: {
             Accept: 'Application/json',
             'Content-Type': 'Application/json'
@@ -58,7 +58,7 @@ export const showAllBookAboutGenre = (genre_id,limit, page, sortType, sortDir, m
 }
 
 export const getDetailBook = slug => {
-    return fetch(`/book/getBookDetail/${slug}`, {
+    return fetch(`/api/book/getBookDetail/${slug}`, {
         method: 'GET'
     }).then(response => {
         return response.json()
@@ -67,7 +67,7 @@ export const getDetailBook = slug => {
     })
 }
 export const getAllGenre = () => {
-    fetch('/genre/getGenre', {
+    fetch('/api/genre/getGenre', {
         headers: {
 
         }
@@ -84,7 +84,7 @@ export const getAllGenre = () => {
 
 
 export const updateBook = (slug, formData, token) => {
-    return fetch(`/book/updateBook/${slug}`, {
+    return fetch(`/api/book/updateBook/${slug}`, {
         method: 'PUT',
         headers: {
             "Accept": "application/json",
@@ -99,7 +99,7 @@ export const updateBook = (slug, formData, token) => {
 }
 
 export const likeBook = (slug, token) => {
-    return fetch(`/book/likeBook/${slug}`, {
+    return fetch(`/api/book/likeBook/${slug}`, {
         method: 'PUT',
         headers: {
             "Accept": "application/json",
@@ -113,7 +113,7 @@ export const likeBook = (slug, token) => {
 }
 
 export const unlikeBook = (slug, token) => {
-    return fetch(`/book/unlikeBook/${slug}`, {
+    return fetch(`/api/book/unlikeBook/${slug}`, {
         method: 'PUT',
         headers: {
             "Accept": "application/json",
@@ -129,7 +129,7 @@ export const unlikeBook = (slug, token) => {
 
 export const listRelatedBook = (id, genre) => {
 
-    return fetch('/book/relatedBook', {
+    return fetch('/api/book/relatedBook', {
         method: 'POST',
         headers: {
             "Accept": "application/json",
@@ -147,7 +147,7 @@ export const listRelatedBook = (id, genre) => {
 }
 
 export const getBestSoldBook =()=>{
-    return fetch('/book/bestSold',{
+    return fetch('/api/book/bestSold',{
         method:'GET',
         headers:{
 
@@ -159,7 +159,7 @@ export const getBestSoldBook =()=>{
     })
 }
 export const getGenreByName =(name)=>{
-    return fetch(`/genre/getGenreByName/${name}`,{
+    return fetch(`/api/genre/getGenreByName/${name}`,{
         method:'GET',
         headers:{
 
@@ -172,7 +172,7 @@ export const getGenreByName =(name)=>{
 }
 
 export const addNewBooks =(form)=>{
-    return fetch('/book/addBook',{
+    return fetch('/api/book/addBook',{
         method:'POST',
         headers: {
             "Access-Control-Allow-Origin": "*",

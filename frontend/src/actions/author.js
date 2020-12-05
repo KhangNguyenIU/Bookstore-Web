@@ -1,7 +1,7 @@
 import fetch from 'isomorphic-fetch'
 
 export const getAuthors =()=>{
-    return fetch('/author/showAllAuthor',{
+    return fetch('/api/author/showAllAuthor',{
         method:'GET',
         headers:{
 

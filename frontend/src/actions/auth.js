@@ -2,7 +2,7 @@ import axios from 'axios'
 import fetch from 'isomorphic-fetch'
 import cookie from 'js-cookie'
 export  const login = (user) => {
-    return fetch(`/user/login`,{
+    return fetch(`/api/user/login`,{
         method:'POST',
         headers: {
             Accept: 'Application/json',
@@ -17,7 +17,7 @@ export  const login = (user) => {
 }
 
 export  const register = (user) => {
-    return fetch(`/user/register`,{
+    return fetch(`/api/user/register`,{
         method:'POST',
         headers: {
             Accept: 'Application/json',
