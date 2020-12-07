@@ -31,6 +31,24 @@ export const userCheckOrder =(limit,page)=>{
         console.log(err);
     })
 }
+export const getOrderUser =(id,limit,page)=>{
+    let endPoint = `?page=${page}&limit=${limit}`
+    return fetch(`/order/getOrderUser${endPoint}`,{
+        method:'POST',
+        headers:{
+            "Access-Control-Allow-Origin":"*",
+            "Content-Type":"application/json",
+            "Authorization":"kiet "+cookie.get("token")
+         },
+         body: JSON.stringify({
+            _id:id
+        })
+    }).then(response=>{
+        return response.json()
+    }).catch(err=>{
+        console.log(err);
+    })
+}
 export const adminCheckOrderUser =(id,limit,page)=>{
     let endPoint = `?page=${page}&limit=${limit}`
     return fetch(`/order/adminCheckOrderUser${endPoint}`,{

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { userCheckOrder, getLikedBook,adminCheckOrderUser,takeUserById,getUserLikedBook} from '../../actions/user'
+import { userCheckOrder, getLikedBook,adminCheckOrderUser,takeUserById,getUserLikedBook,getOrderUser} from '../../actions/user'
 import Layout from '../../components/Layout'
 import { BookCard } from '../../components/book/BookCard'
 import BookLiked from '../../components/book/BookLiked'
@@ -40,7 +40,7 @@ const UserPageAdmin = (props) => {
     const [error, setError] = useState("");
     const { stateUser, dispatchUser } = useContext(UserContext);
     const initUser = () => {
-        adminCheckOrderUser(id,5, page).then(response => {
+        getOrderUser(id,5, page).then(response => {
             if (response.error) {
                 console.log(response.error);
             } else {

@@ -170,6 +170,60 @@ export const getGenreByName =(name)=>{
         console.log(err);
     })
 }
+export const getGenre =()=> {
+    return fetch(`/genre/getGenre`, {
+        method: 'GET'
+    }).then(response => {
+        return response.json()
+    }).catch(err => {
+        console.log(err);
+    })
+}
+export const showAllAuthor =()=> {
+    return fetch(`/author/showAllAuthor`, {
+        method: 'GET'
+    }).then(response => {
+        return response.json()
+    }).catch(err => {
+        console.log(err);
+    })
+}
+export const deleteGenre =(name,id)=> {
+    return fetch(`/genre/deleteGenre/${name}`, {
+        method: 'DELETE',
+        headers: {
+            "Accept": "application/json",
+            'Content-Type': 'Application/json',
+            "authorization": `kiet ${Cookies.get("token")}`
+        },
+        body: JSON.stringify({
+            id:id
+    
+        })
+    }).then(response => {
+        return response.json()
+    }).catch(err => {
+        console.log(err);
+    })
+}
+export const deleteAuthor =(name,id)=> {
+   return fetch(`/author/deleteAuthor/${name}`, {
+        method: 'DELETE',
+        headers: {
+            "Accept": "application/json",
+            'Content-Type': 'Application/json',
+            "authorization": `kiet ${Cookies.get("token")}`
+        },
+        body: JSON.stringify({
+            id:id
+    
+        })
+    }).then(response => {
+        return response.json()
+    }).catch(err => {
+        console.log(err);
+    })
+}
 
 export const addNewBooks =(form)=>{
     return fetch('/book/addBook',{
@@ -183,6 +237,60 @@ export const addNewBooks =(form)=>{
     }).then(response=>{
         return response.json()
     }).catch(err=>{
+        console.log(err);
+    })
+}
+export const addGenre = (genre) => {
+
+    return fetch('/genre/addGenre', {
+        method: 'POST',
+        headers: {
+            "Accept": "application/json",
+            'Content-Type': 'Application/json',
+            "authorization": `kiet ${Cookies.get("token")}`
+        },
+        body: JSON.stringify({
+           name:genre
+        })
+    }).then(response => {
+        return response.json()
+    }).catch(err => {
+        console.log(err);
+    })
+}
+export const addAuthor = (author) => {
+
+    return fetch('/author/addAuthor', {
+        method: 'POST',
+        headers: {
+            "Accept": "application/json",
+            'Content-Type': 'Application/json',
+            "authorization": `kiet ${Cookies.get("token")}`
+        },
+        body: JSON.stringify({
+           name:author
+        })
+    }).then(response => {
+        return response.json()
+    }).catch(err => {
+        console.log(err);
+    })
+}
+export const deleteBook = (slug,id) => {
+
+    return fetch(`/book/deleteBook/${slug}`, {
+        method: 'DELETE',
+        headers: {
+            "Accept": "application/json",
+            'Content-Type': 'Application/json',
+            "authorization": `kiet ${Cookies.get("token")}`
+        },
+        body: JSON.stringify({
+           id:id
+        })
+    }).then(response => {
+        return response.json()
+    }).catch(err => {
         console.log(err);
     })
 }

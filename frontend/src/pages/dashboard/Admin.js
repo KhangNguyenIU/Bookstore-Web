@@ -12,12 +12,14 @@ import ErrorIcon from '@material-ui/icons/Error';
 import EqualizerIcon from '@material-ui/icons/Equalizer';
 import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
+import ReceiptIcon from '@material-ui/icons/Receipt';
 import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { Link } from 'react-router-dom';
 import BookDashboard from '../../components/dashboard/BookDashboard'
 import { getAllOrder } from '../../actions/order';
 import CustomerDashBoard from '../../components/dashboard/CustomerDashBoard'
+import OrderDashBoard from '../../components/dashboard/OrderDashBoard'
 import OrderProfitStat from '../../components/dashboard/OrderProfitStat';
 import OrderTotalStat from '../../components/dashboard/OrderTotalStat';
 
@@ -148,6 +150,15 @@ const Admin = (props) => {
                                 style={{ float: "right", marginTop: '10px' }} />)}
                         </a>
                     </li>
+                    <li>
+                        <a onClick={() => { setPhase(3) }}>
+                            <ReceiptIcon style={{ marginRight: '15px' }} />
+                    Orders    {phase == 3 && (<ArrowBackIosIcon
+                    fontSize="small"
+                                style={{ float: "right", marginTop: '10px' }} />)}
+                        </a>
+                    </li>
+                    
                 </ul>
             </div>
 
@@ -297,6 +308,11 @@ const Admin = (props) => {
             <BookDashboard/>
         </React.Fragment>
     )
+    const orderPage = () => (
+        <React.Fragment>
+            <OrderDashBoard/>
+        </React.Fragment>
+    )
     const rightSide = () => {
         return (
             <React.Fragment>
@@ -304,6 +320,7 @@ const Admin = (props) => {
                     {phase == 0 && dashboard()}
                     {phase == 1 && customer()}
                     {phase == 2 && books()}
+                    {phase == 3 && orderPage()}
                 </div>
             </React.Fragment>
         )

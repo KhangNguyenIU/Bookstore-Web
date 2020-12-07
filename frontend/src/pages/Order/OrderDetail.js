@@ -43,6 +43,7 @@ const OrderDetail = (props) => {
             if (response.error) {
                 console.log(response.error);
             } else {
+                console.log(stateUser);
                 setOrder(response);
                 setItems(response.items);
             }
@@ -69,13 +70,32 @@ const OrderDetail = (props) => {
                     items.map((row, i) => (
                             <TableRow key={row, i}>
                                 <TableCell component="th" scope="row">
+                                    {
+                                    row.book_id.title!=null ?
                                     <Link to={`/book/${userEndPoint}${row.book_id.slug}`}><img src={row.book_id.photo} height="80px" alt={i} /> {row.book_id.title}</Link>
+                                    :
+                                    <Link>Book does not in store</Link>
+                                    }
                                 </TableCell>
-                                <TableCell align="right">{row.book_id.finalprice.toFixed(2)}</TableCell>
+                                <TableCell align="right">
+                                    {
+                                    row.book_id.finalprice!=null ?
+                                    <p>{row.book_id.finalprice.toFixed(2)}</p>
+                                    :
+                                    <Link>Undefined</Link>
+                                    }
+                                </TableCell>
                                 <TableCell align="right"> 
-                                   x{row.amount}
+                                   <p>x{row.amount}</p>
                                 </TableCell>
-                                <TableCell align="right">{(row.amount * row.book_id.finalprice).toFixed(2)}</TableCell>
+                                <TableCell align="right">
+                                {
+                                    row.book_id.finalprice!=null ?
+                                    <p>{(row.book_id.finalprice*row.amount).toFixed(2)}</p>
+                                    :
+                                    <Link>Undefined</Link>
+                                }
+                                </TableCell>
                             </TableRow>
 
                         ))
@@ -84,7 +104,7 @@ const OrderDetail = (props) => {
                             <TableCell align="left">Total :  {order.total}</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell align="left">Date :  {Date(order.createdAt)}</TableCell>
+                            <TableCell align="left">Date :  {order.createdAt}</TableCell>
                         </TableRow>
 
                     </TableBody>
@@ -106,12 +126,16 @@ const OrderDetail = (props) => {
         <TableContainer style={{fontFamily:"Cormorant Garamond"}}>
             <Table >
                 <TableRow>
-                    <TableCell>Shippping</TableCell>
-                    <TableCell>Shipping from U.S.A to VietNam</TableCell>
+                    <TableCell>Shippping To</TableCell>
+                    <TableCell>{order.address}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell>Shipping Fee</TableCell>
+                    <TableCell>{order.shipprice}</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell>Total</TableCell>
-                    <TableCell>{order.total}</TableCell>
+                    <TableCell>{parseFloat(order.finalprice).toFixed(2)}</TableCell>
                 </TableRow>
             </Table>
         </TableContainer>

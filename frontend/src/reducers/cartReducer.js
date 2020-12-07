@@ -59,12 +59,12 @@ export const reducerCart = (state, action) => {
         };
     }
     else if (action.type == "DROP") {
-        return {
-            ...state,
-            items: state.items.filter(item => item.book_id !== action.payload),
-            total: parseFloat(state.total) - parseFloat(action.priceitem)
-        }
-
+        if(state.items.length==1)
+        localStorage.setItem("cart",[]);
+       return { 
+           ...state,
+           items: state.items.filter(item => item.book_id !== action.payload), 
+           total: parseFloat(state.total) - parseFloat(action.priceitem) }
     }
     else {
         return state;

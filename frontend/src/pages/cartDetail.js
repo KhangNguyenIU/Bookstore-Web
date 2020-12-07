@@ -60,6 +60,7 @@ const Cartdetail = (props) => {
     const [selectedIndex, setSelectedIndex] = React.useState(0);
     const [selectedIndexShip, setSelectedIndexShip] = React.useState(0);
     const [open, setOpen] = useState(true);
+    const [update,SetUpdate]=useState(false);
     const [cart, setCart] = useState(statecart)
     const [values, setValues] = useState({
         success: '',
@@ -89,10 +90,10 @@ const Cartdetail = (props) => {
         setCart(statecart)
         let tempTotal = getTotalFromCart(statecart);
         setTotal(tempTotal)
-    }, [statecart.items])
+    }, [statecart.items,update])
 
     useEffect(() => {
-        initShipping()
+        initShipping();
        
     }, [])
     const initShipping = () => {
@@ -134,31 +135,36 @@ const Cartdetail = (props) => {
     };
 
 
-    const dropItem = (id, priceitem) => {
-        dispatchcart({ type: "DROP", payload: id, priceitem: parseFloat(priceitem.toFixed(2)) })
-        localStorage.setItem("total", JSON.stringify(statecart.total));
-        localStorage.setItem("cart", JSON.stringify(statecart.items));
+    const dropItem = async (id, priceitem) => {
+       await dispatchcart({ type: "DROP", payload: id, priceitem: parseFloat(priceitem.toFixed(2)) })
+       if(statecart.items.length<=1)
+         {
+             localStorage.setItem("cart",JSON.stringify([]));
+             localStorage.setItem("total",JSON.stringify(0));
+         }
+        else
+        {
+         localStorage.setItem("cart", JSON.stringify(statecart.items)); 
+         localStorage.setItem("total", JSON.stringify(statecart.total));
+        }
         console.log("drop", statecart.items);
 
     }
-
-    const handleChangeAmount = bookId => async (e) => {
-        const amount = e.target.value;
+    const handleChangeAmount = async (bookId,amount) =>{
+        //const amount = e.target.value;
         await dispatchcart({
             type: 'UPDATE', payload: {
                 _id: bookId,
                 amount: amount
             }
         });
-
-        console.log(statecart);
-        let tempt = getTotalFromCart(statecart)
-        console.log(tempt);
-
-        setCart(statecart)
-        setTotal(cart.total)
+        console.log(statecart.total);
+        await setCart(statecart)
+        await setTotal( getTotalFromCart(statecart));
         localStorage.setItem("total", JSON.stringify(cart.total));
         localStorage.setItem("cart", JSON.stringify(statecart.items));
+        SetUpdate(!update);
+        //console.log(e.target.value)
     }
     const handleCloseSnack = (event, reason) => {
         if (reason === 'clickaway') {
@@ -362,10 +368,12 @@ const Cartdetail = (props) => {
                                             </TableCell>
                                             <TableCell align="right">{row.realprice}</TableCell>
                                             <TableCell align="right"> <input
-                                                onChange={handleChangeAmount(row.book_id)}
+                                                onChange={e=>{handleChangeAmount(row.book_id,e.target.value)}}
                                                 className="custom-input-number"
                                                 style={{ width: '30px' }}
                                                 type="number"
+                                                max={parseInt(row.limit)}
+                                                min={1}
                                                 Value={row.amount}
                                                 defaultValue={row.amount}
                                             // onChange={handleChange('discount')}
@@ -381,7 +389,7 @@ const Cartdetail = (props) => {
 
                                     ))}
                                     <TableRow>
-                                        <TableCell align="left">Total :  {cart.total  }$</TableCell>
+                                        <TableCell align="left">Total :  {(cart.total).toFixed(2)  }$</TableCell>
                                     </TableRow>
 
                                 </TableBody>

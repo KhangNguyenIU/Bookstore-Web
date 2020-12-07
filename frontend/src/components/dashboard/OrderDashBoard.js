@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { showAllUser } from '../../actions/user'
+import { showAllOrderForAdmin,adminCheckOrderUser } from '../../actions/order'
 import { CartContext } from '../../App.js';
 import {
     TableCell, TableContainer, Table, TableHead, TableRow,
     useScrollTrigger, TableBody, IconButton, TextField, Fab,Tooltip
 } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import AirportShuttleIcon from '@material-ui/icons/AirportShuttle';
 import { useHistory, Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles'
 import Pagination from '@material-ui/lab/Pagination';
@@ -18,17 +20,21 @@ BookDashboard
 
 **/
 const options = [
-    "A - Z",
-    "Z - A",
-    "Old",
-    "New"
+   "Total Low",
+   "Total High",
+   "Distance Low",
+   "Distance High",
+   "Old",
+   "New"
 ]
 
 const sortingType = [
-    "email",
-    "email",
-    "createdAt",
-    "createdAt"
+   "total",
+   "total",
+   "distance",
+   "distance",
+   "createdAt",
+   "createdAt"
 ]
 
 const sortingDir = [
@@ -48,7 +54,7 @@ const useStyles = makeStyles({
     }
 });
 
-const CustomerDashBoard = (props) => {
+const OrderDashBoard = (props) => {
     // const history = useHistory()
     // const params = new URLSearchParams(props.location.search);
     //  const tempPage = params.get('page') || 1
@@ -57,9 +63,9 @@ const CustomerDashBoard = (props) => {
     const classes = useStyles()
     const limit = 10
     const [infor, setInfor] = useState("");
-    const [users, setUsers] = useState([]);
+    const [orders, setOrders] = useState([]);
     const [page, setPage] = React.useState(1);
-    const [totalUser, setTotalUser] = useState(0)
+    const [totalOrder, setTotalOrder] = useState(0)
     const [flag, setFlag] = useState(false)
 
   //  const [priceFilter, setPriceFilter] = React.useState([0, 100]);
@@ -69,19 +75,28 @@ const CustomerDashBoard = (props) => {
     const [selectedIndex, setSelectedIndex] = React.useState(0);
 
     useEffect(() => {
-        initShowUser()
+        initShowOrder()
     }, [page, selectedIndex])
 
 
-    const initShowUser = () => {
+    const initShowOrder = () => {
         let sortType = sortingType[selectedIndex]
         let sortDir = sortingDir[selectedIndex % 2]
-        showAllUser(limit, page, sortType, sortDir).then(response => {
+        showAllOrderForAdmin(limit, page, sortType, sortDir).then(response => {
             if (response.error) {
                 console.log(response.error);
             } else {
-                setUsers(response.data)
-                setTotalUser(response.usersNumber)
+                setOrders(response.data)
+                setTotalOrder(response.ordersNumber)
+            }
+        })
+    }
+    const adminCheck = (id) => {
+       adminCheckOrderUser(id).then(response => {
+            if (response.error) {
+                console.log(response.error);
+            } else {
+                initShowOrder();
             }
         })
     }
@@ -106,7 +121,7 @@ const CustomerDashBoard = (props) => {
     const pagination = () => (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
             <Pagination
-                count={Math.floor(totalUser / 10) + 1}
+                count={Math.floor(totalOrder / 10) + 1}
                 size="large"
                 page={page}
                 onChange={handleChangePage} />
@@ -159,21 +174,8 @@ const CustomerDashBoard = (props) => {
             <div className="d-flex justify-content-between mb-1">
                 <div className="m-0 ">
                     <p style={{ fontSize: '1rem' ,margin:"0px"}}>
-                        Display {(page - 1) * 10 + 1} - {page * 10} results of {totalUser}
+                        Display {(page - 1) * 10 + 1} - {page * 10} results of {totalOrder}
                     </p>
-                </div>
-
-
-                <div style={{margin:"0px"}}>
-                    <Tooltip title="Add new customer" placement="left">
-                    <Fab 
-                    onClick={()=>{history.push('/signup')}}
-                    style={{ outline: 'none' }} 
-                    color="secondary">
-                        <AddIcon style={{ color: 'black' }} size="large" />
-                    </Fab>
-                    </Tooltip>
-                  
                 </div>
             </div>
 
@@ -187,9 +189,15 @@ const CustomerDashBoard = (props) => {
                 <Table className={classes.table}>
                     <TableHead>
                         <TableRow>
-                            <TableCell >Customer</TableCell>
-                            <TableCell align="center">Username</TableCell>
-                            <TableCell align="center">Join At</TableCell>
+                            <TableCell >Order_id</TableCell>
+                            <TableCell >Owner</TableCell>
+                            <TableCell algin="center">Amount</TableCell>
+                            <TableCell algin="center">Shipping Fee</TableCell>
+                            <TableCell algin="center">Distance</TableCell>
+                            <TableCell algin="center">Total</TableCell>
+                            <TableCell algin="center">Final Price</TableCell>
+                            <TableCell algin="right">Confirm Delivery</TableCell>
+    
     
 
 
@@ -197,16 +205,25 @@ const CustomerDashBoard = (props) => {
                     </TableHead>
 
                     <TableBody>
-                        {users.map((row, i) => (
+                        {orders.map((row, i) => (
                             <TableRow key={row, i}>
                                 <TableCell component="th" scope="row">
-                                    <Link className="custom-link" to={`/user/${row._id}`}><img src={row.photo} height="70px" width="70px"  alt={i} /> {row.email}</Link>
+                                    <Link style={{ maxWidth: '50px' }} to={`/orderDetail/${row._id}`}>{row._id}</Link>
                                 </TableCell>
-                                <TableCell align="center">{row.username} </TableCell>
-                                <TableCell align="center">{row.createdAt} </TableCell>
-                                <TableCell align="right">
+                                <TableCell align="center">{row.owner.username}</TableCell>
+                                <TableCell align="center">{row.items.length} </TableCell>
+                                <TableCell align="center">{row.shipprice} </TableCell>
+                                <TableCell align="center">{row.distance} </TableCell>
+                                <TableCell align="center">{row.total} </TableCell>
+                                <TableCell align="center">{(row.total+row.shipprice).toFixed(2)} </TableCell>
+                                <TableCell align="center">
                                     <IconButton >
-                                        <ClearIcon />
+                                           {
+                                            row.delivered==false ?
+                                             <AirportShuttleIcon style={{color:'green', size:'medium'}} onClick={()=>{adminCheck(row._id)}}/>
+                                             :
+                                             <CheckCircleOutlineIcon style={{color:'green'}}/>
+                                           }
                                     </IconButton>
                                 </TableCell>
                             </TableRow>
@@ -230,4 +247,4 @@ const CustomerDashBoard = (props) => {
 
 }
 
-export default CustomerDashBoard
+export default OrderDashBoard

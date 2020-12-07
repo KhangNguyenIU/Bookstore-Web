@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useContext, Component } from 'react'
 import { getCookie, isAuth } from '../../actions/auth'
-
+import {
+     Fab,Tooltip
+} from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
 import { CartContext } from '../../App.js'
 import { Link, useHistory } from 'react-router-dom'
 import { getDetailBook, getAllGenre, updateBook } from '../../actions/book'
@@ -41,6 +44,8 @@ const BookUpdate = (props) => {
     const [isOpenError, setOpenError] = useState(false)
     const { statecart, dispatchcart } = useContext(CartContext);
     const token = getCookie('token')
+    const [authorList,setAuthorList]=useState([])
+    const [checkedAuthors, setCheckedAuthors] = useState([])
     const [genreList, setGenreList] = useState([])
     const [checkedGenres, setCheckedGenres] = useState([])
     const [book, setBook] = useState('')
@@ -64,6 +69,7 @@ const BookUpdate = (props) => {
         //     });
         initBook();
         initGenre();
+        initAuthor();
     }, [])
 
     const initBook = () => {
@@ -88,6 +94,7 @@ const BookUpdate = (props) => {
                     success: ''
                 })
                 setInitialCheckedGenres(response.genre)
+                setInitialCheckedAuthors(response.writtenby)
             }
         });
 
@@ -106,6 +113,18 @@ const BookUpdate = (props) => {
                 setGenreList(allGenre)
             });
     }
+    const initAuthor = () => {
+        fetch('/author/showAllAuthor', {
+            method:'GET'
+        }).then(res => res.json())
+            .then(result => {
+                let allAuthor = [];
+                for (var i = 0; i < result.data.length; i++) {
+                    allAuthor = allAuthor.concat({ _id: result.data[i]._id, name: result.data[i].name })
+                }
+                setAuthorList(allAuthor)
+            });
+    }
 
     const setInitialCheckedGenres = genres => {
         let ca = [];
@@ -115,6 +134,15 @@ const BookUpdate = (props) => {
         //console.log(ca);
         setCheckedGenres(ca);
     };
+    const setInitialCheckedAuthors = authors => {
+        let ca = [];
+        authors.map((c, i) => {
+            ca.push(c._id);
+        });
+        //console.log(ca);
+        setCheckedAuthors(ca);
+    };
+
 
     const handleGenreToggle = g => () => {
 
@@ -136,6 +164,32 @@ const BookUpdate = (props) => {
 
     const findOutGenre = g => {
         const result = checkedGenres.indexOf(g);
+        if (result !== -1) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+    const handleAuthorToggle = a => () => {
+
+        // return the first index or -1
+        const clickedTag = checkedAuthors.indexOf(a);
+        const all = [...checkedAuthors];
+
+        if (clickedTag === -1) {
+            all.push(a);
+        } else {
+            all.splice(clickedTag, 1);
+        }
+
+        setCheckedAuthors(all);
+        formData.set('writtenBy', all)
+        console.log(formData);
+
+    };
+
+    const findOutAuthor = a => {
+        const result = checkedAuthors.indexOf(a);
         if (result !== -1) {
             return true;
         } else {
@@ -204,6 +258,45 @@ const BookUpdate = (props) => {
                         ))
                     }
                 </ul>
+                <Tooltip title="Add New Genre">
+                    <Fab 
+                    onClick={()=>{history.push('/addGenre')}}
+                    style={{ outline: 'none' }} 
+                    color="secondary" size="small">
+                        <AddIcon style={{ color: 'black' }}  />
+                    </Fab>
+            </Tooltip>
+            </FormGroup>
+        </React.Fragment>
+
+    )
+    const showAuthorList = () => (
+        <React.Fragment>
+            Written By
+            <FormGroup>
+                <ul className="scroll-bar" >
+                    {
+                        authorList && authorList.map((a, i) => (
+                            <li key={i} className="list-unstyled">
+                                <input
+                                    onChange={handleAuthorToggle(a._id)}
+                                    checked={findOutAuthor(a._id)}
+                                    type="checkbox"
+                                    className="mr-2"
+                                />
+                                <label className="form-check-label">{a.name}</label>
+                            </li>
+                        ))
+                    }
+                </ul>
+                <Tooltip title="Add New Author">
+                    <Fab 
+                    onClick={()=>{history.push('/addAuthor')}}
+                    style={{ outline: 'none' }} 
+                    color="secondary" size="small">
+                        <AddIcon style={{ color: 'black' }}  />
+                    </Fab>
+            </Tooltip>
             </FormGroup>
         </React.Fragment>
 
@@ -223,13 +316,7 @@ const BookUpdate = (props) => {
 
                     <div className="col-md-8">
                         <p style={{ fontFamily: 'Josefin Sans' }}>
-                            By: {book.writtenby.map((author, index) => {
-                            return (
-                                <Link className="custom-link" to="" key={index}>
-                                    {author.name}{" "}
-                                </Link>
-                            )
-                        })}
+                        {showAuthorList()}
                         </p>
                         <form>
                             <div className="row">
