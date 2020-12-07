@@ -33,6 +33,29 @@ exports.addAuthor = async (req, res) => {
 
 
 };
+exports.deleteAuthor=async (req,res)=>{
+    let name=req.params.name;
+    Author.deleteOne({name:name})
+    .exec((err,author)=>{
+      if(err||!author)
+      {
+        return res.status(401).json({error:err})
+      }
+      else
+      {
+      Book.updateMany({writtenby: { $in: req.body.id }}, {
+        $pull: { writtenby: req.body.id }
+    }, { new: true }).exec((err, result) => {
+        if (err) {
+            return res.status(400).json({
+                error: err
+            })
+        }
+       res.json({result});
+    })
+      }
+  })
+  };
 exports.showAllAuthor = async (req, res) => {
     await Author.find({}).exec().then(authors => res.json({ data: authors }));
 

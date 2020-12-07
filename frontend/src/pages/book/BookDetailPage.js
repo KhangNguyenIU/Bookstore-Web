@@ -159,6 +159,7 @@ const BookDetailPage = (props) => {
                     localStorage.setItem("cart", JSON.stringify({
                         book_id: id, amount: amount,
                         title: title, realprice: parseFloat(realprice),
+                        limit:book.amount,
                         slug: slug, priceitem: (realprice * amount).toFixed(2), photo
                     }))
                     let temp =(realprice * amount).toFixed(2)
@@ -167,7 +168,7 @@ const BookDetailPage = (props) => {
                         type: "ADD",
                         payload: JSON.parse(JSON.stringify({
                             book_id: id, amount: amount,
-                            title: title, realprice: parseFloat(realprice), slug: slug, photo
+                            title: title, realprice: parseFloat(realprice), slug: slug,limit:book.amount, photo,
                         })), priceitem: parseFloat((realprice * amount).toFixed(2))
                     });
                     localStorage.setItem("cart", JSON.stringify(statecart.items));
@@ -176,7 +177,7 @@ const BookDetailPage = (props) => {
                     await dispatchcart({
                         type: "ADD",
                         payload: JSON.parse(JSON.stringify({
-                            book_id: id, amount: amount, title: title,
+                            book_id: id, amount: amount, title: title,limit:book.amount,
                             realprice: parseFloat(realprice), slug: slug, photo
                         })), priceitem: parseFloat(((realprice * amount)).toFixed(2))
                     });

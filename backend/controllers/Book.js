@@ -6,7 +6,8 @@ const formidable = require('formidable')
 const _ = require('lodash')
 const slugify = require('slugify');
 const User = require('../models/User.js');
-const {validationResult} =require('express-validator')
+const {validationResult} =require('express-validator');
+const { isArguments } = require('lodash');
 exports.addBook = async (req, res) => {
 
     const errors = validationResult(req);
@@ -188,11 +189,46 @@ exports.updateBook = async (req, res) => {
             }
             //let bookSlugBeforeMerge = oldBook.slug
             oldBook = _.merge(oldBook, fields)
+            write=oldBook.writtenby
 
-            var { title, description, amount, price, genre, discount } = fields
+            var { title, description, amount, price, genre, discount,writtenBy } = fields
             if (genre) {
                 oldBook.genre = genre.split(',')
 
+            }
+            if(writtenBy)
+            {
+                oldBook.writtenby=writtenBy.split(',');
+                var arr=writtenBy.split(',');
+                Author.updateMany({_id:{$nin:arr} ,work: { $in: oldBook._id }}, {
+                    $pull: {
+                        work: oldBook._id
+                    }
+                },
+                    { new: true }).exec((err, result)=>{
+                        if(err){
+                            return res.status(404).json({
+                                error: String(err)
+                            })
+                        }
+                       console.log("ok");
+                    });
+                arr.map((author, index) => {
+                    Author.updateMany({_id:author ,work: { $nin: oldBook._id }}, {
+                        $push: {
+                            work: oldBook._id
+                        }
+                    },
+                        { new: true }).exec((err, result)=>{
+                            if(err){
+                                return res.status(404).json({
+                                    error: String(err)
+                                })
+                            }
+                           console.log("ok");
+                        })
+                })
+    
             }
             oldBook.save((err, result) => {
                 if (err) {
@@ -307,3 +343,38 @@ exports.getSearchBook=async(req,res)=>{
             res.json({data:books});
         })
 }
+exports.deleteBook=async(req,res)=>{
+    let slug=req.params.slug;
+    Book.deleteOne({slug:slug})
+    .exec((err,book)=>{
+      if(err||!book)
+      {
+        return res.status(401).json({error:err})
+      }
+      else
+      {
+      Author.updateMany({work: { $in: req.body.id }}, {
+        $pull: { work: req.body.id }
+    }, { new: true }).exec((err, result) => {
+        if (err) {
+            return res.status(400).json({
+                error: err
+            })
+        }
+        else
+        {
+            User.updateMany({likes: { $in: req.body.id }}, {
+                $pull: { likes: req.body.id }
+            }, { new: true }).exec((err, result) => {
+                if (err) {
+                    return res.status(400).json({
+                        error: err
+                    })
+                }
+                res.json({result});
+        })
+    }
+      })
+        }
+  })
+};

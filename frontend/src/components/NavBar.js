@@ -195,7 +195,7 @@ const NavBar = (props) => {
 									}
 
 									<NavLink style={{ marginTop: '0px' }}
-										onClick={() => signout(() => { dispatchUser({ type: "LOGOUT", payload: null }); removeLocalStorage("cart"); history.replace('/signin') })}
+										onClick={() => signout(() => { dispatchUser({ type: "LOGOUT", payload: null });dispatchcart({type:"CANCEL",payload:null});localStorage.setItem("cart",JSON.stringify([]));localStorage.setItem("total",JSON.stringify(0)); history.replace('/signin')  })}
 									>
 										<IconButton>
 											<IoMdLogOut size="2rem" color="black" cursor="pointer" />

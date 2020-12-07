@@ -62,3 +62,37 @@ export const getAllOrder =()=>{
     console.log(err);
   })
 }
+export const adminCheckOrderUser =(id)=>{
+  return fetch(`/order/adminCheckOrderUser/${id}`,{
+    method: 'GET',
+    headers:{
+      "Authorization": "kiet " + Cookies.get("token")
+    }
+  }).then(response=>{
+    return response.json()
+  }).catch(err=>{
+    console.log(err);
+  })
+}
+export const showAllOrderForAdmin =(limit,page,sortType,sortDir)=>{
+  const sortMethod = {
+    sortType: sortType,
+    sortDir: sortDir
+};
+let endPoint = `?page=${page}&limit=${limit}`
+  return fetch(`/order/showAllOrderForAdmin${endPoint}`,{
+    method: 'POST',
+    headers:{
+      Accept: 'Application/json',
+          'Content-Type': 'Application/json',
+          "authorization": `kiet ${Cookies.get("token")}`
+    },
+    body: JSON.stringify({
+      sortMethod: sortMethod
+  })
+  }).then(response=>{
+    return response.json()
+  }).catch(err=>{
+    console.log(err);
+  })
+}

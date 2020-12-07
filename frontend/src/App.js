@@ -14,6 +14,8 @@ import UserUpdateInfor from './pages/UserUpdateInfor';
 import { reducerCart, initialCart } from './reducers/cartReducer'
 import { toast, ToastContainer } from 'react-toastify'
 import BookUpdate from './pages/book/BookUpdate';
+import AddNewGenre from './pages/AddNewGenre'
+import AddNewAuthor from './pages/AddNewAuthor'
 import { initialUser, reducerUser } from './reducers/userReducer';
 import Admin from './pages/dashboard/Admin';
 import UserPageAdmin from './pages/dashboard/UserPageAdmin';
@@ -52,6 +54,8 @@ const Routing = () => {
       <Route path='/orderDetail/:_id' exact component={OrderDetail} />
       <Route path='/book/:slug' exact component={BookDetailPage} />
       <Route path='/book/admin/:slug' exact component={BookUpdate} />
+      <Route path='/addGenre' exact component={AddNewGenre} />
+      <Route path='/addAuthor' exact component={AddNewAuthor} />
       <Route path='/addBook' exact component={Bookform} />
       <Route path='/admin' exact component={Admin}/>
       <Route path='/dashboard' exact component={AdminDashBoard}/>

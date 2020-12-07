@@ -8,7 +8,40 @@ const jwt = require('jsonwebtoken');
 const Shipping = require('../models/Shipping.js');
 sgMail.setApiKey(process.env.SENDGRID_API)
 
+/*exports.showAllOrder = async (req, res) => {
+    let limit = parseInt(req.query.limit) || 8
+    let page = parseInt(req.query.page) || 1
+    var sortObject = {};
+    const { sortType, sortDir } = req.body.sortMethod
+    sortObject[sortType] = sortDir;
+    Order.find({})
+        .exec(async (err, listOrder) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
 
+            await Order.find({})
+                .limit(limit)
+                .sort(sortObject)
+                .skip((page - 1) * limit)
+                .populate('items.book_id')
+                .populate('shipping')
+                .populate('owner')
+                .exec((err,orders) => {
+                    if (err) {
+                        return res.status(400).json({
+                            error: err
+                        })
+                    }
+                    res.json({ data: orders, sir: sortDir, type: sortType, ordersNumber: listOrder.length })
+                    //res.json({sort, side})
+                })
+        })
+    
+
+};*/
 exports.addOrder = async (req, res) => {
     const { _id, email, username } = req.user;
     const items = req.body.items
@@ -173,6 +206,7 @@ exports.getOrderDetail = async (req, res) => {
     Order.findOne({ _id })
         .populate('items.book_id', "_id title photo finalprice slug")
         .populate('owner', "_id email username")
+        .populate('shipping', " _id name description speed")
         .exec((err, order) => {
             if (err) {
                 return res.status(401).json({
@@ -201,6 +235,19 @@ exports.showAllOrderNotComplete = async (req, res) => {
     await Order.find({ delivered: false }).populate("items.book_id", "title price discount").exec().then(data => res.json(data));
 }
 exports.adminCheckOrderUser = async (req, res) => {
+    let _id = req.params._id;
+    Order.updateOne({_id:_id} , {
+       delivered:true
+    }, { new: true }).exec((err, result) => {
+        if (err) {
+            return res.status(400).json({
+                error: err
+            })
+        }
+       res.json({result});
+    })
+}
+exports.getOrderUser = async (req, res) => {
     let limit = parseInt(req.query.limit) || 5
     let page = parseInt(req.query.page) || 1
     await Order.find({ owner: req.body._id }).limit(limit).skip((page - 1) * limit)
@@ -234,3 +281,37 @@ exports.getOrderProfitStat = (req, res) => {
 
         })
 }
+exports.showAllOrderForAdmin = async (req, res) => {
+    let limit = parseInt(req.query.limit) || 8
+    let page = parseInt(req.query.page) || 1
+    var sortObject = {};
+    const { sortType, sortDir } = req.body.sortMethod
+    sortObject[sortType] = sortDir;
+    Order.find({})
+        .exec(async (err, listOrder) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
+
+            await Order.find({})
+                .limit(limit)
+                .sort(sortObject)
+                .skip((page - 1) * limit)
+                .populate('items.book_id')
+                .populate('owner')
+                .populate('shipping')
+                .exec((err,orders) => {
+                    if (err) {
+                        return res.status(400).json({
+                            error: err
+                        })
+                    }
+                    res.json({ data: orders, sir: sortDir, type: sortType, ordersNumber: listOrder.length })
+                    //res.json({sort, side})
+                })
+        })
+    
+
+};

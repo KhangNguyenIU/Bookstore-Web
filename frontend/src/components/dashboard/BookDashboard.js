@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { showAllBook, } from '../../actions/book'
+import { showAllBook,deleteBook } from '../../actions/book'
 import { CartContext } from '../../App.js';
+import { toast } from 'react-toastify'
 import {
     TableCell, TableContainer, Table, TableHead, TableRow,
     useScrollTrigger, TableBody, IconButton, TextField, Fab,Tooltip
@@ -11,6 +12,8 @@ import { makeStyles } from '@material-ui/core/styles'
 import Pagination from '@material-ui/lab/Pagination';
 import { Button, List, ListItem, ListItemText, Menu, MenuItem } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 /**
 * @author
 * @function 
@@ -24,7 +27,8 @@ const options = [
     "High Price",
     "Old",
     "New",
-    "Best seller",
+    "Low seller",
+    "Best Seller"
 ]
 
 const sortingType = [
@@ -34,7 +38,8 @@ const sortingType = [
     "price",
     "createdAt",
     "createdAt",
-    "Best Seller"
+    "sold",
+    "sold"
 ]
 
 const sortingDir = [
@@ -92,6 +97,58 @@ const BookDashboard = (props) => {
             }
         })
     }
+    /*
+     addGenre(String(genre).trim()).then(data => {
+                console.log(data);
+                if (data.error) {
+                    setValues({ ...values, error: data.error, loading: false });
+                } else {
+                    toast.info(data.msg)    
+                    getGenre().then(response => {
+                        if (response.error) {
+                            setValues({
+                                ...values,
+                                error: response.error
+                            })
+                            console.log(response.error);
+                        } else {
+                            setAllGenre(response.data);
+                        }
+                    });
+                }
+            });
+    */
+    const alertBox = (slug,id) => {
+        confirmAlert({
+          title: 'Confirm to delete book',
+          message: 'Are you sure to delete '+String(slug)+' ?',
+          buttons: [
+            {
+              label: 'Yes',
+              onClick: () => {deleteBook(slug,id).then(data => {
+                //console.log(data);
+                if(data.error==null) {
+                    toast.info(data.msg)    
+                    let sortType = sortingType[selectedIndex]
+                    let sortDir = sortingDir[selectedIndex % 2]
+                    showAllBook(limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
+                        if (response.error) {
+                            console.log(response.error);
+                        } else {
+                            setBooks(response.data)
+                            setTotalBook(response.booksNumber)
+                        }
+                    })
+                }
+            });
+           }
+            },
+            {
+              label: 'No',
+            }
+          ]
+        });
+      };
 
     const handleChangePage = (event, value) => {
         setPage(value);
@@ -180,17 +237,17 @@ const BookDashboard = (props) => {
                         <AddIcon style={{ color: 'black' }}  />
                     </Fab>
                     </Tooltip>
-                    <Tooltip title="Add new genre" placement="left">
+                    <Tooltip title="Manage Genre" placement="left">
                     <Fab 
-                    onClick={()=>{history.push('/addBook')}}
+                    onClick={()=>{history.push('/addGenre')}}
                     style={{ outline: 'none' }} 
                     color="primary" size="medium">
                         <AddIcon style={{ color: 'black' }} size="medium" />
                     </Fab>
                     </Tooltip>
-                    <Tooltip title="Add new author" placement="left">
+                    <Tooltip title="Manage Author" placement="left">
                     <Fab 
-                    onClick={()=>{history.push('/addBook')}}
+                    onClick={()=>{history.push('/addAuthor')}}
                     style={{ outline: 'none' }} 
                     color="inherit" size="small">
                         <AddIcon style={{ color: 'black' }} size="small" />
@@ -239,7 +296,7 @@ const BookDashboard = (props) => {
 
                                 <TableCell align="center">
                                     <IconButton >
-                                        <ClearIcon />
+                                        <ClearIcon onClick={()=>alertBox(row.slug,row._id)}/>
                                     </IconButton>
                                 </TableCell>
                             </TableRow>
