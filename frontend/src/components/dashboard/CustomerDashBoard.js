@@ -3,7 +3,7 @@ import { showAllUser } from '../../actions/user'
 import { CartContext } from '../../App.js';
 import {
     TableCell, TableContainer, Table, TableHead, TableRow,
-    useScrollTrigger, TableBody, IconButton, TextField, Fab,Tooltip
+    useScrollTrigger, TableBody, IconButton, TextField, Fab, Tooltip, Avatar
 } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import { useHistory, Link } from 'react-router-dom';
@@ -11,6 +11,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import Pagination from '@material-ui/lab/Pagination';
 import { Button, List, ListItem, ListItemText, Menu, MenuItem } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import moment from 'moment'
 /**
 * @author
 * @function 
@@ -40,19 +41,17 @@ const useStyles = makeStyles({
     table: {
         minWidth: 400,
         maxHeight: 100,
-        fontFamily: "Cormorant Garamond"
+        fontFamily: "Cormorant Garamond",
+        overflow: 'scroll'
     },
     container: {
-        maxHeight: 400,
+        maxHeight: 450,
 
     }
 });
 
 const CustomerDashBoard = (props) => {
-    // const history = useHistory()
-    // const params = new URLSearchParams(props.location.search);
-    //  const tempPage = params.get('page') || 1
-    //  const limit = params.get('limit') || 9
+
     const history = useHistory()
     const classes = useStyles()
     const limit = 10
@@ -62,9 +61,7 @@ const CustomerDashBoard = (props) => {
     const [totalUser, setTotalUser] = useState(0)
     const [flag, setFlag] = useState(false)
 
-  //  const [priceFilter, setPriceFilter] = React.useState([0, 100]);
-  //  const [genres, setGenres] = useState([])
-   // const [bestSoldBook, setBestSoldBook] = useState([])
+
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [selectedIndex, setSelectedIndex] = React.useState(0);
 
@@ -158,22 +155,22 @@ const CustomerDashBoard = (props) => {
             </div>
             <div className="d-flex justify-content-between mb-1">
                 <div className="m-0 ">
-                    <p style={{ fontSize: '1rem' ,margin:"0px"}}>
+                    <p style={{ fontSize: '1rem', margin: "0px" }}>
                         Display {(page - 1) * 10 + 1} - {page * 10} results of {totalUser}
                     </p>
                 </div>
 
 
-                <div style={{margin:"0px"}}>
+                <div style={{ margin: "0px" }}>
                     <Tooltip title="Add new customer" placement="left">
-                    <Fab 
-                    onClick={()=>{history.push('/signup')}}
-                    style={{ outline: 'none' }} 
-                    color="secondary">
-                        <AddIcon style={{ color: 'black' }} size="large" />
-                    </Fab>
+                        <Fab
+                            onClick={() => { history.push('/signup') }}
+                            style={{ outline: 'none' }}
+                            color="secondary">
+                            <AddIcon style={{ color: 'black' }} size="large" />
+                        </Fab>
                     </Tooltip>
-                  
+
                 </div>
             </div>
 
@@ -190,8 +187,6 @@ const CustomerDashBoard = (props) => {
                             <TableCell >Customer</TableCell>
                             <TableCell align="center">Username</TableCell>
                             <TableCell align="center">Join At</TableCell>
-    
-
 
                         </TableRow>
                     </TableHead>
@@ -200,10 +195,15 @@ const CustomerDashBoard = (props) => {
                         {users.map((row, i) => (
                             <TableRow key={row, i}>
                                 <TableCell component="th" scope="row">
-                                    <Link className="custom-link" to={`/user/${row._id}`}><img src={row.photo} height="70px" width="70px"  alt={i} /> {row.email}</Link>
+                                    <Link className="custom-link" to={`/user/${row._id}`}>
+                                        <div className='d-flex'>
+                                            <Avatar src={row.photo} height="70px" width="70px" alt={i} />
+                                            <p className="custom-text ml-4">{row.email}</p>
+                                        </div>
+                                    </Link>
                                 </TableCell>
                                 <TableCell align="center">{row.username} </TableCell>
-                                <TableCell align="center">{row.createdAt} </TableCell>
+                                <TableCell align="center">{moment(row.createdAt).format('YYYY MM DD')} </TableCell>
                                 <TableCell align="right">
                                     <IconButton >
                                         <ClearIcon />

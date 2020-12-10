@@ -103,11 +103,13 @@ const NavBar = (props) => {
 								<Nav>
 									{
 										isAuth(stateUser).role === 1 &&
-										(<NavLink style={{ color: 'black', alignItems: 'center' }}
+										(<NavLink style={{ color: 'black' }}
 										>
-											<Link
-												to="/admin"
-												className="custom-link">Admin Dashboard</Link>
+											<div className="mt-3">
+												<Link
+													to="/dashboard"
+													className="custom-link">Admin Dashboard</Link>
+											</div>
 										</NavLink>)
 									}
 									{
@@ -195,7 +197,7 @@ const NavBar = (props) => {
 									}
 
 									<NavLink style={{ marginTop: '0px' }}
-										onClick={() => signout(() => { dispatchUser({ type: "LOGOUT", payload: null });dispatchcart({type:"CANCEL",payload:null});localStorage.setItem("cart",JSON.stringify([]));localStorage.setItem("total",JSON.stringify(0)); history.replace('/signin')  })}
+										onClick={() => signout(() => { dispatchUser({ type: "LOGOUT", payload: null }); dispatchcart({ type: "CANCEL", payload: null }); localStorage.setItem("cart", JSON.stringify([])); localStorage.setItem("total", JSON.stringify(0)); history.replace('/signin') })}
 									>
 										<IconButton>
 											<IoMdLogOut size="2rem" color="black" cursor="pointer" />

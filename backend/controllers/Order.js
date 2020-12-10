@@ -62,7 +62,7 @@ exports.addOrder = async (req, res) => {
     order.total = req.body.total;
     order.distance = distance
     order.address = address
-    Shipping.findOne({ slug:shipping }).exec((err, ship) => {
+    Shipping.findOne({ slug: shipping }).exec((err, ship) => {
         if (err) {
             return res.status(401).json({
                 error: "Error while match shipping unit"
@@ -70,9 +70,9 @@ exports.addOrder = async (req, res) => {
         }
         order.shipping = ship._id
         order.shipprice = distance * ship.pricePerDistance
-        order.finalprice=distance * ship.pricePerDistance + req.body.total
+        order.finalprice = distance * ship.pricePerDistance + req.body.total
         let now = new Date()
-        let dayDelay = distance > 50 ? 5 :3
+        let dayDelay = distance > 50 ? 5 : 3
         now.setDate(now.getDate() + dayDelay)
         order.deliverday = now
         let orderModel = new Order(order);
@@ -92,7 +92,7 @@ exports.addOrder = async (req, res) => {
               ${items.map((o, i) => (
                         `<p>Product :${o.title}</p> <p>${o.amount}<p> <p>${o.photo}</p>`
                     ))}
-              <span>Total: ${order.total} $</span>
+              <span>Total: ${order.finalprice} $</span>
               <p>${process.env.CLIENT_URL}/auth/order/confirm/${token}</p>
               <hr/>
               <p>This email contain sensitive information</p>
@@ -143,19 +143,28 @@ exports.confirmMailOrder = (req, res) => {
                         error: "Something wrong. Please try again"
                     })
                 }
-             Shipping.findByIdAndUpdate(data.shipping,{
-                 $push:{ order:data._id}
-             },{new:true},(err,result)=>{
-                 if(err){
-                     return res.status(401).json({
-                         error: err
-                     })
-                 }
-                 res.json({
-                    msg: "Your order has been confirmed, Please wait to the delivery day",
-                    data
+                Shipping.findByIdAndUpdate(data.shipping, {
+                    $push: { order: data._id }
+                }, { new: true }, (err, result) => {
+                    if (err) {
+                        return res.status(401).json({
+                            error: err
+                        })
+                    }
+            
+                    User.findByIdAndUpdate(req.user._id, {
+                        $push: { orders: orderId }
+                    }, { new: true }, (err, user) => {
+                        if (err) {
+                            return res.status(401).json({
+                                error: err
+                            })
+                        }
+                        res.json({
+                            msg: "Your order has been confirmed, Please wait to the delivery day"
+                        })
+                    })
                 })
-             })
             })
 
         }
@@ -221,6 +230,24 @@ exports.showAllOrder = async (req, res) => {
         .populate("owner", '_id username email photo')
         .populate("items.book_id", "cost")
         .populate("items", "book_id")
+        .sort({ createdAt: -1 })
+        .exec((err, data) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
+            res.json({ data })
+        })
+
+};
+exports.showAllOrderConfirmed = async (req, res) => {
+    await Order.find({ confirmed: true })
+        .populate("owner", '_id username email photo')
+        .populate("items.book_id", "cost")
+        .populate("items", "book_id")
+        .populate('shipping', "_id name")
+        .sort({ createdAt: -1 })
         .exec((err, data) => {
             if (err) {
                 return res.status(401).json({
@@ -236,15 +263,15 @@ exports.showAllOrderNotComplete = async (req, res) => {
 }
 exports.adminCheckOrderUser = async (req, res) => {
     let _id = req.params._id;
-    Order.updateOne({_id:_id} , {
-       delivered:true
+    Order.updateOne({ _id: _id }, {
+        delivered: true
     }, { new: true }).exec((err, result) => {
         if (err) {
             return res.status(400).json({
                 error: err
             })
         }
-       res.json({result});
+        res.json({ result });
     })
 }
 exports.getOrderUser = async (req, res) => {
@@ -302,7 +329,7 @@ exports.showAllOrderForAdmin = async (req, res) => {
                 .populate('items.book_id')
                 .populate('owner')
                 .populate('shipping')
-                .exec((err,orders) => {
+                .exec((err, orders) => {
                     if (err) {
                         return res.status(400).json({
                             error: err
@@ -312,6 +339,6 @@ exports.showAllOrderForAdmin = async (req, res) => {
                     //res.json({sort, side})
                 })
         })
-    
+
 
 };

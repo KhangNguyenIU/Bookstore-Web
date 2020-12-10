@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react'
-import {Link} from 'react-router-dom'
+import React, { useState, useEffect, useContext } from 'react'
+import { Link } from 'react-router-dom'
 import { register, isAuth, authenticate } from '../actions/auth'
-import { addGenre,getGenre,deleteGenre } from '../actions/book'
+import { addGenre, getGenre, deleteGenre } from '../actions/book'
 import { toast } from 'react-toastify'
 import { Router } from 'react-router'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import { UserContext } from '../App'
 /**
 * @author
 * @function Login
 **/
 
 const AddNewGenre = (props) => {
-    const [show,setShow]=useState(false);
-    const [allGenre,setAllGenre]=useState([]);
-
+    const [show, setShow] = useState(false);
+    const [allGenre, setAllGenre] = useState([]);
+    const {stateUser, dispatchUser} = useContext(UserContext)
     const [values, setValues] = useState({
         genre: '',
         error: '',
@@ -26,11 +27,10 @@ const AddNewGenre = (props) => {
     const { genre, error, loading, message, showForm } = values;
 
     useEffect(() => {
-        if (isAuth()) {
+        if (isAuth(stateUser).role !==1) {
             props.history.push('/')
         }
-        else
-        {
+        else {
             getGenre().then(response => {
                 if (response.error) {
                     setValues({
@@ -56,7 +56,7 @@ const AddNewGenre = (props) => {
 
         setValues({ ...values, loading: true, error: false });
         const data = { genre };
-        if (String(genre).trim().length==0) {
+        if (String(genre).trim().length == 0) {
             setValues({ ...values, loading: true, error: "Genre is empty, enter name" });
         } else {
             addGenre(String(genre).trim()).then(data => {
@@ -64,7 +64,7 @@ const AddNewGenre = (props) => {
                 if (data.error) {
                     setValues({ ...values, error: data.error, loading: false });
                 } else {
-                    toast.info(data.msg)    
+                    toast.info(data.msg)
                     getGenre().then(response => {
                         if (response.error) {
                             setValues({
@@ -81,40 +81,41 @@ const AddNewGenre = (props) => {
         }
 
     }
-    const alertBox = (name,id) => {
+    const alertBox = (name, id) => {
         confirmAlert({
-          title: 'Confirm to delete',
-          message: 'Are you sure to delete genre '+String(name)+' ?',
-          buttons: [
-            {
-              label: 'Yes',
-              onClick: () => {deleteGenre(name,String(id).trim()).then(data=>{
-                  if(data.error)
-                  {
-                    setValues({ ...values, error: data.error, loading: false });
-                  }else{
-                    getGenre().then(response => {
-                        if (response.error) {
-                            setValues({
-                                ...values,
-                                error: response.error
-                            })
-                            console.log(response.error);
-                        } else {
-                            setAllGenre(response.data);
-                            console.log(allGenre.length);
-                        }
-                    });
-                  }
-              })}
-            },
-            {
-              label: 'No',
-             // onClick: () => alert('Click No')
-            }
-          ]
+            title: 'Confirm to delete',
+            message: 'Are you sure to delete genre ' + String(name) + ' ?',
+            buttons: [
+                {
+                    label: 'Yes',
+                    onClick: () => {
+                        deleteGenre(name, String(id).trim()).then(data => {
+                            if (data.error) {
+                                setValues({ ...values, error: data.error, loading: false });
+                            } else {
+                                getGenre().then(response => {
+                                    if (response.error) {
+                                        setValues({
+                                            ...values,
+                                            error: response.error
+                                        })
+                                        console.log(response.error);
+                                    } else {
+                                        setAllGenre(response.data);
+                                        console.log(allGenre.length);
+                                    }
+                                });
+                            }
+                        })
+                    }
+                },
+                {
+                    label: 'No',
+                    // onClick: () => alert('Click No')
+                }
+            ]
         });
-      };
+    };
 
     const showError = () => (
         error ?
@@ -124,68 +125,76 @@ const AddNewGenre = (props) => {
             :
             ''
     )
-    const genreList=()=>{
-        return(
-        allGenre.map((genre,index)=>(
-            <div>
-                <Link  style={{color:'green'}} onClick={()=>alertBox(genre.name,genre._id)}>
-                  {genre.name}
-                </Link>
-            </div>
-        ))
+    const genreList = () => {
+        return (
+         <ul style={{overflowY:'scroll', maxHeight:'100px'}}>
+                {allGenre.map((genre, index) => (
+                <li >
+                    <Link style={{ color: 'green' }}
+                     onClick={() => alertBox(genre.name, genre._id)}>
+                        {genre.name}
+                    </Link>
+                </li>
+            ))
+                }
+         </ul>
         )
     }
-    const showGenre=()=>(
+    const showGenre = () => (
         show ?
-          <div>
-            {genreList()}
-          </div>
-          :
-          <div>
-          <Link to='/admin'>Back To DashBoard</Link>
-          </div>
+            <div>
+                {genreList()}
+            </div>
+            :
+            <div>
+                <Link to='/dashboard'>Back To DashBoard</Link>
+            </div>
     )
 
     const addGenreForm = () => (
         <div className="container">
-            <div className="box" style={{ padding: '2rem' }}>
-                <div className="row" >
-                    <div className="col-md-6 col-sm-12" style={{width:'100%'}}>
-                        <div className="leftPart">
-                            <img src="/img/genretheme.webp" width="50%" max-height="none" />
+            <div className="col-md-8 offset-md-2">
+                <div className="box" >
+                    <div className="row" style={{marginTop:'2rem'}}>
+                        <div className="col-md-6 ">
+                            <div className="leftPart">
+                                <img src="/img/genretheme.webp" width="50%" max-height="none" />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="col-md-6 col-sm-12" style={{ width:'100%' }}>
-                        <div className="rightPart">
-                            <h3 className='display-4 text-center' style={{ fontFamily: 'Grand Hotel' }}>New Genre</h3>
-                            <form onSubmit={handleSubmit} >
-                                <div className="form-group">
-                                    <input
-                                        placeholder='Genre_name'
-                                        value={genre}
-                                        onChange={handleChange('genre')}
-                                        className="form-control shadow-none rounded-0"
-                                        type='text'
-                                        style={{ border: 'none', borderBottom: '1px solid #000', outline: 'none' }} />
-                                </div>
-                                <div className='text-center'>
-                                    <div style={{ height: '16px' }}>
-                                        {showError()}
+                        <div className="col-md-6 ">
+                            <div className="rightPart">
+                                <h3 className='display-4 text-center' style={{ fontFamily: 'Grand Hotel' }}>New Genre</h3>
+                                <form onSubmit={handleSubmit} >
+                                    <div className="form-group">
+                                        <input
+                                            placeholder='Genre_name'
+                                            value={genre}
+                                            onChange={handleChange('genre')}
+                                            className="form-control shadow-none rounded-0"
+                                            type='text'
+                                            style={{ border: 'none', borderBottom: '1px solid #000', outline: 'none' }} />
                                     </div>
-                                    <Link onClick={()=>setShow(!show)}>Show Genre</Link>
-                                    {showGenre()}
-                                </div>
-                                <div className="form-group pt-3 text-center">
-                                    <button
-                                        className='btn btn-secondary buttonLogin'
-                                        style={{ borderRadius: '25px', padding: '0 20px', height: '40px' }}>Add Genre</button>
-                                </div>
+                                    <div className='text-center'>
+                                        <div style={{ height: '16px' }}>
+                                            {showError()}
+                                        </div>
+                                        <Link onClick={() => setShow(!show)}>Show Genre</Link>
+                                        {showGenre()}
+                                    </div>
+                                    <div className="form-group pt-3 text-center">
+                                        <button
+                                            className='btn btn-secondary buttonLogin'
+                                            style={{ borderRadius: '25px', padding: '0 20px', height: '40px' }}>Add Genre</button>
+                                    </div>
 
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
+
                 </div>
+
             </div>
         </div>
     )

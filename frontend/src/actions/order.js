@@ -1,8 +1,5 @@
 import Cookies from 'js-cookie';
-import React from 'react';
-import { CartContext } from '../App.js'
-import { Alert } from 'reactstrap';
-var axios = require('axios');
+
 
 
 export const addOrder = (items, total,distance, shipping,address) => {
@@ -12,7 +9,7 @@ export const addOrder = (items, total,distance, shipping,address) => {
     return "Cart is empty,Please order";
   }
   else {
-    return fetch("/order/addOrder", {
+    return fetch("/api/order/addOrder", {
       method: "POST",
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -36,7 +33,7 @@ export const addOrder = (items, total,distance, shipping,address) => {
 
 
 export const confirmOrder =(orderToken)=>{
-  return fetch(`/order/verified/${orderToken}`,{
+  return fetch(`/api/order/verified/${orderToken}`,{
     method: 'PUT',
     headers:{
       "Access-Control-Allow-Origin": "*",
@@ -51,7 +48,19 @@ export const confirmOrder =(orderToken)=>{
 }
 
 export const getAllOrder =()=>{
-  return fetch('/order/getAllOrder',{
+  return fetch('/api/order/getAllOrder',{
+    method: 'GET',
+    headers:{
+      "Authorization": "kiet " + Cookies.get("token")
+    }
+  }).then(response=>{
+    return response.json()
+  }).catch(err=>{
+    console.log(err);
+  })
+}
+export const getAllOrderConfirmed =()=>{
+  return fetch('/api/order/getAllOrderConfirmed',{
     method: 'GET',
     headers:{
       "Authorization": "kiet " + Cookies.get("token")
@@ -63,7 +72,7 @@ export const getAllOrder =()=>{
   })
 }
 export const adminCheckOrderUser =(id)=>{
-  return fetch(`/order/adminCheckOrderUser/${id}`,{
+  return fetch(`/api/order/adminCheckOrderUser/${id}`,{
     method: 'GET',
     headers:{
       "Authorization": "kiet " + Cookies.get("token")
@@ -80,7 +89,7 @@ export const showAllOrderForAdmin =(limit,page,sortType,sortDir)=>{
     sortDir: sortDir
 };
 let endPoint = `?page=${page}&limit=${limit}`
-  return fetch(`/order/showAllOrderForAdmin${endPoint}`,{
+  return fetch(`/api/order/showAllOrderForAdmin${endPoint}`,{
     method: 'POST',
     headers:{
       Accept: 'Application/json',

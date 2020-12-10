@@ -3,7 +3,7 @@ const express = require('express')
 const { adminLogin,requiredLogin } = require('../controllers/auth');
 const { confirmOrder } = require('../controllers/mail');
 const { addOrder,checkOrder,deleteOrder,userCheckOrder,getOrderDetail, 
-    confirmMailOrder,adminCheckOrderUser, getOrderProfitStat,showAllOrder,showAllOrderForAdmin,getOrderUser} = require('../controllers/Order')
+    confirmMailOrder,adminCheckOrderUser, getOrderProfitStat,showAllOrder,showAllOrderForAdmin,getOrderUser, showAllOrderConfirmed} = require('../controllers/Order')
 const router = express.Router()
 
 router.post('/addOrder',requiredLogin,addOrder);
@@ -16,6 +16,7 @@ router.get('/confirmOrder', requiredLogin, confirmOrder)
 router.put('/verified/:token', requiredLogin, confirmMailOrder)
 router.get('/userCheckOrder', requiredLogin, userCheckOrder)
 router.get('/getAllOrder', showAllOrder)
+router.get('/getAllOrderConfirmed', showAllOrderConfirmed)
 router.get('/getOrderProfitStat', getOrderProfitStat)
 router.post('/showAllOrderForAdmin',adminLogin,showAllOrderForAdmin);
 module.exports = router

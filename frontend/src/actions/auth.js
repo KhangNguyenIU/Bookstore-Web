@@ -2,7 +2,7 @@ import axios from 'axios'
 import fetch from 'isomorphic-fetch'
 import cookie from 'js-cookie'
 export  const login = (user) => {
-    return fetch(`/user/login`,{
+    return fetch(`/api/user/login`,{
         method:'POST',
         headers: {
             Accept: 'Application/json',
@@ -17,7 +17,7 @@ export  const login = (user) => {
 }
 
 export  const register = (user) => {
-    return fetch(`/user/register`,{
+    return fetch(`/api/user/register`,{
         method:'POST',
         headers: {
             Accept: 'Application/json',
@@ -100,7 +100,7 @@ export const signout = next => {
     removeLocalStorage('user');
     next();
 
-    return fetch(`/signout`, {
+    return fetch(`/api/signout`, {
         method: 'GET'
     })
         .then(response => {
@@ -110,7 +110,7 @@ export const signout = next => {
 };
 
 export const loginWithGoogle =(user)=>{
-    return fetch('/user/google-login',{
+    return fetch('/api/user/google-login',{
         method:'POST',
         headers:{
             'Accept': 'application/json',

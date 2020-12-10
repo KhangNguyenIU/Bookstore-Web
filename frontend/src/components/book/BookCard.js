@@ -34,7 +34,8 @@ const BookCard = ({ book }) => {
                         style={{
                             fontFamily: 'Josefin Sans',
                             color: 'gray',
-                            letterSpacing: '0.25rem',
+                            fontSize:'14px ' ,
+                            letterSpacing: '0.15rem',
                         }}>
                         {author.name}{", "}
                     </Link>
