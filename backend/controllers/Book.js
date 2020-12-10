@@ -374,7 +374,7 @@ exports.getBookByAuthor = (req, res) => {
     const slug = req.params.slug
 
     Author.findOne({ slug })
-        .populate('work', '_id photo title finalprice writtenby')
+        .populate('work', '_id photo title finalprice writtenby slug')
         .populate('work.writtenby', '_id name slug')
         .exec((err, data) => {
             if (err) {
