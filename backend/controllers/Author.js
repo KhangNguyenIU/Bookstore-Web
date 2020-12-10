@@ -17,6 +17,10 @@ exports.addAuthor = async (req, res) => {
             author.work = author.work.concat(req.body.list[i]);
         }
     }
+    if(req.body.photo){
+        author.photo = req.body.photo
+    }
+    author.description = req.body.description || "Updating"
     let authorModel = new Author(author);
     await authorModel.save(function (err, data) {
         if (err) {
@@ -58,9 +62,38 @@ exports.deleteAuthor=async (req,res)=>{
   };
 exports.showAllAuthor = async (req, res) => {
     await Author.find({}).exec().then(authors => res.json({ data: authors }));
-
 };
 exports.showAuthorWithBook = async (req, res) => {
     await Author.find({ name: req.body.name }).populate('work').then(data => res.json(data));
 
 };
+
+exports.getBestAuthor =(req, res)=>{
+    Author.find({})
+    .sort({work:-1})
+    .limit(4)
+    .exec((err,data)=>{
+        if(err){
+            return res.status(401).json({
+                error:err
+            })
+        }
+        res.json({data})
+    })
+}
+
+
+//test api
+exports.updateAuthor =(req, res)=>{
+    const {photo, description} = req.body
+    Author.updateMany({},{
+        $set:{photo:photo, description:description}
+    },{new:true},(err,data)=>{
+        if(err){
+            return res.status(401).json({
+                error:err
+            })
+        }
+        res.json({data})
+    })
+}

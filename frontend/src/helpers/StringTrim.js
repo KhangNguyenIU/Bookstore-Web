@@ -1,8 +1,8 @@
 
-export const stringTrim =(string)=>{
-    if(string.length<= 250)
+export const stringTrim =(string, n)=>{
+    if(string.length<= n)
         return string
-    var temp = string.substr(0, 250)
+    var temp = string.substr(0, n)
 
     var lastSpace = temp.lastIndexOf(' ')
     if(lastSpace>0)

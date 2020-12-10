@@ -6,12 +6,12 @@ const formidable = require('formidable')
 const _ = require('lodash')
 const slugify = require('slugify');
 const User = require('../models/User.js');
-const {validationResult} =require('express-validator');
+const { validationResult } = require('express-validator');
 const { isArguments } = require('lodash');
 exports.addBook = async (req, res) => {
 
     const errors = validationResult(req);
-    if(!errors.isEmpty()){
+    if (!errors.isEmpty()) {
         const firstError = errors.array().map(error => error.msg)[0];
         return res.status(401).json({
             error: firstError
@@ -33,7 +33,7 @@ exports.addBook = async (req, res) => {
     book.year = req.body.year;
     if (req.body.price.length > 0) { book.price = req.body.price; }
     book.discount = req.body.discount;
-    book.cost =req.body.cost || 3.0
+    book.cost = req.body.cost || 3.0
     book.amount = req.body.amount;
     book.sold = req.body.sold || 0;
     book.finalprice = (book.price * (1 - book.discount / 100)).toFixed(2);
@@ -44,31 +44,24 @@ exports.addBook = async (req, res) => {
 
     await book.save(function (err, data) {
         if (err) {
-            console.log(err);
             return res.status(404).json({ error: err });
         }
-        else {
-            authors.map((author, index) => {
-                Author.findByIdAndUpdate(author, {
-                    $push: {
-                        work: data._id
-                    }
-                },
-                    { new: true }).exec((err, result)=>{
-                        if(err){
-                            return res.status(404).json({
-                                error: "Something went wrong while adding new book! Please try again"
-                            })
-                        }
-                        res.json({
-                            msg: "Add new Book successfully"
-                        })
+        authors.map((author, index) => {
+            Author.findByIdAndUpdate(author, {
+                $push: {
+                    work: data._id
+                }
+            }, { new: true }).exec((err, result) => {
+                if (err) {
+                    return res.status(404).json({
+                        error: "Something went wrong while adding new book! Please try again"
                     })
+                }
+                return res.json({
+                    msg: "Add new Book successfully"
+                })
             })
-
-
-        }
-
+        })
     });
 };
 
@@ -110,19 +103,19 @@ exports.showAllBook = async (req, res) => {
                     //res.json({sort, side})
                 })
         })
-    
+
 
 };
-exports.showBookAboutGenre=(req,res)=>{
+exports.showBookAboutGenre = (req, res) => {
     let limit = parseInt(req.query.limit) || 8
     let page = parseInt(req.query.page) || 1
     let maxPrice = parseInt(req.body.maxPrice) || 1000
     let minPrice = parseInt(req.body.minPrice) || 0
-    let genre_id=req.body.genre_id||''
+    let genre_id = req.body.genre_id || ''
     var sortObject = {};
     const { sortType, sortDir } = req.body.sortMethod
     sortObject[sortType] = sortDir;
-    Book.find({genre :{$in:genre_id}})
+    Book.find({ genre: { $in: genre_id } })
         .where("price")
         .gte(minPrice)
         .lte(maxPrice)
@@ -133,7 +126,7 @@ exports.showBookAboutGenre=(req,res)=>{
                 })
             }
 
-            await Book.find({genre :{$in:genre_id}})
+            await Book.find({ genre: { $in: genre_id } })
                 .limit(limit)
                 .sort(sortObject)
                 .skip((page - 1) * limit)
@@ -189,46 +182,45 @@ exports.updateBook = async (req, res) => {
             }
             //let bookSlugBeforeMerge = oldBook.slug
             oldBook = _.merge(oldBook, fields)
-            write=oldBook.writtenby
+            write = oldBook.writtenby
 
-            var { title, description, amount, price, genre, discount,writtenBy } = fields
+            var { title, description, amount, price, genre, discount, writtenBy } = fields
             if (genre) {
                 oldBook.genre = genre.split(',')
 
             }
-            if(writtenBy)
-            {
-                oldBook.writtenby=writtenBy.split(',');
-                var arr=writtenBy.split(',');
-                Author.updateMany({_id:{$nin:arr} ,work: { $in: oldBook._id }}, {
+            if (writtenBy) {
+                oldBook.writtenby = writtenBy.split(',');
+                var arr = writtenBy.split(',');
+                Author.updateMany({ _id: { $nin: arr }, work: { $in: oldBook._id } }, {
                     $pull: {
                         work: oldBook._id
                     }
                 },
-                    { new: true }).exec((err, result)=>{
-                        if(err){
+                    { new: true }).exec((err, result) => {
+                        if (err) {
                             return res.status(404).json({
                                 error: String(err)
                             })
                         }
-                       console.log("ok");
+                        console.log("ok");
                     });
                 arr.map((author, index) => {
-                    Author.updateMany({_id:author ,work: { $nin: oldBook._id }}, {
+                    Author.updateMany({ _id: author, work: { $nin: oldBook._id } }, {
                         $push: {
                             work: oldBook._id
                         }
                     },
-                        { new: true }).exec((err, result)=>{
-                            if(err){
+                        { new: true }).exec((err, result) => {
+                            if (err) {
                                 return res.status(404).json({
                                     error: String(err)
                                 })
                             }
-                           console.log("ok");
+                            console.log("ok");
                         })
                 })
-    
+
             }
             oldBook.save((err, result) => {
                 if (err) {
@@ -313,68 +305,110 @@ exports.listRelatedBook = (req, res) => {
         })
 }
 
-exports.getBestSellerBook =(req,res)=>{
+exports.getBestSellerBook = (req, res) => {
     Book.find({})
-    .sort({sold:1})
-    .limit(5)
-    .select("photo slug").exec((err,books)=>{
-        if(err){
-            return res.status(401).json({
-                error:err
-            })
-        }
-        res.json(books)
-    })
+        .sort({ sold: 1 })
+        .limit(5)
+        .select("photo slug").exec((err, books) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
+            res.json(books)
+        })
 }
-exports.getSearchBook=async(req,res)=>{
+
+exports.getSearchBook = async (req, res) => {
     const infor = String(req.params.infor).trim();
     Book.find(
         {
-            $or: [{ title: { $regex: infor, $options: 'i' }}]
+            $or: [{ title: { $regex: infor, $options: 'i' } }]
         })
-        .populate('genre',"_id name slug")
-        .populate('writtenby',"_id name slug")
+        .populate('genre', "_id name slug")
+        .populate('writtenby', "_id name slug")
         .exec((err, books) => {
             if (err) {
                 return res.status(400).json({
                     error: err
                 });
             }
-            res.json({data:books});
+            res.json({ data: books });
         })
 }
-exports.deleteBook=async(req,res)=>{
-    let slug=req.params.slug;
-    Book.deleteOne({slug:slug})
-    .exec((err,book)=>{
-      if(err||!book)
-      {
-        return res.status(401).json({error:err})
-      }
-      else
-      {
-      Author.updateMany({work: { $in: req.body.id }}, {
-        $pull: { work: req.body.id }
-    }, { new: true }).exec((err, result) => {
-        if (err) {
-            return res.status(400).json({
-                error: err
-            })
-        }
-        else
-        {
-            User.updateMany({likes: { $in: req.body.id }}, {
-                $pull: { likes: req.body.id }
-            }, { new: true }).exec((err, result) => {
-                if (err) {
-                    return res.status(400).json({
-                        error: err
-                    })
-                }
-                res.json({result});
+
+exports.deleteBook = async (req, res) => {
+    let slug = req.params.slug;
+    Book.deleteOne({ slug: slug })
+        .exec((err, book) => {
+            if (err || !book) {
+                return res.status(401).json({ error: err })
+            }
+            else {
+                Author.updateMany({ work: { $in: req.body.id } }, {
+                    $pull: { work: req.body.id }
+                }, { new: true }).exec((err, result) => {
+                    if (err) {
+                        return res.status(400).json({
+                            error: err
+                        })
+                    }
+                    else {
+                        User.updateMany({ likes: { $in: req.body.id } }, {
+                            $pull: { likes: req.body.id }
+                        }, { new: true }).exec((err, result) => {
+                            if (err) {
+                                return res.status(400).json({
+                                    error: err
+                                })
+                            }
+                            res.json({ result });
+                        })
+                    }
+                })
+            }
         })
-    }
-      })
-        }
-  })
 };
+
+exports.getBookByAuthor = (req, res) => {
+    const slug = req.params.slug
+
+    Author.findOne({ slug })
+        .populate('work', '_id photo title finalprice writtenby')
+        .populate('work.writtenby', '_id name slug')
+        .exec((err, data) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
+            res.json({ data})
+        })
+}
+
+exports.getBookBestSeller = (req, res) => {
+
+
+    Book.find({})
+        .sort({ sold: -1 })
+        .limit(3)
+        .exec((err, bestSold) => {
+            if (err) {
+                return res.status(401).json({
+                    error: err
+                })
+            }
+            Book.find({})
+                .sort({ amount: 1 })
+                .limit(3)
+                .exec((err, nearEmpty) => {
+                    if (err) {
+                        return res.status(401).json({
+                            error: err
+                        })
+                    }
+
+                    res.json({ bestSold, nearEmpty })
+                })
+        })
+}

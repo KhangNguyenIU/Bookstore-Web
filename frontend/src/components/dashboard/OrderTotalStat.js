@@ -6,14 +6,14 @@ import { Polar } from 'react-chartjs-2'
 * @function OrderTotalStat
 **/
 
-const OrderTotalStat = ({total, unconfirm, undelivery}) => {
+const OrderTotalStat = ({data}) => {
   return(
     <Polar
-    height="100px"
+    height="207px"
     data={{
         datasets:[
             {
-                data:[total, unconfirm, undelivery],
+                data:data,
                 backgroundColor:[
                     '#825959',
                     '#9ba4b4',
@@ -22,8 +22,9 @@ const OrderTotalStat = ({total, unconfirm, undelivery}) => {
             }
         ],
         labels: [
-            'Total',
+            'Confirmed',
             'Unconfirmed',
+            "Deliveried",
             'Undeliveried'
         ],
         

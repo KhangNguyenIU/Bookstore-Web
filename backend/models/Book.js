@@ -33,6 +33,9 @@ var book = mongoose.Schema(
             max: 100,
             default: 0
         },
+        cost:{
+            type:Number
+        },
         finalprice: {
             type: Number,
             min: 0,

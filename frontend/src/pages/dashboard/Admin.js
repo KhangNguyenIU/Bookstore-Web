@@ -116,6 +116,7 @@ const Admin = (props) => {
                   </Link >
                     </div>
                 </div>
+            
             </React.Fragment>
         )
     }
@@ -298,12 +299,12 @@ const Admin = (props) => {
             {thirdRow()}
         </React.Fragment>
     )
-    const customer = () => (
+    const customerPart = () => (
         <React.Fragment>
            <CustomerDashBoard/>
         </React.Fragment>
     )
-    const books = () => (
+    const booksPart = () => (
         <React.Fragment>
             <BookDashboard/>
         </React.Fragment>
@@ -318,8 +319,8 @@ const Admin = (props) => {
             <React.Fragment>
                 <div className="right-side-dashboard">
                     {phase == 0 && dashboard()}
-                    {phase == 1 && customer()}
-                    {phase == 2 && books()}
+                    {phase == 1 && customerPart()}
+                    {phase == 2 && booksPart()}
                     {phase == 3 && orderPage()}
                 </div>
             </React.Fragment>

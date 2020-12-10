@@ -23,7 +23,8 @@ exports.showAllUser = async (req, res) => {
                 .limit(limit)
                 .sort(sortObject)
                 .skip((page - 1) * limit)
-                .populate('likes', "_id title slug price discount photo")
+				.populate('likes', "_id title slug price discount photo")
+			
                 .exec((err,users) => {
                     if (err) {
                         return res.status(400).json({
@@ -277,4 +278,19 @@ exports.googleLogin = (req, res) => {
 		}
 	})
 
+}
+
+exports.getMostByUser =(req, res)=>{
+	User.find({role: 0})
+	.populate('orders','_id total')
+	.select('-likes -comments -password')
+	
+	.exec((err, data)=>{
+		if(err){
+			return res.json({
+				error: err
+			})
+		}
+		res.json({data})
+	})
 }

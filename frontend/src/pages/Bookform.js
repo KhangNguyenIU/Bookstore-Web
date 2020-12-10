@@ -1,7 +1,7 @@
 import React, { Component, useState, useEffect } from 'react';
-import M from 'materialize-css';
+
 import { BrowserRouter as Router, Route, Link, useHistory } from 'react-router-dom';
-import { getCookie } from '../actions/auth'
+
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from "@material-ui/lab/Alert";
 import FormGroup from '@material-ui/core/FormGroup';
@@ -9,12 +9,15 @@ import { Button, CircularProgress } from '@material-ui/core'
 import { uploadPhoto } from '../actions/uploadPhoto';
 import { getAuthors } from '../actions/author';
 import { addNewBooks } from '../actions/book';
-var cors = require('cors');
-const axios = require('axios');
+import {
+    Fab, Tooltip
+} from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
+
 function Bookform() {
     const history = useHistory();
     const [title, settitle] = useState("");
-    const [genre, setgenre] = useState("");
+
     const [price, setprice] = useState(20);
     const [year, setyear] = useState(2020);
     const [discount, setdiscount] = useState(0);
@@ -69,6 +72,7 @@ function Bookform() {
         setdes('')
         setimage('')
         setCost(1)
+
     }
 
     const post = () => {
@@ -85,28 +89,28 @@ function Bookform() {
                 })
             } else {
                 setUrl(url => photo.url)
-  
-                    var form = {
-                        title: title, genre: genres, year: year, photo: photo.url, price: price, cost: cost,
-                        discount: discount, amount: amount, writtenby: authors, description: description
+
+                var form = {
+                    title: title, genre: genres, year: year, photo: photo.url, price: price, cost: cost,
+                    discount: discount, amount: amount, writtenby: authors, description: description
+                }
+                addNewBooks(form).then(response => {
+                    console.log(response);
+                    if (response.error) {
+                        setValues({ ...values, error: response.error, isOpenError: true, loading: false })
+                    } else {
+                        setValues({ ...values, success: "Add new book successfully", isOpenSuccess: true, loading: false })
+                        clear()
                     }
-                    addNewBooks(form).then(response => {
-                        console.log(response);
-                        if (response.error) {
-                            setValues({ ...values, error: response.error, isOpenError: true, loading: false })
-                        }else{
-                            setValues({ ...values, success: "Add new book successfully", isOpenSuccess: true, loading: false })
-                            // clear()
-                        }
-                    })
-                
+                })
+
             }
 
         })
     }
 
     const initGenre = () => {
-        fetch('/genre/getGenre', {
+        fetch('/api/genre/getGenre', {
             headers: {
             }
         }).then(res => res.json())
@@ -177,6 +181,16 @@ function Bookform() {
     const showCategories = () => (
         <React.Fragment>
             Genres
+            <div>
+            <Tooltip title="Add New Genre">
+                    <Fab
+                        onClick={() => { history.push('/addGenre') }}
+                        style={{ outline: 'none' }}
+                        color="secondary" size="small">
+                        <AddIcon style={{ color: 'black' }} />
+                    </Fab>
+                </Tooltip>
+            </div>
             <FormGroup>
                 <ul className="scroll-bar" style={{ Height: "100px" }}>
                     {
@@ -193,6 +207,7 @@ function Bookform() {
                         ))
                     }
                 </ul>
+              
             </FormGroup>
         </React.Fragment>
 
@@ -200,24 +215,39 @@ function Bookform() {
 
     const showAuthors = () => (
         <React.Fragment>
-            Authors
+            <div className='mb-3'>
+                Authors
+                <div className="w-100 " style={{display:'flex', justifyItems:'center',alignItems:'center'}}>
+                        <div style={{float:'right'}}>
+                        <Tooltip title="Add New Author">
+                            <Fab
+                                onClick={() => { history.push('/addAuthor') }}
+                                style={{ outline: 'none' }}
+                                color="secondary" size="small">
+                                <AddIcon style={{ color: 'black' }} />
+                            </Fab>
+                        </Tooltip>
+                        </div>
+                    </div>
             <FormGroup>
-                <ul className="scroll-bar" style={{ Height: "100px" }}>
-                    {
-                        authorList && authorList.map((g, i) => (
-                            <li key={i} className="list-unstyled">
-                                <input
-                                    onChange={handleAuhtorToggle(g._id)}
+                    <ul className="scroll-bar" style={{ Height: "100px" }}>
+                        {
+                            authorList && authorList.map((g, i) => (
+                                <li key={i} className="list-unstyled">
+                                    <input
+                                        onChange={handleAuhtorToggle(g._id)}
 
-                                    type="checkbox"
-                                    className="mr-2"
-                                />
-                                <label className="form-check-label">{g.name}</label>
-                            </li>
-                        ))
-                    }
-                </ul>
-            </FormGroup>
+                                        type="checkbox"
+                                        className="mr-2"
+                                    />
+                                    <label className="form-check-label">{g.name}</label>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                   
+                </FormGroup>
+            </div>
         </React.Fragment>
 
     )
@@ -269,15 +299,32 @@ function Bookform() {
                     <div className="row">
                         <div className="col-md-5 ">
                             <div className="leftPart">
-                               
-                                {preview ? <img src={preview} width="295px" height="400px"/> :
-                                <img src={preview ? preview : "/img/photo.svg"} width="100%" />}
+
+                                {preview ? <img src={preview} width="295px" height="400px" /> :
+                                    <img src={preview ? preview : "/img/photo.svg"} width="100%" />}
                             </div>
 
                         </div>
 
                         <div className="col-md-7">
                             <h3 className="custom-header text-center mb-2">Book Form</h3>
+                            <div className="file-field input-field">
+                                <div className="text-center">
+                                    <label style={{
+                                        fontSize: "22px",
+                                        border: '1px black solid',
+                                        padding: '5px 16px',
+                                        borderRadius: '50%',
+                                        cursor: 'pointer'
+                                    }}>
+                                        +
+                                  <input
+                                            onChange={(e) => setimage(e.target.files[0])}
+                                            type="file" accept="image/*" hidden />
+                                    </label>
+                                </div>
+
+                            </div>
                             <div className="row mb-3">
                                 <div className="col-md-6">
                                     <input type="text" value={title}
@@ -285,7 +332,7 @@ function Bookform() {
                                 </div>
                                 <div className="col-md-6">
                                     <input type="number" className="custom-input"
-                                     onChange={(e) => setCost(e.target.value)} placeholder="Enter cost" />
+                                        onChange={(e) => setCost(e.target.value)} placeholder="Enter cost" />
                                 </div>
                             </div>
 
@@ -326,23 +373,7 @@ function Bookform() {
                                     {showAuthors()}
                                 </div>
                             </div>
-                            <div className="file-field input-field">
-                                <div className="text-center">
-                                    <label style={{
-                                        fontSize: "22px",
-                                        border: '1px black solid',
-                                        padding: '5px 16px',
-                                        borderRadius: '50%',
-                                        cursor: 'pointer'
-                                    }}>
-                                        +
-                                  <input
-                                            onChange={(e) => setimage(e.target.files[0])}
-                                            type="file" accept="image/*" hidden />
-                                    </label>
-                                </div>
 
-                            </div>
 
                             <div className="d-flex justify-content-center">
                                 <Button
@@ -353,10 +384,10 @@ function Bookform() {
                                     ADD
              </Button>
 
-             <Button
+                                <Button
                                     size="large"
-                                    style={{marginLeft:'1rem'}}
-                                    onClick={() => history.push('/admin')}
+                                    style={{ marginLeft: '1rem' }}
+                                    onClick={() => history.push('/dashboard')}
                                     variant="outlined"
                                     color="secondary">
                                     HOME

@@ -21,6 +21,7 @@ import Admin from './pages/dashboard/Admin';
 import UserPageAdmin from './pages/dashboard/UserPageAdmin';
 import ConfirmOrder from './pages/Order/ConfirmOrder';
 import AdminDashBoard from './pages/dashboard/AdminDashboard';
+import BookListByAuthor from './pages/book/BookListByAuthor';
 export const CartContext = createContext();
 export const UserContext = createContext();
 const Routing = () => {
@@ -51,13 +52,14 @@ const Routing = () => {
       <Route path='/user/:id' exact component={UserPageAdmin} />
       <Route path='/books/:genre' exact component={BooksListPage} />
       <Route path='/books/search/:bookSearch' exact component={BooksListPage} />
+      <Route path='/books/author/:slug' exact component={BookListByAuthor}/>
       <Route path='/orderDetail/:_id' exact component={OrderDetail} />
       <Route path='/book/:slug' exact component={BookDetailPage} />
       <Route path='/book/admin/:slug' exact component={BookUpdate} />
       <Route path='/addGenre' exact component={AddNewGenre} />
       <Route path='/addAuthor' exact component={AddNewAuthor} />
       <Route path='/addBook' exact component={Bookform} />
-      <Route path='/admin' exact component={Admin}/>
+      {/* <Route path='/admin' exact component={Admin}/> */}
       <Route path='/dashboard' exact component={AdminDashBoard}/>
       <Route path='/auth/order/confirm/:token' exact component={ConfirmOrder}/>
     </Switch>

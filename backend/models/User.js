@@ -29,6 +29,11 @@ const user=mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'book'
         }],
+        orders:[{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'order',
+            unique: true
+        }],
         comments:[{
             comment: String,
             commentedBook: { type: mongoose.Schema.Types.ObjectId, ref: 'book' },

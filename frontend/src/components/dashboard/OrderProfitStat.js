@@ -14,7 +14,7 @@ const OrderProfitStat = ({ data }) => {
     return (
         <React.Fragment>
             <Line
-                    height="120px"
+                    height="150px"
                     data={{
                         labels: DateOrder,
                         datasets: [
@@ -34,9 +34,7 @@ const OrderProfitStat = ({ data }) => {
                         ]
                     }}
                     options={{
-                        animation: {
-                            duration: 2000
-                        },
+                        responsive:true,
                         title: {
                             display: true,
                             text: "Income and profit in last 7 days"

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, Component } from 'react'
 import { getCookie, isAuth } from '../../actions/auth'
 import {
-     Fab,Tooltip
+    Fab, Tooltip
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import { CartContext } from '../../App.js'
@@ -44,7 +44,7 @@ const BookUpdate = (props) => {
     const [isOpenError, setOpenError] = useState(false)
     const { statecart, dispatchcart } = useContext(CartContext);
     const token = getCookie('token')
-    const [authorList,setAuthorList]=useState([])
+    const [authorList, setAuthorList] = useState([])
     const [checkedAuthors, setCheckedAuthors] = useState([])
     const [genreList, setGenreList] = useState([])
     const [checkedGenres, setCheckedGenres] = useState([])
@@ -70,7 +70,7 @@ const BookUpdate = (props) => {
         initBook();
         initGenre();
         initAuthor();
-    }, [])
+    }, [success])
 
     const initBook = () => {
         getDetailBook(slug).then(response => {
@@ -101,7 +101,7 @@ const BookUpdate = (props) => {
     };
 
     const initGenre = () => {
-        fetch('/genre/getGenre', {
+        fetch('/api/genre/getGenre', {
             headers: {
             }
         }).then(res => res.json())
@@ -114,8 +114,8 @@ const BookUpdate = (props) => {
             });
     }
     const initAuthor = () => {
-        fetch('/author/showAllAuthor', {
-            method:'GET'
+        fetch('/api/author/showAllAuthor', {
+            method: 'GET'
         }).then(res => res.json())
             .then(result => {
                 let allAuthor = [];
@@ -229,8 +229,6 @@ const BookUpdate = (props) => {
                     success: `${book.slug} has been updated sucessfully.`
                 })
                 setOpenSucess(true);
-                //toast.info(success)
-                //history.go(0)
             }
         }).catch(err => {
             console.log(err);
@@ -259,13 +257,13 @@ const BookUpdate = (props) => {
                     }
                 </ul>
                 <Tooltip title="Add New Genre">
-                    <Fab 
-                    onClick={()=>{history.push('/addGenre')}}
-                    style={{ outline: 'none' }} 
-                    color="secondary" size="small">
-                        <AddIcon style={{ color: 'black' }}  />
+                    <Fab
+                        onClick={() => { history.push('/addGenre') }}
+                        style={{ outline: 'none' }}
+                        color="secondary" size="small">
+                        <AddIcon style={{ color: 'black' }} />
                     </Fab>
-            </Tooltip>
+                </Tooltip>
             </FormGroup>
         </React.Fragment>
 
@@ -290,13 +288,13 @@ const BookUpdate = (props) => {
                     }
                 </ul>
                 <Tooltip title="Add New Author">
-                    <Fab 
-                    onClick={()=>{history.push('/addAuthor')}}
-                    style={{ outline: 'none' }} 
-                    color="secondary" size="small">
-                        <AddIcon style={{ color: 'black' }}  />
+                    <Fab
+                        onClick={() => { history.push('/addAuthor') }}
+                        style={{ outline: 'none' }}
+                        color="secondary" size="small">
+                        <AddIcon style={{ color: 'black' }} />
                     </Fab>
-            </Tooltip>
+                </Tooltip>
             </FormGroup>
         </React.Fragment>
 
@@ -315,9 +313,16 @@ const BookUpdate = (props) => {
                     </div>
 
                     <div className="col-md-8">
-                        <p style={{ fontFamily: 'Josefin Sans' }}>
-                        {showAuthorList()}
-                        </p>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <p style={{ fontFamily: 'Josefin Sans' }}>
+                                    {showAuthorList()}
+                                </p>
+                            </div>
+                            <div className="col-md-6">
+                                {showCategories()}
+                            </div>
+                        </div>
                         <form>
                             <div className="row">
                                 <div className="col-md-6">
@@ -362,36 +367,30 @@ const BookUpdate = (props) => {
 
                                 </div>
 
-                                <div className="col-md-6">
-                                    {showCategories()}
+                                <div className="col-md-6" style={{ margin: 'auto' }}>
+                                    <textarea
+                                        multiple
+                                        className="custom-input"
+                                        style={{ minHeight: '100px',Height:'250px' }}
+                                        value={description}
+                                        onChange={handleChange('description')}
+                                        defaultValue={book.description}
+                                    />
                                 </div>
 
                             </div>
+                            <p style={{ margin: '20px auto' }}>
 
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="medium"
+                                    type="submit"
+                                    color="secondary"
+                                    onClick={hangdleSubmit}
+                                    startIcon={<CloudUploadIcon />}>Upload</Button>
+                            </p>
                         </form>
-
-                        <textarea
-                            multiple
-                            className="custom-input"
-                            style={{ minHeight: '100px' }}
-                            value={description}
-                            onChange={handleChange('description')}
-                            defaultValue={book.description}
-                        />
-
-                        <p style={{ margin: '20px auto' }}>
-
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                size="medium"
-                                type="submit"
-                                color="secondary"
-                                onClick={hangdleSubmit}
-                                startIcon={<CloudUploadIcon />}>Upload
-                    </Button>
-                        </p>
-
                     </div>
                 </div>
             </div>
@@ -450,12 +449,12 @@ const BookUpdate = (props) => {
 
 
     )
-  
+
     const showErrorMessage = () => (
         (
             <Snackbar
-                open={error ?true :false}
-                autoHideDuration={500} 
+                open={error ? true : false}
+                autoHideDuration={500}
                 onClose={handleClose}>
                 <Alert
                     elevation={6}
@@ -470,7 +469,7 @@ const BookUpdate = (props) => {
 
 
     )
-  
+
     return (
         <Layout>
             <React.Fragment>
@@ -480,7 +479,7 @@ const BookUpdate = (props) => {
                 {header()}
 
                 {book ? adminBookPage(book) : (<p>Book not Found</p>)}
-               
+
             </React.Fragment>
         </Layout>
     )

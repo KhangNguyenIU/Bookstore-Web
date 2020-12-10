@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { showAllBook } from '../actions/book'
 import BookCard from '../components/book/BookCard'
 import Banner from '../components/home/Banner'
+import Benefit from '../components/home/Benefit'
+import BestAuthor from '../components/home/BestAuthor'
 import Service from '../components/home/Service'
 import Layout from '../components/Layout'
 
@@ -12,7 +14,7 @@ import Layout from '../components/Layout'
 
 const gridBook = (books) => (
     <React.Fragment>
-        <div className="row mt-5">
+        <div className="row mt-5 mb-5">
             <div className="col-sm-12">
                 <p className="custom-heading">Online Shop</p>
             </div>
@@ -52,6 +54,8 @@ const Home = (props) => {
                 <Banner />
                 <Service />
                 {gridBook(books)}
+                <Benefit/>
+                <BestAuthor/>
             </div>
 
         </Layout>

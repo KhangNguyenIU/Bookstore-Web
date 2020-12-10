@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { register, isAuth, authenticate } from '../../actions/auth'
 import { toast } from 'react-toastify'
+import { UserContext } from '../../App'
 /**
 * @author
 * @function Login
 **/
 
 const Register = (props) => {
-
+    const { stateUser, dispatchUser } = useContext(UserContext)
     const [values, setValues] = useState({
         email: '',
         username: '',
@@ -22,7 +23,7 @@ const Register = (props) => {
     const { email, username, password, rePassword, error, loading, message, showForm } = values;
 
     useEffect(() => {
-        if (isAuth()) {
+        if (isAuth(stateUser)) {
             props.history.push('/')
         }
     }, [])

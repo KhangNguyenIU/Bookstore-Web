@@ -2,7 +2,7 @@
 const express = require('express')
 const { adminLogin,requiredLogin } = require('../controllers/auth')
 const { showAllUser,deleteUser,register,login,
-    getLikedBook ,makeComment,userUpdate, googleLogin ,takeUserById,getUserLikedBook} = require('../controllers/User')
+    getLikedBook ,makeComment,userUpdate, googleLogin ,takeUserById,getUserLikedBook, getMostByUser} = require('../controllers/User')
 const router = express.Router()
 
 router.post('/showAllUser',adminLogin,showAllUser);
@@ -15,4 +15,5 @@ router.put('/updateInfor',requiredLogin, userUpdate)
 router.post('/google-login', googleLogin)
 router.post('/takeUserById',adminLogin, takeUserById)
 router.post('/getUserLikedBook',adminLogin, getUserLikedBook)
+router.get('/getMostByUser', getMostByUser)
 module.exports = router

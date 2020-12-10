@@ -10,7 +10,7 @@ import ErrorOutlinedIcon from '@material-ui/icons/ErrorOutlined';
 const ConfirmOrder = (props) => {
     const [values, setValues] = useState({
         error: '',
-        success: 'asdasdasdadddsdadsadasdasadadaasdasdasd'
+        success: ''
     })
 
     const token = props.match.params.token
@@ -21,10 +21,11 @@ const ConfirmOrder = (props) => {
     const { success, error } = values
     const cofirmingOrder = () => {
         confirmOrder(token).then(response => {
+            console.log(response);
             if (response.error) {
                 setValues({
                     ...values,
-                    error: response.error
+                    error: "error in confirm order"
                 })
             } else {
                 setValues({
