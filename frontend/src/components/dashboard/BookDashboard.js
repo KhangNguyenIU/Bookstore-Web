@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { showAllBook,deleteBook } from '../../actions/book'
+import { showAllBook, deleteBook } from '../../actions/book'
 import { CartContext } from '../../App.js';
 import { toast } from 'react-toastify'
 import {
     TableCell, TableContainer, Table, TableHead, TableRow,
-    useScrollTrigger, TableBody, IconButton, TextField, Fab,Tooltip
+    useScrollTrigger, TableBody, IconButton, TextField, Fab, Tooltip
 } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import { useHistory, Link } from 'react-router-dom';
@@ -97,58 +97,39 @@ const BookDashboard = (props) => {
             }
         })
     }
-    /*
-     addGenre(String(genre).trim()).then(data => {
-                console.log(data);
-                if (data.error) {
-                    setValues({ ...values, error: data.error, loading: false });
-                } else {
-                    toast.info(data.msg)    
-                    getGenre().then(response => {
-                        if (response.error) {
-                            setValues({
-                                ...values,
-                                error: response.error
-                            })
-                            console.log(response.error);
-                        } else {
-                            setAllGenre(response.data);
-                        }
-                    });
-                }
-            });
-    */
-    const alertBox = (slug,id) => {
+
+    const alertBox = (slug, id) => {
         confirmAlert({
-          title: 'Confirm to delete book',
-          message: 'Are you sure to delete '+String(slug)+' ?',
-          buttons: [
-            {
-              label: 'Yes',
-              onClick: () => {deleteBook(slug,id).then(data => {
-                //console.log(data);
-                if(data.error==null) {
-                    toast.info(data.msg)    
-                    let sortType = sortingType[selectedIndex]
-                    let sortDir = sortingDir[selectedIndex % 2]
-                    showAllBook(limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
-                        if (response.error) {
-                            console.log(response.error);
-                        } else {
-                            setBooks(response.data)
-                            setTotalBook(response.booksNumber)
-                        }
-                    })
+            title: 'Confirm to delete book',
+            message: 'Are you sure to delete ' + String(slug) + ' ?',
+            buttons: [
+                {
+                    label: 'Yes',
+                    onClick: () => {
+                        deleteBook(slug, id).then(data => {
+                            //console.log(data);
+                            if (data.error == null) {
+                                toast.info(data.msg)
+                                let sortType = sortingType[selectedIndex]
+                                let sortDir = sortingDir[selectedIndex % 2]
+                                showAllBook(limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
+                                    if (response.error) {
+                                        console.log(response.error);
+                                    } else {
+                                        setBooks(response.data)
+                                        setTotalBook(response.booksNumber)
+                                    }
+                                })
+                            }
+                        });
+                    }
+                },
+                {
+                    label: 'No',
                 }
-            });
-           }
-            },
-            {
-              label: 'No',
-            }
-          ]
+            ]
         });
-      };
+    };
 
     const handleChangePage = (event, value) => {
         setPage(value);
@@ -222,38 +203,38 @@ const BookDashboard = (props) => {
             </div>
             <div className="d-flex justify-content-between mb-1">
                 <div className="m-0 ">
-                    <p style={{ fontSize: '1rem' ,margin:"0px"}}>
+                    <p style={{ fontSize: '1rem', margin: "0px" }}>
                         Display {(page - 1) * 10 + 1} - {page * 10} results of {totalBook}
                     </p>
                 </div>
 
 
-                <div style={{margin:"0px"}}>
+                <div style={{ margin: "0px" }}>
                     <Tooltip title="Add a Book" placement="left">
-                    <Fab 
-                    onClick={()=>{history.push('/addBook')}}
-                    style={{ outline: 'none' }} 
-                    color="secondary" size="large">
-                        <AddIcon style={{ color: 'black' }}  />
-                    </Fab>
+                        <Fab
+                            onClick={() => { history.push('/addBook') }}
+                            style={{ outline: 'none' }}
+                            color="secondary" size="medium">
+                            <AddIcon style={{ color: 'black' }} size="medium" />
+                        </Fab>
                     </Tooltip>
                     <Tooltip title="Manage Genre" placement="left">
-                    <Fab 
-                    onClick={()=>{history.push('/addGenre')}}
-                    style={{ outline: 'none' }} 
-                    color="primary" size="medium">
-                        <AddIcon style={{ color: 'black' }} size="medium" />
-                    </Fab>
+                        <Fab
+                            onClick={() => { history.push('/addGenre') }}
+                            style={{ outline: 'none' }}
+                            color="primary" size="medium">
+                            <AddIcon style={{ color: 'black' }} size="medium" />
+                        </Fab>
                     </Tooltip>
                     <Tooltip title="Manage Author" placement="left">
-                    <Fab 
-                    onClick={()=>{history.push('/addAuthor')}}
-                    style={{ outline: 'none' }} 
-                    color="inherit" size="small">
-                        <AddIcon style={{ color: 'black' }} size="small" />
-                    </Fab>
+                        <Fab
+                            onClick={() => { history.push('/addAuthor') }}
+                            style={{ outline: 'none' }}
+                            color="inherit" size="medium">
+                            <AddIcon style={{ color: 'black' }} size="medium" />
+                        </Fab>
                     </Tooltip>
-                  
+
                 </div>
             </div>
 
@@ -296,7 +277,7 @@ const BookDashboard = (props) => {
 
                                 <TableCell align="center">
                                     <IconButton >
-                                        <ClearIcon onClick={()=>alertBox(row.slug,row._id)}/>
+                                        <ClearIcon onClick={() => alertBox(row.slug, row._id)} />
                                     </IconButton>
                                 </TableCell>
                             </TableRow>

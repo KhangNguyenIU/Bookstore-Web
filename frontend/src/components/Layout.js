@@ -1,5 +1,5 @@
 import React from 'react'
-import Footer from './Footer'
+import FooterNav from './Footer'
 import NavBar from './NavBar'
 
 /**
@@ -12,7 +12,7 @@ const Layout = ({children}) => {
     <React.Fragment>
         <NavBar/>
         {children}
-        <Footer/>
+        <FooterNav/>
     </React.Fragment>
    )
 

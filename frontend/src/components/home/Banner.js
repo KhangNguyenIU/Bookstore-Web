@@ -18,7 +18,7 @@ const items = [
   {
     src: 'https://chapterone.qodeinteractive.com/wp-content/uploads/2019/08/home-6-slider-image-1b.jpg',
     altText: 'Slide 2',
-    caption: 'Your world of wordsSlide 2'
+    caption: 'Your world of words'
   },
   {
     src: 'https://images.pexels.com/photos/373465/pexels-photo-373465.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',

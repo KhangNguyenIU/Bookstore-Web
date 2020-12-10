@@ -35,7 +35,7 @@ const Login = (props) => {
 
 
     useEffect(() => {
-        if (isAuth()) {
+        if (isAuth(stateUser)) {
             props.history.push('/')
         }
     }, [])
@@ -104,8 +104,8 @@ const Login = (props) => {
         <React.Fragment>
             <div className="login-with-google-div">
                 <GoogleLogin
-                    clientId={GOOGLE}    
-                    buttonText="Google"   
+                    clientId={GOOGLE}
+                    buttonText="Google"
                     onSuccess={responseGoogle}
                     onFailure={responseGoogle}
                     theme="dark"
@@ -118,69 +118,69 @@ const Login = (props) => {
     )
     const loginForm = () => (
         <div className="container">
-        <div className="col-md-8 offset-md-2">
-            <div className="box">
-                <div className="row" >
-                    <div className="col-md-6 ">
-                        <div className="leftPart">
-                            <img src="/img/logo.svg" width="100%" />
+            <div className="col-md-8 offset-md-2">
+                <div className="box">
+                    <div className="row" >
+                        <div className="col-md-6 ">
+                            <div className="leftPart">
+                                <img src="/img/logo.svg" width="100%" />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="col-md-6  ">
-                        <div className="rightPart">
-                            <h3 className='display-4 text-center' style={{ fontFamily: 'Grand Hotel' }}>Signin</h3>
-                            <form onSubmit={handleSubmit}>
-                                <form className="form-group">
-                                    {/* <label for="email">Email</label> */}
-                                    <input
-                                        value={email}
-                                        onChange={handleChange('email')}
-                                        placeholder='Email'
-                                        className="form-control shadow-none rounded-0"
-                                        type='email'
-                                        style={{ border: 'none', borderBottom: '1px solid #000', outline: 'none' }} />
-                                </form>
-
+                        <div className="col-md-6  ">
+                            <div className="rightPart">
+                                <h3 className='display-4 text-center' style={{ fontFamily: 'Grand Hotel' }}>Signin</h3>
+                                <form onSubmit={handleSubmit}>
+                                    <form className="form-group">
+                                        {/* <label for="email">Email</label> */}
+                                        <input
+                                            value={email}
+                                            onChange={handleChange('email')}
+                                            placeholder='Email'
+                                            className="form-control shadow-none rounded-0"
+                                            type='email'
+                                            style={{ border: 'none', borderBottom: '1px solid #000', outline: 'none' }} />
+                                    </form>
 
 
-                                <div className="form-group">
-                                    {/* <label for="password">Password</label> */}
-                                    <input
-                                        value={password}
-                                        onChange={handleChange('password')}
-                                        placeholder='Password'
-                                        className="form-control shadow-none rounded-0"
-                                        type='password'
-                                        style={{ border: 'none', borderBottom: '1px solid #000', outline: 'none' }} />
-                                </div>
-                                <div className='text-center'>
-                                    <div style={{ height: '16px' }}>
-                                        {showError()}
+
+                                    <div className="form-group">
+                                        {/* <label for="password">Password</label> */}
+                                        <input
+                                            value={password}
+                                            onChange={handleChange('password')}
+                                            placeholder='Password'
+                                            className="form-control shadow-none rounded-0"
+                                            type='password'
+                                            style={{ border: 'none', borderBottom: '1px solid #000', outline: 'none' }} />
+                                    </div>
+                                    <div className='text-center'>
+                                        <div style={{ height: '16px' }}>
+                                            {showError()}
+                                        </div>
+
+                                        <a href="/signup" style={{ textDecoration: 'none', fontSize: '1rem' }}>Dont have an account? Sign up</a>
                                     </div>
 
-                                    <a href="/signup" style={{ textDecoration: 'none', fontSize: '1rem' }}>Dont have an account? Sign up</a>
-                                </div>
-
-                                <div className="form-group pt-3 text-center">
-                                    <button
-                                        type="submit"
-                                        className='btn btn-secondary buttonLogin'
-                                        style={{ borderRadius: '25px', padding: '0 20px', height: '40px' }}>Submit</button>
-                                </div>
-                                <p className="text-center">or</p>
-                                <div className="text-center">
-                                    {loginGoogle()}
-                                </div>
-                            </form>
+                                    <div className="form-group pt-3 text-center">
+                                        <button
+                                            type="submit"
+                                            className='btn btn-secondary buttonLogin'
+                                            style={{ borderRadius: '25px', padding: '0 20px', height: '40px' }}>Submit</button>
+                                    </div>
+                                    <p className="text-center">or</p>
+                                    <div className="text-center">
+                                        {loginGoogle()}
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </div>
-    </div>
-   )
+    )
 
 
     const handleClose = (event, reason) => {

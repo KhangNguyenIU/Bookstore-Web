@@ -13,7 +13,6 @@ import Slider from '@material-ui/core/Slider';
 import { Button, List, ListItem, ListItemText, Menu, MenuItem } from '@material-ui/core';
 import BookListSkeleton from '../../components/skeleton/BookListSkeleton';
 import { getAuthors } from '../../actions/author';
-
 /**
 * @author
 * @function BookListPage
@@ -57,7 +56,7 @@ const sortingDir = [
     "-1"
 ]
 
-const BookListPage = (props) => {
+const BookListByAuthor = (props) => {
     const classes = useStyles()
     const history = useHistory()
     const params = new URLSearchParams(props.location.search);
@@ -80,87 +79,38 @@ const BookListPage = (props) => {
     const [authors, setAuthors] = useState([])
     const [bestSoldBook, setBestSoldBook] = useState([])
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [author,setAuthor] = useState('')
     const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [author,setAuthor] = useState('')
+    const slug = props.match.params.slug
     useEffect(() => {
-        if (statecart.items.length > 0) {
-            localStorage.setItem("cart", JSON.stringify(statecart.items));
-        }
-        if (bookSearch != null) {
-            history.push(`/books/search/${bookSearch}`)
-        }
-        else if (genre == null || genre.length == 0) {
-            history.push(`/books/?page=${page}&limit=${limit}`)
-        }
-        else {
-            history.push(`/books/${genre}?page=${page}&limit=${limit}`)
-        }
-        initShowBook();
+        
         initGenre();
         initBestSoldBook()
         getAllAuthors()
- 
+        getAllAuthorBooks(slug)
     }, [page, flag, selectedIndex, genre, bookSearch])
 
 
   
-    const initShowBook = () => {
-        let sortType = sortingType[selectedIndex]
-        let sortDir = sortingDir[selectedIndex % 2]
-        if (bookSearch != null && bookSearch.length > 0) {
-
-            var arr = [];
-            arr = arr.concat(JSON.parse(localStorage.getItem("searchBook")));
-            setBooks(arr);
-            setTotalBook(1);
-        }
-        else if (genre == null || genre.length == 0) {
-            showAllBook(limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
-                if (response.error) {
-                    console.log(response.error);
-                } else {
-                    setBooks(response.data)
-                    setTotalBook(response.booksNumber)
-                    setLoading(false)
-                }
-            })
-        }
-        else {
-            getGenreByName(String(genre)).then(response => {
-                if (response.error) {
-                    console.log(response.error);
-                } else {
-                    showAllBookAboutGenre(String(response._id), limit, page, sortType, sortDir, priceFilter[0], priceFilter[1]).then(response => {
-                        if (response.error) {
-                            console.log(response.error);
-                        } else {
-                            setBooks(response.data)
-                            setTotalBook(response.booksNumber)
-                            setLoading(false)
-                        }
-                    })
-                }
-            })
-        }
-    }
-
     const getAllAuthors =()=>{
         getAuthors().then(response=>{
             if(response.error){
                 setError(response.error)
             }else{
                 setAuthors(response.data)
+                setLoading(false)
             }
         })
     }
     const getAllAuthorBooks =(slug)=>{
         return getAuthorWorks(slug).then(response=>{
+            console.log(response.data);
             if(response.error){
                 setError(response.error)
             }else{
-                setBooks(response.data.work)
-                setTotalBook(response.data.work.length)
-                setAuthor(response.data.name)
+               setBooks(response.data.work)
+               setTotalBook(response.data.work.length)
+               setLoading(false)
             }
         })
     }
@@ -168,7 +118,7 @@ const BookListPage = (props) => {
         setRegex(regex);
         const temp = 'kietititiu18070';
         if (String(regex).trim().length > 0) {
-            return fetch(`/api/book/getSearchBook/${regex}`, {
+            return fetch(`/book/getSearchBook/${regex}`, {
                 method: 'GET'
             }).then(response => {
                 return response.json();
@@ -179,7 +129,7 @@ const BookListPage = (props) => {
                 })
         }
         else if (regex == null || regex.length == 0) {
-            return fetch(`/api/book/getSearchBook/${temp}`, {
+            return fetch(`/book/getSearchBook/${temp}`, {
                 method: 'GET'
             }).then(response => {
                 return response.json();
@@ -193,7 +143,7 @@ const BookListPage = (props) => {
     }
 
     const initGenre = () => {
-        fetch('/api/genre/getGenre', {
+        fetch('/genre/getGenre', {
             headers: {
             }
         }).then(res => res.json())
@@ -408,8 +358,8 @@ const BookListPage = (props) => {
                     {
                         bestSoldBook && bestSoldBook.map((b, i) => (
                             <Link to={`/book/${b.slug}`}>
-                            <img width="45px" key={i} alt={b.slug} src={b.photo} />
-                        </Link>
+                                <img width="45px" key={i} alt={b.slug} src={b.photo} />
+                            </Link>
 
                         ))
                     }
@@ -422,9 +372,7 @@ const BookListPage = (props) => {
                 {
                     authors && authors.map((g, i) => (
                         <Link className="custom-link" 
-                        // to={`/books/author/${g.slug}`}
-                        onClick={()=>{getAllAuthorBooks(g.slug)}}
-                         >
+                         onClick={() => { getAllAuthorBooks(g.slug) }}>
                             <p key={i} className="custom-text " style={{ marginLeft: '0px' }}>{g.name}</p>
                         </Link>
 
@@ -451,16 +399,13 @@ const BookListPage = (props) => {
                                     Display {page} - {page * limit} results of {totalBook}
                                 </p>
 
-                                <p className="custom-heading">
-                                    {author}
-                                </p>
 
                                 <p style={{ float: 'right' }}>
                                     {sorting()}
                                 </p>
                             </div>
                             {loading ? (<BookListSkeleton />) : (gridBooks())}
-                            {books && pagination()}
+                            {/* {books && pagination()} */}
                         </div>
 
                         <div className="col-md-3" >
@@ -475,4 +420,4 @@ const BookListPage = (props) => {
 
 }
 
-export default BookListPage
+export default BookListByAuthor
