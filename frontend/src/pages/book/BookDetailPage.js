@@ -98,8 +98,11 @@ const BookDetailPage = (props) => {
     const checkLikedBook = () => {
         // console.log(book._id);
         if (stateUser) {
-            if (stateUser.likes.includes(book._id)) {
-                return true
+            if(stateUser.likes){
+                if (stateUser.likes.includes(book._id)) {
+                    return true
+                }
+                return false
             }
 
             return false
@@ -216,7 +219,7 @@ const BookDetailPage = (props) => {
             if (response.error) {
                 setValues({
                     ...values,
-                    error: response.err
+                    error: response.error
                 })
                 setFeedBack('')
             } else {
@@ -278,7 +281,8 @@ const BookDetailPage = (props) => {
                             </p>
                         </p>
                         <p>
-                            Quality: {book.amount}
+                            {book.amount >0 ? <p>Quality: {book.amount}</p> : 
+                            <p style={{border:'1px solid black', padding:'15px 20px', width:'20%'}}>Out of Stock</p>}
                         </p>
                         <TextField
                             type="number"

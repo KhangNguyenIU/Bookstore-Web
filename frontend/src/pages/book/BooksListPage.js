@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { getAllGenre, showAllBook, getBestSoldBook, showAllBookAboutGenre,
-     getGenreByName, getAuthorWorks } from '../../actions/book'
+import {
+    getAllGenre, showAllBook, getBestSoldBook, showAllBookAboutGenre,
+    getGenreByName, getAuthorWorks
+} from '../../actions/book'
 import Layout from '../../components/Layout'
 import { makeStyles } from '@material-ui/core/styles';
 import { motion } from 'framer-motion'
@@ -10,10 +12,11 @@ import { Link } from 'react-router-dom';
 import Pagination from '@material-ui/lab/Pagination';
 import BookCard from '../../components/book/BookCard';
 import Slider from '@material-ui/core/Slider';
-import { Button, List, ListItem, ListItemText, Menu, MenuItem } from '@material-ui/core';
+import { Button, IconButton, List, ListItem, ListItemText, Menu, MenuItem } from '@material-ui/core';
 import BookListSkeleton from '../../components/skeleton/BookListSkeleton';
 import { getAuthors } from '../../actions/author';
-
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 /**
 * @author
 * @function BookListPage
@@ -74,14 +77,17 @@ const BookListPage = (props) => {
     const [totalBook, setTotalBook] = useState(0)
     const [flag, setFlag] = useState(false)
     const [loading, setLoading] = useState(true)
-    const [error,setError] = useState('')
+    const [error, setError] = useState('')
     const [priceFilter, setPriceFilter] = React.useState([0, 1000]);
     const [genres, setGenres] = useState([])
     const [authors, setAuthors] = useState([])
     const [bestSoldBook, setBestSoldBook] = useState([])
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [author,setAuthor] = useState('')
+    const [author, setAuthor] = useState('')
     const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [searchFlag, setSearchFlag] = useState(false)
+    const [openGnere, setOpenGenre] = useState(false)
+    const [openAuthor, setOpenAuthor] = useState(false)
     useEffect(() => {
         if (statecart.items.length > 0) {
             localStorage.setItem("cart", JSON.stringify(statecart.items));
@@ -99,11 +105,11 @@ const BookListPage = (props) => {
         initGenre();
         initBestSoldBook()
         getAllAuthors()
- 
+
     }, [page, flag, selectedIndex, genre, bookSearch])
 
 
-  
+
     const initShowBook = () => {
         let sortType = sortingType[selectedIndex]
         let sortDir = sortingDir[selectedIndex % 2]
@@ -144,20 +150,20 @@ const BookListPage = (props) => {
         }
     }
 
-    const getAllAuthors =()=>{
-        getAuthors().then(response=>{
-            if(response.error){
+    const getAllAuthors = () => {
+        getAuthors().then(response => {
+            if (response.error) {
                 setError(response.error)
-            }else{
+            } else {
                 setAuthors(response.data)
             }
         })
     }
-    const getAllAuthorBooks =(slug)=>{
-        return getAuthorWorks(slug).then(response=>{
-            if(response.error){
+    const getAllAuthorBooks = (slug) => {
+        return getAuthorWorks(slug).then(response => {
+            if (response.error) {
                 setError(response.error)
-            }else{
+            } else {
                 setBooks(response.data.work)
                 setTotalBook(response.data.work.length)
                 setAuthor(response.data.name)
@@ -173,7 +179,12 @@ const BookListPage = (props) => {
             }).then(response => {
                 return response.json();
             })
-                .then(data => { setSearchData(data.data); setTotalBook(1) })
+                .then(data => {
+                    if (data) {
+                        setSearchData(data.data); setTotalBook(1)
+
+                    }
+                })
                 .catch(err => {
                     console.log(err);
                 })
@@ -328,13 +339,17 @@ const BookListPage = (props) => {
 
     const rightSide = () => (
         <React.Fragment>
-            <div style={{ display: 'flex', alignItems: "center", marginBottom: '5px', justifyContent: 'center',marginTop:'20px' }}>
+            <div style={{ display: 'flex', alignItems: "center", marginBottom: '5px', justifyContent: 'center', marginTop: '20px' }}>
                 <input type="text"
                     className="custom-input"
                     style={{ width: '50%' }}
                     value={regex}
                     placeholder="Enter book infor"
-                    onChange={e => { getSearchBook(e.target.value) }}
+                    onChange={e => {
+                        console.log(e.target.value.length);
+                        getSearchBook(e.target.value);
+                        e.target.value.length > 0 ? setSearchFlag(true) : setSearchFlag(false)
+                    }}
                     placeholder="Search" size={15} />
                 <i class="material-icons">search</i>
             </div>
@@ -344,14 +359,16 @@ const BookListPage = (props) => {
                     width: '100%',
                     listStyle: 'none'
                 }}>
+                {searchFlag && (<p className='text-center'>{searchData.length} results</p>)}
                 {
-                    searchData.map((data, index) => (
+
+                    searchFlag && searchData.map((data, index) => (
                         <Link to={`/books/search/${data.slug}`}>
                             <li className="collection-item m-0"
                                 style={{
                                     color: 'green',
-                                   width:'100%',
-                                  
+                                    width: '100%',
+
                                     alignItems: "center",
                                     marginBottom: '5px'
                                 }}
@@ -367,7 +384,9 @@ const BookListPage = (props) => {
             </ul>
 
             <div className="price-filter mt-4">
+
                 <p className="custom-heading">Filter by price </p>
+
                 <Slider
                     value={priceFilter}
                     style={{ color: 'red' }}
@@ -388,9 +407,18 @@ const BookListPage = (props) => {
 
             <hr />
             <div className="category-filter mt-4">
-                <p className="custom-heading">Categories</p>
+                <div className='d-flex justify-content-center'>
+                    <p className="custom-heading">Categories</p>
+
+                    <ExpandMoreIcon
+                        style={{ marginTop: '10px', marginLeft: '10px' }}
+                        onClick={() => {
+                            setOpenGenre(!openGnere)
+                        }} />
+
+                </div>
                 {
-                    genres && genres.map((g, i) => (
+                    openGnere && genres && genres.map((g, i) => (
                         <Link className="custom-link" to={`/books/${g.name}?page=${1}&limit=${limit}`} onClick={() => { localStorage.setItem("genre_id", JSON.stringify(g._id)); setPage(1) }}>
                             <p key={i} className="custom-text " style={{ marginLeft: '0px' }}>{g.name}</p>
                         </Link>
@@ -408,8 +436,8 @@ const BookListPage = (props) => {
                     {
                         bestSoldBook && bestSoldBook.map((b, i) => (
                             <Link to={`/book/${b.slug}`}>
-                            <img width="45px" key={i} alt={b.slug} src={b.photo} />
-                        </Link>
+                                <img width="45px" key={i} alt={b.slug} src={b.photo} />
+                            </Link>
 
                         ))
                     }
@@ -418,13 +446,20 @@ const BookListPage = (props) => {
 
             <hr />
             <div className="category-filter mt-4">
-                <p className="custom-heading">Authors</p>
+                <div className="d-flex justify-content-center">
+                    <p className="custom-heading">Authors</p>
+                    <ExpandMoreIcon
+                        style={{ marginTop: '10px', marginLeft: '10px' }}
+                        onClick={() => {
+                            setOpenAuthor(!openAuthor)
+                        }} />
+                </div>
                 {
-                    authors && authors.map((g, i) => (
-                        <Link className="custom-link" 
-                        // to={`/books/author/${g.slug}`}
-                        onClick={()=>{getAllAuthorBooks(g.slug)}}
-                         >
+                    openAuthor && authors && authors.map((g, i) => (
+                        <Link className="custom-link"
+                            // to={`/books/author/${g.slug}`}
+                            onClick={() => { getAllAuthorBooks(g.slug) }}
+                        >
                             <p key={i} className="custom-text " style={{ marginLeft: '0px' }}>{g.name}</p>
                         </Link>
 

@@ -140,6 +140,9 @@ exports.getUserLikedBook = (req, res) => {
 }
 
 exports.makeComment = (req, res) => {
+	if(req.body.comment === ''){
+		return res.json({error:'You cannot comment blank content'})
+	}
 	const commentContain = {
 		comment: req.body.comment,
 		postedby: req.user._id,
