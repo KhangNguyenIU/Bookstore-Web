@@ -321,20 +321,50 @@ exports.getBestSellerBook = (req, res) => {
 
 exports.getSearchBook = async (req, res) => {
     const infor = String(req.params.infor).trim();
-    Book.find(
-        {
-            $or: [{ title: { $regex: infor, $options: 'i' } }]
-        })
-        .populate('genre', "_id name slug")
-        .populate('writtenby', "_id name slug")
-        .exec((err, books) => {
-            if (err) {
-                return res.status(400).json({
-                    error: err
-                });
-            }
-            res.json({ data: books });
-        })
+    Genre.findOne({
+        slug: infor.toLowerCase()
+    }).exec((err, genre) => {
+        if (err) {
+            return res.status(400).json({
+                error: err
+            });
+        }
+
+        if (genre) {
+            Book.find(
+                {         
+                    genre: { $in: genre._id }
+                })
+                .populate('genre', "_id name slug")
+                .populate('writtenby', "_id name slug")
+                .exec((err, books) => {
+                    if (err) {
+                        return res.status(400).json({
+                            error: err
+                        });
+                    }
+                    res.json({ data: books, genres: genre, infor: infor });
+                })
+        } else {
+            Book.find(
+                {
+                    $or: [
+                        { title: { $regex: infor, $options: 'i' } }
+                    ],
+
+                })
+                .populate('genre', "_id name slug")
+                .populate('writtenby', "_id name slug")
+                .exec((err, books) => {
+                    if (err) {
+                        return res.status(400).json({
+                            error: err
+                        });
+                    }
+                    res.json({ data: books, infor: infor });
+                })
+        }
+    })
 }
 
 exports.deleteBook = async (req, res) => {
@@ -382,7 +412,7 @@ exports.getBookByAuthor = (req, res) => {
                     error: err
                 })
             }
-            res.json({ data})
+            res.json({ data })
         })
 }
 

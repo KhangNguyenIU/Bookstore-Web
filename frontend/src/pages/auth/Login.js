@@ -170,7 +170,7 @@ const Login = (props) => {
                                     </div>
                                     <p className="text-center">or</p>
                                     <div className="text-center">
-                                        {loginGoogle()}
+                                        {/* {loginGoogle()} */}
                                     </div>
                                 </form>
                             </div>
